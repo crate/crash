@@ -417,8 +417,7 @@ def main():
         try:
             cmd.cmdloop()
         except KeyboardInterrupt:
-            # exit
-            print 'interrupted exiting...'
+            print("interrupted exiting...")
 
 if __name__ == '__main__':
     main()

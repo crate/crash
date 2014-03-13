@@ -2,7 +2,7 @@
 Changes for crash
 =================
 
-Unreleased
-==========
+2014/03/13 0.6.0
+================
 
  - factored out this package from ``crate-python``

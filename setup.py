@@ -56,7 +56,7 @@ else:
     raise RuntimeError('Unable to find version string')
 
 setup(
-    name='crash',
+    name='crate-shell',
     version=version,
     url='https://github.com/crate/crash',
     author='CRATE Technology GmbH',

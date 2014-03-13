@@ -19,11 +19,11 @@ Installing via pip
 To install crash via `pip <https://pypi.python.org/pypi/pip>`_ use
 the following command::
 
-    $ pip install crash
+    $ pip install crate-shell
 
 To update use::
 
-    $ pip install -U crash
+    $ pip install -U crate-shell
 
 Installing via easy_install
 ---------------------------
@@ -32,11 +32,11 @@ If you prefer easy_install which is provided by
 `setuptools <https://pypi.python.org/pypi/setuptools/1.1>`_
 use the following command::
 
-    $ easy_install crash
+    $ easy_install crate-shell
 
 To update use::
 
-    $ easy_install -U crash
+    $ easy_install -U crate-shell
 
 
 Invocation

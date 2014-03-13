@@ -27,7 +27,7 @@ import re
 
 requirements = [
     'setuptools',
-    'crate>=0.6.0',
+    'crate>=0.7.0',
     'PrettyTable>=0.7,<0.8',
     'appdirs>=1.2,<2.0',
 ]

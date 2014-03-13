@@ -1,0 +1,13 @@
+/bin/
+/parts/
+/develop-eggs/
+/.installed.cfg
+crate.egg-info
+*.iml
+/dist
+/build
+*.pyc
+/.idea/
+.tox/
+*.DS_Store
+*.egg-info

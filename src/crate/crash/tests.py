@@ -23,12 +23,20 @@ from __future__ import absolute_import
 
 import unittest
 import doctest
+import os
 
 import zc.customdoctests
 from crate.testing.layer import CrateLayer
-from crate.testing.tests import crate_path
 from .command import CrateCmd
 
+
+def project_path(*parts):
+    return os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        '..', '..', *parts)
+
+def crate_path(*parts):
+    return project_path('parts', 'crate', *parts)
 
 def crash_transform(s):
     return 'cmd.onecmd("""{0}""");'.format(s.strip())

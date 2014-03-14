@@ -2,6 +2,12 @@
 Changes for crash
 =================
 
+2014/03/14 0.7.0
+================
+
+ - crate-python 0.7.0 version is now used, which is the first version
+   without builtin crash. release numbers will diverge from now on.
+
 2014/03/13 0.6.0
 ================
 

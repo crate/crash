@@ -2,8 +2,8 @@
 Changes for crash
 =================
 
-unreleased
-==========
+2014/03/14 0.7.1
+================
 
  - upgraded crate-python to 0.7.1 to fix error display
 

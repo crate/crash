@@ -328,6 +328,11 @@ class CrateCmd(Cmd):
             if self.use_rawinput and self.completekey and _has_readline:
                 readline.set_completer(self.old_completer)
 
+    def default(self, line):
+        if line.lstrip().startswith('--'):
+            return  # ignore comments
+        Cmd.default(self, line)
+
     def completedefault(self, text, line, begidx, endidx):
         """Method called to complete an input line when no command-specific
         complete_*() method is available.
@@ -392,6 +397,8 @@ def main():
         while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
             line = sys.stdin.readline()
             if line:
+                if line.lstrip().startswith('--'):
+                    continue
                 if not line.endswith(CrateCmd.line_delimiter):
                     partial_lines.append(line)
                 elif not partial_lines:

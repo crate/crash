@@ -29,7 +29,7 @@ Standalone
 ----------
 
 There is also a single file executable that includes all dependencies and can
-be run as long as python (>= 2.6) is available on the systsem.
+be run as long as python (>= 2.6) is available on the system.
 
 `Download Crash bundle
 <https://cdn.crate.io/downloads/releases/crash_standalone_latest>`_

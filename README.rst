@@ -25,19 +25,14 @@ To update use::
 
     $ pip install -U crash
 
-Installing via easy_install
----------------------------
+Standalone
+----------
 
-If you prefer easy_install which is provided by
-`setuptools <https://pypi.python.org/pypi/setuptools/1.1>`_
-use the following command::
+There is also a single file executable that includes all dependencies and can
+be run as long as python (>= 2.6) is available on the systsem.
 
-    $ easy_install crash
-
-To update use::
-
-    $ easy_install -U crash
-
+`Download Crash bundle
+<https://cdn.crate.io/downloads/releases/crash_standalone_latest>`_
 
 Invocation
 ----------

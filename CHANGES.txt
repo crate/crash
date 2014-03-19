@@ -2,6 +2,12 @@
 Changes for crash
 =================
 
+Unreleased
+==========
+
+ - bugfix: packages installed in calling python
+   used to override bundled packages (especially crate-python)
+
 2014/03/14 0.7.1
 ================
 

@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - bugfix: fix readline usage on windows
+
  - bugfix: packages installed in calling python
    used to override bundled packages (especially crate-python)
 

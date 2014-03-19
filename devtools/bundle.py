@@ -5,7 +5,6 @@ import re
 import stat
 
 excludes = re.compile(''.join(r"""(
-readline\.py|
 .*EGG-INFO.*|
 setuptools/.*|
 _markerlib/.*|
@@ -52,7 +51,6 @@ for p in sys.path:
 from crate.crash.command import main;
 main()
 """
-    print(startscript)
     zipf.writestr('__main__.py', startscript)
     zipf.close()
 

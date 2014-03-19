@@ -34,12 +34,7 @@ try:
     import readline
     _has_readline = True
 except ImportError:
-    if sys.platform == 'win32':
-        try:
-            import pyreadline as readline
-            _has_readline = True
-        except ImportError:
-            _has_readline = False
+    _has_readline = False
 
 import atexit
 from appdirs import user_data_dir
@@ -284,7 +279,8 @@ class CrateCmd(Cmd):
                     import rlcompleter
                     self.old_completer = readline.get_completer()
                     readline.set_completer(self.complete)
-                    if 'libedit' in readline.__doc__:
+                    if getattr(readline, "__doc__") is not None \
+                            and 'libedit' in readline.__doc__:
                         readline.parse_and_bind("bind ^I rl_complete")
                     else:
                         readline.parse_and_bind("tab: complete")

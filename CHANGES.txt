@@ -2,8 +2,11 @@
 Changes for crash
 =================
 
+
 Unreleased
 ==========
+
+ - update crate python to 0.8.0
 
  - bugfix: fix readline usage on windows
 

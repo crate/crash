@@ -35,9 +35,6 @@ requirements = [
 if (2, 6) == sys.version_info[:2]:
     requirements.append('argparse>=1.2.1')
 
-if sys.platform == 'win32':
-    requirements.append('pyreadline>=2.0')
-
 def read(path):
     return open(os.path.join(os.path.dirname(__file__), path)).read()
 

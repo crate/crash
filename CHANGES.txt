@@ -2,6 +2,12 @@
 Changes for crash
 =================
 
+Unreleased
+==========
+
+ - bugfix: remove pyreadline, which is shading
+   builtin or site-packages readline and breaking history and
+   autocompletion on non-windows systems
 
 2014/04/24 0.8.0
 ================

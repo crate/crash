@@ -2,6 +2,11 @@
 Changes for crash
 =================
 
+Unreleased
+==========
+
+ - always include argparse in bundle in case it is run on python <= 2.6
+
 2014/04/25 0.8.1
 ================
 

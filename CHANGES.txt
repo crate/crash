@@ -2,6 +2,11 @@
 Changes for crash
 =================
 
+Unreleased
+==========
+
+ - bugfix: update crate-python to 0.8.1 to get correct error handling on connect
+
 2014/04/02 0.8.2
 ================
 

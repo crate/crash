@@ -2,6 +2,11 @@
 Changes for crash
 =================
 
+Unreleased
+==========
+
+ - lines starting with '--' are now ignored.
+
 2014/04/04 0.8.3
 ================
 

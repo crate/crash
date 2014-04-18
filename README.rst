@@ -6,6 +6,15 @@
 
 .. image:: https://travis-ci.org/crate/crash.svg?branch=master
         :target: https://travis-ci.org/crate/crash
+        :alt: Test
+
+.. image:: https://badge.fury.io/py/crash.png
+    :target: http://badge.fury.io/py/crash
+    :alt: Version
+
+.. image:: https://pypip.in/download/crash/badge.png
+    :target: https://pypi.python.org/pypi/crash/
+    :alt: Downloads
 
 ========
 Overview

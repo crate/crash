@@ -15,19 +15,19 @@ When you connect to a server that is not reachable or whose hostname cannot be r
 you will get an error::
 
     cr> connect 127.0.0.1:65535
-    +------------------------+-----------+-----------+--------------------+
-    | server_url             | node_name | connected | message            |
-    +------------------------+-----------+-----------+--------------------+
-    | http://127.0.0.1:65535 | NULL      | FALSE     | Connection refused |
-    +------------------------+-----------+-----------+--------------------+
+    +------------------------+-----------+-----------+---------------------...-+
+    | server_url             | node_name | connected | message                 |
+    +------------------------+-----------+-----------+---------------------...-+
+    | http://127.0.0.1:65535 | NULL      | FALSE     | Server not available... |
+    +------------------------+-----------+-----------+---------------------...-+
     CONNECT ERROR
 
     cr> connect null.lol:4200
-    +----------------------+-----------+-----------+--------------------------------+
-    | server_url           | node_name | connected | message                        |
-    +----------------------+-----------+-----------+--------------------------------+
-    | http://null.lol:4200 | NULL      | FALSE     | Hostname could no be resolved. |
-    +----------------------+-----------+-----------+--------------------------------+
+    +----------------------+-----------+-----------+---------------------...-+
+    | server_url           | node_name | connected | message                 |
+    +----------------------+-----------+-----------+---------------------...-+
+    | http://null.lol:4200 | NULL      | FALSE     | Server not available... |
+    +----------------------+-----------+-----------+---------------------...-+
     CONNECT ERROR
 
 
@@ -45,12 +45,12 @@ If you connect to more than one server, the command will succeed
 if at least one server is reachable::
 
     cr> CONNECT 127.0.0.1:44209 null.lol:4295
-    +------------------------+-----------+-----------+--------------------------------+
-    | server_url             | node_name | connected | message                        |
-    +------------------------+-----------+-----------+--------------------------------+
-    | http://127.0.0.1:44209 | crate     | TRUE      | OK                             |
-    | http://null.lol:4295   | NULL      | FALSE     | Hostname could no be resolved. |
-    +------------------------+-----------+-----------+--------------------------------+
+    +------------------------+-----------+-----------+---------------------...-+
+    | server_url             | node_name | connected | message                 |
+    +------------------------+-----------+-----------+---------------------...-+
+    | http://127.0.0.1:44209 | crate     | TRUE      | OK                      |
+    | http://null.lol:4295   | NULL      | FALSE     | Server not available... |
+    +------------------------+-----------+-----------+---------------------...-+
     CONNECT OK
 
 Once the shell is connected, SQL statements can be executed simply by entering

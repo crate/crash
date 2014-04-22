@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - updated crate-python to 0.9.0 which now uses urllib3 instead of requests
+
  - lines starting with '--' are now ignored.
 
 2014/04/04 0.8.3

@@ -46,6 +46,15 @@ be run as long as python (>= 2.6) is available on the system.
 `Download Crash bundle
 <https://cdn.crate.io/downloads/releases/crash_standalone_latest>`_
 
+The bundle can then be executed using python::
+
+    python ./crash_standalone_latest
+
+Or::
+
+    chmod +x ./crash_standalone_latest
+    ./crash_standalone_latest
+
 Invocation
 ----------
 

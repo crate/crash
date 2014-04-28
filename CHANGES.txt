@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - minor documentation improvements
+
 2014/04/22 0.9.0
 ================
 

@@ -12,3 +12,4 @@ crate.egg-info
 *.DS_Store
 *.egg-info
 /eggs/
+/out

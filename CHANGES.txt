@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - updated crate-python to 0.9.3 to fix import errors
+
 2014/05/09 0.9.1
 ================
 

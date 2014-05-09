@@ -65,6 +65,18 @@ For usage information and command line options invoke::
 
     crash --help
 
+Where to go from here?
+======================
+
+to take a look at the documentation visit
+`https://crate.io/docs/projects/crash/stable/ <https://crate.io/docs/projects/crash/stable/>`_.
+
+Are you a Developer?
+====================
+
+You can build Crash on your own with the latest version hosted on GitHub.
+To do so, please refer to ``DEVELOP.rst`` for further information.
+
 Help & Contact
 ==============
 

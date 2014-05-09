@@ -35,8 +35,10 @@ def project_path(*parts):
         os.path.dirname(os.path.dirname(__file__)),
         '..', '..', *parts)
 
+
 def crate_path(*parts):
     return project_path('parts', 'crate', *parts)
+
 
 def crash_transform(s):
     return 'cmd.onecmd("""{0}""");'.format(s.strip())

@@ -37,7 +37,8 @@ To update use::
 
     $ pip install -U crash
 
-If you you are using python 2.6 you have to pass the allow-external argument::
+If you are using python 2.6 and pip >= 1.5 you have to pass the
+allow-external argument::
 
     $ pip install crash --allow-external argparse
 

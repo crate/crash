@@ -55,6 +55,23 @@ You can then start the generated file like this::
 
     ./crash_standalone
 
+Deployment to Pypi
+==================
+
+To create the packages use::
+
+    bin/py setup.py sdist bdist_wheel
+
+and then use `twine <https://pypi.python.org/pypi/twine>`_ to upload the
+packages::
+
+    twine upload dist/*
+
+If twine is not installed locally the regular setup.py upload can also be used,
+but does only support plaintext authentication::
+
+    bin/py setup.py upload
+
 Writing Documentation
 =====================
 

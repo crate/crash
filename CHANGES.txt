@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2014/05/15 0.9.4
+================
+
  - bugfix: crash exited immediately with an exception if a query result
    contained two or more equal field names
 

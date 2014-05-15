@@ -193,7 +193,6 @@ class CrateCmd(Cmd):
         if self.execute('create ' + statement):
             self.print_success("create")
 
-
     def do_crate(self, statement):
         """alias for ``do_create``"""
         self.do_create(statement)
@@ -242,23 +241,23 @@ class CrateCmd(Cmd):
         rowcount = self.cursor.rowcount
         if self.cursor.duration > -1:
             print("{0} OK, {1} row{2} affected ({3:.3f} sec)".format(
-                command.upper(), rowcount, "s"[rowcount==1:], float(self.cursor.duration)/1000))
+                command.upper(), rowcount, "s"[rowcount == 1:], float(self.cursor.duration) / 1000))
         else:
-            print("{0} OK, {1} row{2} affected".format(command.upper(), rowcount, "s"[rowcount==1:]))
+            print("{0} OK, {1} row{2} affected".format(command.upper(), rowcount, "s"[rowcount == 1:]))
 
     def print_rows_selected(self):
         """print count of rows in result set and query duration"""
         rowcount = self.cursor.rowcount
         if self.cursor.duration > -1:
             print("SELECT {0} row{1} in set ({2:.3f} sec)".format(
-                rowcount, "s"[rowcount==1:], float(self.cursor.duration)/1000))
+                rowcount, "s"[rowcount == 1:], float(self.cursor.duration) / 1000))
         else:
-            print("SELECT {0} row{1} in set".format(rowcount, "s"[rowcount==1:]))
+            print("SELECT {0} row{1} in set".format(rowcount, "s"[rowcount == 1:]))
 
     def print_success(self, command):
         """print success status only and duration"""
         if self.cursor.duration > -1:
-            print("{0} OK ({1:.3f} sec)".format(command.upper(), float(self.cursor.duration)/1000))
+            print("{0} OK ({1:.3f} sec)".format(command.upper(), float(self.cursor.duration) / 1000))
         else:
             print("{0} OK".format(command.upper()))
 
@@ -266,7 +265,7 @@ class CrateCmd(Cmd):
         if exception is not None:
             print("{0}: {1}".format(exception.__class__.__name__, exception.message))
         if self.cursor.duration > -1:
-            print("{0} ERROR ({1:.3f} sec)".format(command.upper(), float(self.cursor.duration)/1000))
+            print("{0} ERROR ({1:.3f} sec)".format(command.upper(), float(self.cursor.duration) / 1000))
         else:
             print("{0} ERROR".format(command.upper()))
 
@@ -281,7 +280,6 @@ class CrateCmd(Cmd):
         if self.use_rawinput and self.completekey:
             if _has_readline:
                 try:
-                    import rlcompleter
                     self.old_completer = readline.get_completer()
                     readline.set_completer(self.complete)
                     if getattr(readline, "__doc__") is not None \
@@ -295,7 +293,7 @@ class CrateCmd(Cmd):
             if intro is not None:
                 self.intro = intro
             if self.intro:
-                self.stdout.write(str(self.intro)+"\n")
+                self.stdout.write(str(self.intro) + "\n")
             stop = None
             prompt = self.prompt
             while not stop:
@@ -364,6 +362,7 @@ for name, attr in inspect.getmembers(
 USER_DATA_DIR = user_data_dir("Crate", "Crate")
 HISTORY_FILE_NAME = 'crash_history'
 HISTORY_PATH = os.path.join(USER_DATA_DIR, HISTORY_FILE_NAME)
+
 
 def main():
     logging.basicConfig(level=logging.ERROR)

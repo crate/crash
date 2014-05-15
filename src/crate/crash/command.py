@@ -42,10 +42,19 @@ from appdirs import user_data_dir
 from cmd import Cmd
 from argparse import ArgumentParser
 
-from prettytable import PrettyTable
 from crate import client
 from crate.client.exceptions import ConnectionError, Error, Warning
 from crate.client.compat import raw_input
+from .tabulate import TableFormat, Line, DataRow, tabulate
+
+
+crate_fmt = TableFormat(lineabove=Line("+", "-", "+", "+"),
+                        linebelowheader=Line("+", "-", "+", "+"),
+                        linebetweenrows=None,
+                        linebelow=Line("+", "-", "+", "+"),
+                        headerrow=DataRow("|", "|", "|"),
+                        datarow=DataRow("|", "|", "|"),
+                        padding=1, with_header_hide=None)
 
 
 class CrateCmd(Cmd):
@@ -116,12 +125,8 @@ class CrateCmd(Cmd):
     def pprint(self, rows, cols=None):
         if cols is None:
             cols = self.cols()
-        table = PrettyTable(cols)
-        for col in cols:
-            table.align[col] = "l"
-        for row in rows:
-            table.add_row(list(map(self._transform_field, row)))
-        print(table)
+        rows = [list(map(self._transform_field, row)) for row in rows]
+        print(tabulate(rows, headers=cols, tablefmt=crate_fmt))
 
     def _transform_field(self, field):
         """transform field for displaying"""

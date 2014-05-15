@@ -28,6 +28,7 @@ import os
 import zc.customdoctests
 from crate.testing.layer import CrateLayer
 from .command import CrateCmd
+from .test_command import CommandTest
 
 
 def project_path(*parts):
@@ -75,4 +76,5 @@ def test_suite():
     )
     s.layer = crate_layer
     suite.addTest(s)
+    suite.addTest(unittest.makeSuite(CommandTest))
     return suite

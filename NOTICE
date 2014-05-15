@@ -59,3 +59,13 @@ CA Bundle License
 License: GNU Lesser General Public License, Version 2.1
 
 =========================================================================
+
+Tabulate
+https://bitbucket.org/astanin/python-tabulate/
+Copyright 2011-2013 Sergey Astanin
+License: Custom (Without any limitations)
+Maintained by Sergey Astanin
+The module used in this package (src/crate/crash/tabulate.py) is a copy of:
+https://bitbucket.org/bogensberger/python-tabulate/src/c5f3b57f119d316d2f70a30480e946f6a1210321/tabulate.py
+
+=========================================================================

@@ -97,7 +97,9 @@ class CrateCmd(Cmd):
                 results.append(
                     server_infos + (True, "OK", )
                 )
-        self.pprint(results, ["server_url", "node_name", "connected", "message"])
+        self.pprint(
+            results,
+            ["server_url", "node_name", "connected", "message"])
         if failed == len(results):
             self.print_error("connect")
         else:
@@ -241,31 +243,38 @@ class CrateCmd(Cmd):
         rowcount = self.cursor.rowcount
         if self.cursor.duration > -1:
             print("{0} OK, {1} row{2} affected ({3:.3f} sec)".format(
-                command.upper(), rowcount, "s"[rowcount == 1:], float(self.cursor.duration) / 1000))
+                command.upper(), rowcount, "s"[rowcount == 1:],
+                float(self.cursor.duration) / 1000))
         else:
-            print("{0} OK, {1} row{2} affected".format(command.upper(), rowcount, "s"[rowcount == 1:]))
+            print("{0} OK, {1} row{2} affected".format(
+                command.upper(), rowcount, "s"[rowcount == 1:]))
 
     def print_rows_selected(self):
         """print count of rows in result set and query duration"""
         rowcount = self.cursor.rowcount
         if self.cursor.duration > -1:
             print("SELECT {0} row{1} in set ({2:.3f} sec)".format(
-                rowcount, "s"[rowcount == 1:], float(self.cursor.duration) / 1000))
+                rowcount, "s"[rowcount == 1:],
+                float(self.cursor.duration) / 1000))
         else:
-            print("SELECT {0} row{1} in set".format(rowcount, "s"[rowcount == 1:]))
+            print("SELECT {0} row{1} in set".format(
+                rowcount, "s"[rowcount == 1:]))
 
     def print_success(self, command):
         """print success status only and duration"""
         if self.cursor.duration > -1:
-            print("{0} OK ({1:.3f} sec)".format(command.upper(), float(self.cursor.duration) / 1000))
+            print("{0} OK ({1:.3f} sec)".format(
+                command.upper(), float(self.cursor.duration) / 1000))
         else:
             print("{0} OK".format(command.upper()))
 
     def print_error(self, command, exception=None):
         if exception is not None:
-            print("{0}: {1}".format(exception.__class__.__name__, exception.message))
+            print("{0}: {1}".format(
+                exception.__class__.__name__, exception.message))
         if self.cursor.duration > -1:
-            print("{0} ERROR ({1:.3f} sec)".format(command.upper(), float(self.cursor.duration) / 1000))
+            print("{0} ERROR ({1:.3f} sec)".format(
+                command.upper(), float(self.cursor.duration) / 1000))
         else:
             print("{0} ERROR".format(command.upper()))
 
@@ -318,7 +327,8 @@ class CrateCmd(Cmd):
                             self.partial_lines.append(line)
                             prompt = self.multi_line_prompt
                         else:
-                            self.partial_lines.append(line.rstrip(self.line_delimiter))
+                            self.partial_lines.append(
+                                line.rstrip(self.line_delimiter))
                             line = " ".join(self.partial_lines)
                             self.partial_lines = []
                             prompt = self.prompt
@@ -364,8 +374,7 @@ HISTORY_FILE_NAME = 'crash_history'
 HISTORY_PATH = os.path.join(USER_DATA_DIR, HISTORY_FILE_NAME)
 
 
-def main():
-    logging.basicConfig(level=logging.ERROR)
+def parse_args():
     parser = ArgumentParser(description='crate shell')
     parser.add_argument('-v', '--verbose', action='count',
                         help='use -v to get debug output')
@@ -377,7 +386,41 @@ def main():
     parser.add_argument('--hosts', type=str, nargs='*',
                         help='connect to crate hosts', metavar='HOST')
     args = parser.parse_args()
+    return args
 
+
+def get_stdin():
+    """Get data from stdin, if any
+    """
+    # use select.select to check if input is available
+    # otherwise sys.stdin would block
+    partial_lines = []
+    stdin_data = []
+    delim = CrateCmd.line_delimiter
+    while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+        line = sys.stdin.readline()
+        if line:
+            if line.lstrip().startswith('--'):
+                continue
+            if not line.endswith(delim):
+                partial_lines.append(line)
+            elif not partial_lines:
+                for single_cmd in line.rstrip(delim).split(delim):
+                    stdin_data.append(single_cmd)
+            else:
+                partial_lines.append(line)
+        else:
+            if partial_lines:
+                lines = "".join(partial_lines)
+                for single_cmd in lines.rstrip(delim).split(delim):
+                    stdin_data.append(single_cmd)
+            break
+    return stdin_data
+
+
+def main():
+    logging.basicConfig(level=logging.ERROR)
+    args = parse_args()
     # optionally read and write history file
     if _has_readline:
         history_file_path = args.history
@@ -388,37 +431,17 @@ def main():
         except IOError:
             pass
         atexit.register(readline.write_history_file, history_file_path)
-
     cmd = CrateCmd()
     cmd.do_connect(args.hosts)
-
     # select.select on sys.stdin doesn't work on windows
     # so currently there is no pipe support
     if os.name == 'posix':
-        # use select.select to check if input is available
-        # otherwise sys.stdin would block
-        partial_lines = []
-        while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-            line = sys.stdin.readline()
-            if line:
-                if line.lstrip().startswith('--'):
-                    continue
-                if not line.endswith(CrateCmd.line_delimiter):
-                    partial_lines.append(line)
-                elif not partial_lines:
-                    for single_cmd in line.rstrip(CrateCmd.line_delimiter).split(CrateCmd.line_delimiter):
-                        cmd.onecmd(single_cmd)
-                else:
-                    partial_lines.append(line)
-            else:
-                if partial_lines:
-                    lines = "".join(partial_lines)
-                    for single_cmd in lines.rstrip(CrateCmd.line_delimiter).split(CrateCmd.line_delimiter):
-                        cmd.onecmd(single_cmd)
-                sys.exit(0)
-
+        stdin_data = get_stdin()
     if args.command:
         for single_cmd in args.command.split(CrateCmd.line_delimiter):
+            cmd.onecmd(single_cmd)
+    elif stdin_data:
+        for single_cmd in stdin_data:
             cmd.onecmd(single_cmd)
     else:
         try:

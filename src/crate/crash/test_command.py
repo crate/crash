@@ -4,7 +4,6 @@ from unittest import TestCase
 from six import StringIO
 import tempfile
 
-import command
 from .command import CrateCmd, main
 from contextlib import contextmanager
 
@@ -13,7 +12,6 @@ from contextlib import contextmanager
 def capture(command, *args, **kwargs):
     stdout = StringIO()
     orig_out, sys.stdout = sys.stdout, stdout
-    sys.stderr = orig_out
     command(*args, **kwargs)
     sys.stdout = orig_out
     stdout.seek(0)

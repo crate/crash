@@ -64,11 +64,13 @@ them without any special arguments like this::
     | sys                | cluster           |
     | information_schema | columns           |
     | sys                | nodes             |
+    | information_schema | routines          |
     | sys                | shards            |
     | information_schema | table_constraints |
+    | information_schema | table_partitions  |
     | information_schema | tables            |
     +--------------------+-------------------+
-    SELECT 6 rows in set (... sec)
+    SELECT 8 rows in set (... sec)
 
 
 Limitations

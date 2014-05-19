@@ -399,20 +399,21 @@ def get_stdin():
     while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
         line = sys.stdin.readline()
         if line:
-            if line.lstrip().startswith('--'):
+            line = line.strip()
+            if line.startswith('--'):
                 continue
-            if not line.endswith(delim):
-                partial_lines.append(line)
-            elif not partial_lines:
-                for single_cmd in line.rstrip(delim).split(delim):
-                    yield single_cmd
+            if line.endswith(delim):
+                line = line.rstrip(delim)
+                if partial_lines:
+                    yield ''.join(partial_lines) + line
+                    partial_lines = []
+                else:
+                    yield line
             else:
                 partial_lines.append(line)
         else:
             if partial_lines:
-                lines = "".join(partial_lines)
-                for single_cmd in lines.rstrip(delim).split(delim):
-                    yield single_cmd
+                yield ''.join(partial_lines) + line
             break
     return
 

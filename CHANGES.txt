@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - stdin is no longer read completely into memory
+
 2014/05/19 0.9.5
 ================
 

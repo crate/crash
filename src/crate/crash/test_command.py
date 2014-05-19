@@ -1,4 +1,5 @@
 import sys
+import os
 from unittest import TestCase
 from six import PY2, StringIO
 import tempfile
@@ -37,12 +38,19 @@ class CommandTest(TestCase):
         "Test passing in SQL via stdin"
         try:
             orig_argv = sys.argv[:]
-            sys.argv = ['testcrash', '--hosts', self.crate_host]
+            tmphistory = tempfile.mkstemp()[1]
+            sys.argv = ['testcrash',
+                        '--hosts', self.crate_host,
+                        '--history', tmphistory]
             with patch('sys.stdout', new_callable=StringIO) as output:
                 main()
                 output = output.getvalue()
                 self.assertTrue('via-stdin' in output)
         finally:
+            try:
+                os.remove(tmphistory)
+            except IOError:
+                pass
             sys.argv = orig_argv
 
     @patch('sys.stdin', fake_stdin(u"select 'via-stdin' from sys.cluster"))
@@ -54,11 +62,19 @@ class CommandTest(TestCase):
         try:
             stmt = u"select 'via-command' from information_schema.tables limit 1"
             orig_argv = sys.argv[:]
-            sys.argv = ['testcrash', "--command", stmt, '--hosts', self.crate_host]
+            tmphistory = tempfile.mkstemp()[1]
+            sys.argv = ['testcrash',
+                        "--command", stmt,
+                        '--hosts', self.crate_host,
+                        '--history', tmphistory]
             with patch('sys.stdout', new_callable=StringIO) as output:
                 main()
                 output = output.getvalue()
                 self.assertTrue('via-command' in output)
                 self.assertFalse('via-stdin' in output)
         finally:
+            try:
+                os.remove(tmphistory)
+            except IOError:
+                pass
             sys.argv = orig_argv

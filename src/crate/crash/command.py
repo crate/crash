@@ -48,6 +48,9 @@ from crate.client.compat import raw_input
 from .tabulate import TableFormat, Line, DataRow, tabulate
 
 
+MAX_HISTORY_LENGTH = 10000
+
+
 crate_fmt = TableFormat(lineabove=Line("+", "-", "+", "+"),
                         linebelowheader=Line("+", "-", "+", "+"),
                         linebetweenrows=None,
@@ -424,6 +427,7 @@ def main():
     # optionally read and write history file
     if _has_readline:
         history_file_path = args.history
+        readline.set_history_length(MAX_HISTORY_LENGTH)
         if not os.path.exists(USER_DATA_DIR):
             os.makedirs(USER_DATA_DIR)
         try:

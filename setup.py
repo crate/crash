@@ -32,7 +32,7 @@ requirements = [
 ]
 
 if (2, 6) == sys.version_info[:2]:
-    requirements.append('argparse>=1.2.1')
+    requirements.append('argparse>=1.1')
 
 def read(path):
     return open(os.path.join(os.path.dirname(__file__), path)).read()

@@ -60,7 +60,7 @@ Deployment to Pypi
 
 To create the packages use::
 
-    bin/py setup.py sdist
+    bin/py setup.py sdist bdist_wheel
 
 and then use `twine <https://pypi.python.org/pypi/twine>`_ to upload the
 packages::

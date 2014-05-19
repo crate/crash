@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - SQL statements passed in via the --command switch take precedence over stdin
+
 2014/05/15 0.9.4
 ================
 

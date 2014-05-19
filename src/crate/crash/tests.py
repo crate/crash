@@ -76,5 +76,7 @@ def test_suite():
     )
     s.layer = crate_layer
     suite.addTest(s)
+    CommandTest.layer = crate_layer
+    CommandTest.crate_host = crate_host
     suite.addTest(unittest.makeSuite(CommandTest))
     return suite

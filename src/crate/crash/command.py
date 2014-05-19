@@ -395,7 +395,6 @@ def get_stdin():
     # use select.select to check if input is available
     # otherwise sys.stdin would block
     partial_lines = []
-    stdin_data = []
     delim = CrateCmd.line_delimiter
     while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
         line = sys.stdin.readline()
@@ -406,16 +405,16 @@ def get_stdin():
                 partial_lines.append(line)
             elif not partial_lines:
                 for single_cmd in line.rstrip(delim).split(delim):
-                    stdin_data.append(single_cmd)
+                    yield single_cmd
             else:
                 partial_lines.append(line)
         else:
             if partial_lines:
                 lines = "".join(partial_lines)
                 for single_cmd in lines.rstrip(delim).split(delim):
-                    stdin_data.append(single_cmd)
+                    yield single_cmd
             break
-    return stdin_data
+    return
 
 
 def main():
@@ -435,15 +434,18 @@ def main():
     cmd.do_connect(args.hosts)
     # select.select on sys.stdin doesn't work on windows
     # so currently there is no pipe support
+    done = False
     if os.name == 'posix':
         stdin_data = get_stdin()
     if args.command:
         for single_cmd in args.command.split(CrateCmd.line_delimiter):
             cmd.onecmd(single_cmd)
+        done = True
     elif stdin_data:
         for single_cmd in stdin_data:
             cmd.onecmd(single_cmd)
-    else:
+            done = True
+    if not done:
         try:
             cmd.cmdloop()
         except KeyboardInterrupt:

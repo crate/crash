@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - bugfix: crash exited immediately with an exception if a query result
+   contained an object or array
+
  - the size of the history file is now limited to 10000 lines
 
  - stdin is no longer read completely into memory

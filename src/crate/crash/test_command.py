@@ -78,3 +78,29 @@ class CommandTest(TestCase):
             except IOError:
                 pass
             sys.argv = orig_argv
+
+    def test_rendering_object(self):
+        """Test rendering an object"""
+        name = {'name': 'Arthur'}
+        expected = "\n".join(["+--------------------+",
+                              "| name               |",
+                              "+--------------------+",
+                              "| {'name': 'Arthur'} |",
+                              "+--------------------+\n"])
+        command = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            command.pprint([[name]], ['name'])
+            self.assertEqual(expected, output.getvalue())
+
+    def test_rendering_array(self):
+        """Test rendering an array"""
+        names = ['Arthur', 'Ford']
+        expected = "\n".join(["+--------------------+",
+                              "| names              |",
+                              "+--------------------+",
+                              "| ['Arthur', 'Ford'] |",
+                              "+--------------------+\n"])
+        command = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            command.pprint([[names]], ['names'])
+            self.assertEqual(expected, output.getvalue())

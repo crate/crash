@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2014/05/20 0.9.6
+================
+
  - bugfix: crash exited immediately with an exception if a query result
    contained an object or array
 

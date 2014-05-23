@@ -79,6 +79,7 @@ class CrateCmd(Cmd):
 
     def __init__(self, stdin=None, stdout=None):
         Cmd.__init__(self, "tab", stdin, stdout)
+        self.exit_code = 0
         self.partial_lines = []
 
     def do_connect(self, server):
@@ -118,9 +119,11 @@ class CrateCmd(Cmd):
             self.cursor.execute(statement)
             return True
         except ConnectionError:
+            self.exit_code = 1
             print(
                 'Use "connect <hostname:port>" to connect to a server first')
         except (Error, Warning) as e:
+            self.exit_code = 1
             if hasattr(e, 'message'):
                 print(e.message)
             else:
@@ -455,6 +458,8 @@ def main():
             cmd.cmdloop()
         except KeyboardInterrupt:
             print("interrupted exiting...")
+    else:
+        sys.exit(cmd.exit_code)
 
 if __name__ == '__main__':
     main()

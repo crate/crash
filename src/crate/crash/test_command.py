@@ -43,7 +43,11 @@ class CommandTest(TestCase):
                         '--hosts', self.crate_host,
                         '--history', tmphistory]
             with patch('sys.stdout', new_callable=StringIO) as output:
-                main()
+                try:
+                    main()
+                except SystemExit as e:
+                    exception_code = e.code
+                self.assertEqual(exception_code, 0)
                 output = output.getvalue()
                 self.assertTrue('via-stdin' in output)
         finally:
@@ -68,7 +72,11 @@ class CommandTest(TestCase):
                         '--hosts', self.crate_host,
                         '--history', tmphistory]
             with patch('sys.stdout', new_callable=StringIO) as output:
-                main()
+                try:
+                    main()
+                except SystemExit as e:
+                    exception_code = e.code
+                self.assertEqual(exception_code, 0)
                 output = output.getvalue()
                 self.assertTrue('via-command' in output)
                 self.assertFalse('via-stdin' in output)
@@ -78,6 +86,18 @@ class CommandTest(TestCase):
             except IOError:
                 pass
             sys.argv = orig_argv
+
+    def test_error_exit_code(self):
+        """Test returns an error exit code"""
+        stmt = u"select * from invalid sql statement"
+        sys.argv = ['testcrash',
+                    "--command", stmt,
+                    '--hosts', self.crate_host]
+        try:
+            main()
+        except SystemExit as e:
+            exception_code = e.code
+        self.assertEqual(exception_code, 1)
 
     def test_rendering_object(self):
         """Test rendering an object"""

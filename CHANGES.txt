@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2014/05/23 0.9.7
+================
+
  - return exit code 1 if the execution of a single command fails
 
 2014/05/20 0.9.6

@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - NULL values are now handled correctly.
+
 2014/06/03 0.9.9
 ================
 

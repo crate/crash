@@ -87,6 +87,38 @@ class CommandTest(TestCase):
                 pass
             sys.argv = orig_argv
 
+    def test_tabulate_null_int_column(self):
+        """
+        Create a column with a non-string value and NULL.
+        """
+        rows = [[1], [None]]
+        expected = "\n".join(['+------+',
+                              '|    x |',
+                              '+------+',
+                              '|    1 |',
+                              '| NULL |',
+                              '+------+\n'])
+        cmd = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            cmd.pprint(rows, cols=['x'])
+            self.assertEqual(expected, output.getvalue())
+
+    def test_tabulate_boolean_int_column(self):
+        """
+        Create another column with a non-string value and FALSE.
+        """
+        rows = [[u'FALSE'], [1]]
+        expected = "\n".join(['+-------+',
+                              '| x     |',
+                              '+-------+',
+                              '| FALSE |',
+                              '| 1     |',
+                              '+-------+\n'])
+        cmd = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            cmd.pprint(rows, cols=['x'])
+            self.assertEqual(expected, output.getvalue())
+
     def test_error_exit_code(self):
         """Test returns an error exit code"""
         stmt = u"select * from invalid sql statement"

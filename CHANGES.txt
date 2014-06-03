@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - fix: update crate-python to 0.10.2 to print -1 for rowcount if rowcount
+   is unknown
+
 2014/05/23 0.9.7
 ================
 

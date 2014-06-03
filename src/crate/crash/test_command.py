@@ -124,3 +124,18 @@ class CommandTest(TestCase):
         with patch('sys.stdout', new_callable=StringIO) as output:
             command.pprint([[names]], ['names'])
             self.assertEqual(expected, output.getvalue())
+
+
+
+    def test_rendering_float(self):
+        """Test rendering an array"""
+        expected = "\n".join(['+---------------+',
+                              '|        number |',
+                              '+---------------+',
+                              '|  3.1415926535 |',
+                              '| 42.0          |',
+                              '+---------------+\n'])
+        command = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            command.pprint([[3.1415926535], [42.0]], ['number'])
+            self.assertEqual(expected, output.getvalue())

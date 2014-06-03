@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - fix: increased precision of float formatting
+
 2014/06/03 0.9.8
 ================
 

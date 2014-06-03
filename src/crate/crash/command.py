@@ -135,7 +135,7 @@ class CrateCmd(Cmd):
         if cols is None:
             cols = self.cols()
         rows = [list(map(self._transform_field, row)) for row in rows]
-        print(tabulate(rows, headers=cols, tablefmt=crate_fmt))
+        print(tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt=""))
 
     def _transform_field(self, field):
         """transform field for displaying"""

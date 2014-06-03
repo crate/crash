@@ -101,25 +101,25 @@ class CommandTest(TestCase):
 
     def test_rendering_object(self):
         """Test rendering an object"""
-        name = {'name': 'Arthur'}
-        expected = "\n".join(["+--------------------+",
-                              "| name               |",
-                              "+--------------------+",
-                              "| {'name': 'Arthur'} |",
-                              "+--------------------+\n"])
+        user = {'name': 'Arthur', 'age': 42}
+        expected = "\n".join(['+-------------------------------+',
+                              '| user                          |',
+                              '+-------------------------------+',
+                              '| {"age": 42, "name": "Arthur"} |',
+                              '+-------------------------------+\n'])
         command = CrateCmd()
         with patch('sys.stdout', new_callable=StringIO) as output:
-            command.pprint([[name]], ['name'])
+            command.pprint([[user]], ['user'])
             self.assertEqual(expected, output.getvalue())
 
     def test_rendering_array(self):
         """Test rendering an array"""
         names = ['Arthur', 'Ford']
-        expected = "\n".join(["+--------------------+",
-                              "| names              |",
-                              "+--------------------+",
-                              "| ['Arthur', 'Ford'] |",
-                              "+--------------------+\n"])
+        expected = "\n".join(['+--------------------+',
+                              '| names              |',
+                              '+--------------------+',
+                              '| ["Arthur", "Ford"] |',
+                              '+--------------------+\n'])
         command = CrateCmd()
         with patch('sys.stdout', new_callable=StringIO) as output:
             command.pprint([[names]], ['names'])

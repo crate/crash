@@ -24,6 +24,7 @@ crate cli
 can be used to query crate using SQL
 """
 import inspect
+import json
 import logging
 import os
 import sys
@@ -142,6 +143,8 @@ class CrateCmd(Cmd):
             return self.NULL
         elif isinstance(field, bool):
             return "TRUE" if field else "FALSE"
+        elif isinstance(field, (list, dict)):
+            return json.dumps(field, sort_keys=True)
         else:
             return field
 

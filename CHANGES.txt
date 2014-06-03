@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - crash renders complex types as json now instead of python representation
+
  - fix: update crate-python to 0.10.2 to print -1 for rowcount if rowcount
    is unknown
 

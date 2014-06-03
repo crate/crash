@@ -61,7 +61,7 @@ Line = namedtuple("Line", ["begin", "hline", "sep", "end"])
 DataRow = namedtuple("DataRow", ["begin", "sep", "end"])
 
 
-# A table structure is suppposed to be:
+# A table structure is supposed to be:
 #
 #     --- lineabove ---------
 #         headerrow
@@ -452,7 +452,7 @@ def _column_type(strings, has_invisible=True):
 
 
 def _format(val, valtype, floatfmt, missingval=""):
-    """Format a value accoding to its type.
+    """Format a value according to its type.
 
     Unicode is supported:
 

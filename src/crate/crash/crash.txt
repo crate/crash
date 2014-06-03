@@ -56,8 +56,8 @@ if at least one server is reachable::
 Once the shell is connected, SQL statements can be executed simply by entering
 them without any special arguments like this::
 
-    cr> SELECT schema_name, table_name from information_schema.tables
-    ... order by table_name
+    cr> SELECT schema_name, table_name FROM information_schema.tables
+    ... ORDER BY table_name
     +--------------------+-------------------+
     | schema_name        | table_name        |
     +--------------------+-------------------+

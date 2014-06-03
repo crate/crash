@@ -42,7 +42,7 @@ def crate_path(*parts):
 
 
 def crash_transform(s):
-    return 'cmd.onecmd("""{0}""");'.format(s.strip())
+    return u'cmd.onecmd("""{0}""");'.format(s.strip())
 
 
 crash_parser = zc.customdoctests.DocTestParser(

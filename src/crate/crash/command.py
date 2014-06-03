@@ -65,7 +65,9 @@ class CrateCmd(Cmd):
     prompt = 'cr> '
     line_delimiter = ';'
     multi_line_prompt = '... '
-    NULL = "NULL"
+    NULL = u'NULL'
+    TRUE = u'TRUE'
+    FALSE = u'FALSE'
 
     keywords = [
         "table", "index", "from", "into", "where", "values", "and", "or",
@@ -135,14 +137,13 @@ class CrateCmd(Cmd):
         if cols is None:
             cols = self.cols()
         rows = [list(map(self._transform_field, row)) for row in rows]
-        print(tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt=""))
+        print(tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt="",
+                       missingval=self.NULL))
 
     def _transform_field(self, field):
         """transform field for displaying"""
-        if field is None:
-            return self.NULL
-        elif isinstance(field, bool):
-            return "TRUE" if field else "FALSE"
+        if isinstance(field, bool):
+            return self.TRUE if field else self.FALSE
         elif isinstance(field, (list, dict)):
             return json.dumps(field, sort_keys=True)
         else:

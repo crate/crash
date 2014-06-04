@@ -228,13 +228,31 @@ class CrateCmd(Cmd):
             self.print_rows_affected("copy")
 
     def do_refresh(self, statement):
-        """execute a SQL refresh stataement
+        """execute a SQL refresh statement
 
         E.g.:
             "refresh table locations"
         """
         if self.execute('refresh ' + statement):
             self.print_success("refresh")
+
+    def do_set(self, statement):
+        """execute a SQL set statement
+
+        E.g.:
+            "set global persistent collect_stats=true"
+        """
+        if self.execute('set ' + statement):
+            self.print_success("set")
+
+    def do_reset(self, statement):
+        """execute a SQL reset statement
+
+        E.g.:
+            "reset global persistent collect_stats"
+        """
+        if self.execute('reset ' + statement):
+            self.print_success("reset")
 
     def do_exit(self, *args):
         """exit the shell"""

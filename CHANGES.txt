@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - added support for SQL SET and RESET statements
+
 2014/06/03 0.9.10
 =================
 

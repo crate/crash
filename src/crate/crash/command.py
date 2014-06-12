@@ -23,6 +23,8 @@ crate cli
 
 can be used to query crate using SQL
 """
+from __future__ import print_function
+import codecs
 import inspect
 import json
 import logging
@@ -84,6 +86,7 @@ class CrateCmd(Cmd):
         Cmd.__init__(self, "tab", stdin, stdout)
         self.exit_code = 0
         self.partial_lines = []
+        self.writer = stdout
 
     def do_connect(self, server):
         """
@@ -138,7 +141,7 @@ class CrateCmd(Cmd):
             cols = self.cols()
         rows = [list(map(self._transform_field, row)) for row in rows]
         print(tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt="",
-                       missingval=self.NULL))
+                       missingval=self.NULL), file=self.writer)
 
     def _transform_field(self, field):
         """transform field for displaying"""
@@ -460,7 +463,7 @@ def main():
         except IOError:
             pass
         atexit.register(readline.write_history_file, history_file_path)
-    cmd = CrateCmd()
+    cmd = CrateCmd(stdout=codecs.getwriter('UTF-8')(sys.stdout))
     cmd.do_connect(args.hosts)
     # select.select on sys.stdin doesn't work on windows
     # so currently there is no pipe support

@@ -24,7 +24,6 @@ crate cli
 can be used to query crate using SQL
 """
 from __future__ import print_function
-import codecs
 import inspect
 import json
 import logging
@@ -86,7 +85,6 @@ class CrateCmd(Cmd):
         Cmd.__init__(self, "tab", stdin, stdout)
         self.exit_code = 0
         self.partial_lines = []
-        self.writer = stdout
 
     def do_connect(self, server):
         """
@@ -140,15 +138,23 @@ class CrateCmd(Cmd):
         if cols is None:
             cols = self.cols()
         rows = [list(map(self._transform_field, row)) for row in rows]
-        print(tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt="",
-                       missingval=self.NULL), file=self.writer)
+        out = tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt="",
+                       missingval=self.NULL)
+        try:
+            print(out)
+        except UnicodeEncodeError:
+            try:
+                print(out.encode('utf-8').decode('ascii', 'replace'))
+            except UnicodeEncodeError:
+                print(out.encode('utf-8').decode('ascii', 'ignore'))
+            print('WARNING: Unicode characters found that cannot be displayed. Check your system locale.')
 
     def _transform_field(self, field):
         """transform field for displaying"""
         if isinstance(field, bool):
             return self.TRUE if field else self.FALSE
         elif isinstance(field, (list, dict)):
-            return json.dumps(field, sort_keys=True)
+            return json.dumps(field, sort_keys=True, ensure_ascii=False)
         else:
             return field
 
@@ -463,7 +469,7 @@ def main():
         except IOError:
             pass
         atexit.register(readline.write_history_file, history_file_path)
-    cmd = CrateCmd(stdout=codecs.getwriter('UTF-8')(sys.stdout))
+    cmd = CrateCmd()
     cmd.do_connect(args.hosts)
     # select.select on sys.stdin doesn't work on windows
     # so currently there is no pipe support

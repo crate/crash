@@ -2,6 +2,11 @@
 Changes for crash
 =================
 
+Unreleased
+==========
+
+ - fixed output encoding when LC_CTYPE locale is not UTF-8
+
 2014/06/04 0.9.11
 =================
 

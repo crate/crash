@@ -24,6 +24,7 @@ from __future__ import absolute_import
 import unittest
 import doctest
 import os
+import sys
 
 import zc.customdoctests
 from crate.testing.layer import CrateLayer

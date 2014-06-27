@@ -6,7 +6,7 @@ import tempfile
 from io import TextIOWrapper
 from mock import patch
 
-from .command import CrateCmd, main
+from .command import CrateCmd, main, get_stdin
 
 
 def fake_stdin(data):
@@ -86,6 +86,38 @@ class CommandTest(TestCase):
             except IOError:
                 pass
             sys.argv = orig_argv
+
+    @patch('sys.stdin', fake_stdin('\n'.join(["Create TABLE test(",
+                                              "d string",
+                                              ")",
+                                              "clustered into 2 shards",
+                                              "with (number_of_replicas=0)"])))
+    def test_multiline_stdin(self):
+        """Test pass multiline statement via stdin
+
+        Newlines must be replaced with whitespaces
+        """
+        stmt = list(get_stdin())[0]
+        expected = ("Create TABLE test( d string ) "
+                    "clustered into 2 shards "
+                    "with (number_of_replicas=0) ")
+        self.assertEqual(stmt, expected)
+
+    @patch('sys.stdin', fake_stdin('\n'.join(["Create TABLE test(",
+                                              "d string",
+                                              ")",
+                                              "clustered into 2 shards",
+                                              "with (number_of_replicas=0);"])))
+    def test_multiline_stdin_delimiter(self):
+        """Test pass multiline statement with delimiter via stdin
+
+        Newlines must be replaced with whitespaces
+        """
+        stmt = list(get_stdin())[0]
+        expected = ("Create TABLE test( d string ) "
+                    "clustered into 2 shards "
+                    "with (number_of_replicas=0)")
+        self.assertEqual(stmt, expected)
 
     def test_tabulate_null_int_column(self):
         """

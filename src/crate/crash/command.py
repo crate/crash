@@ -442,7 +442,7 @@ def get_stdin():
             if line.endswith(delim):
                 line = line.rstrip(delim)
                 if partial_lines:
-                    yield ''.join(partial_lines) + line
+                    yield ' '.join(partial_lines + [line])
                     partial_lines = []
                 else:
                     yield line
@@ -450,7 +450,7 @@ def get_stdin():
                 partial_lines.append(line)
         else:
             if partial_lines:
-                yield ''.join(partial_lines) + line
+                yield ' '.join(partial_lines + [line])
             break
     return
 

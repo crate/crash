@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2014/06/27 0.9.13
+=================
+
  - fix: avoid stripping arbitrative whitespaces from
    commands passed via stdin
 

@@ -71,19 +71,3 @@ them without any special arguments like this::
     | information_schema | tables            |
     +--------------------+-------------------+
     SELECT 8 rows in set (... sec)
-
-
-Limitations
-===========
-
-Nested Objects and Arrays
--------------------------
-
-While it is possible to select or filter by nested objects it is currently not
-possible to insert them using crash. In order to do that the `Crate REST
-endpoint`_ or a client library like `crate-python`_ has to be used.
-
-The same also applies for arrays.
-
-.. _`Crate REST endpoint`: https://crate.io/docs/current/sql/rest.html
-.. _`crate-python`: https://pypi.python.org/pypi/crate/

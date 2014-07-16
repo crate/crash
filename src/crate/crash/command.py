@@ -86,12 +86,12 @@ class CrateCmd(Cmd):
         self.exit_code = 0
         self.partial_lines = []
 
-    def do_connect(self, server):
+    def do_connect(self, server, error_trace=False):
         """
         connect to one or more server
         with "connect servername:port[ servername:port [...]]"
         """
-        self.conn = client.connect(servers=server)
+        self.conn = client.connect(servers=server, error_trace=error_trace)
         self.cursor = self.conn.cursor()
         results = []
         failed = 0
@@ -414,6 +414,7 @@ HISTORY_PATH = os.path.join(USER_DATA_DIR, HISTORY_FILE_NAME)
 def parse_args():
     parser = ArgumentParser(description='crate shell')
     parser.add_argument('-v', '--verbose', action='count',
+                        dest='verbose', default=0,
                         help='use -v to get debug output')
     parser.add_argument('--history',
                         type=str,
@@ -421,7 +422,7 @@ def parse_args():
     parser.add_argument('-c', '--command', type=str,
                         help='execute sql statement')
     parser.add_argument('--hosts', type=str, nargs='*',
-                        help='connect to crate hosts', metavar='HOST')
+                        help='the crate host to connect to', metavar='HOST')
     args = parser.parse_args()
     return args
 
@@ -456,7 +457,6 @@ def get_stdin():
 
 
 def main():
-    logging.basicConfig(level=logging.ERROR)
     args = parse_args()
     # optionally read and write history file
     if _has_readline:
@@ -469,8 +469,21 @@ def main():
         except IOError:
             pass
         atexit.register(readline.write_history_file, history_file_path)
+
+    level = logging.ERROR
+    error_trace = args.verbose > 0
+    if args.verbose == 1:
+        level = logging.INFO
+    elif args.verbose >= 2:
+        level = logging.DEBUG
+    logging.basicConfig(
+        level=level,
+        format="[%(asctime)s %(name)-15s %(levelname)-8s] %(message)s]",
+        stream=sys.stdout
+    )
+
     cmd = CrateCmd()
-    cmd.do_connect(args.hosts)
+    cmd.do_connect(args.hosts, error_trace=error_trace)
     # select.select on sys.stdin doesn't work on windows
     # so currently there is no pipe support
     done = False

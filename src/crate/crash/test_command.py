@@ -87,6 +87,32 @@ class CommandTest(TestCase):
                 pass
             sys.argv = orig_argv
 
+    def test_multiple_hosts(self):
+        orig_argv = sys.argv[:]
+        try:
+            tmphistory = tempfile.mkstemp()[1]
+            sys.argv = ["testcrash",
+                        "-c", "select * from sys.cluster",
+                        "--hosts", self.crate_host, "nonexistent.lol:123",
+                        '--history', tmphistory
+                        ]
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                try:
+                    main()
+                except SystemExit as e:
+                    exception_code = e.code
+                    self.assertEqual(exception_code, 0)
+                    output = output.getvalue()
+                    self.assertTrue("CONNECT OK" in output)
+                    self.assertTrue("| http://127.0.0.1:44209     | crate     | TRUE      | OK" in output)
+                    self.assertTrue("| http://nonexistent.lol:123 | NULL      | FALSE     | Server not available" in output)
+        finally:
+            try:
+                os.remove(tmphistory)
+            except IOError:
+                pass
+            sys.argv = orig_argv
+
     @patch('sys.stdin', fake_stdin('\n'.join(["Create TABLE test(",
                                               "d string",
                                               ")",
@@ -189,8 +215,6 @@ class CommandTest(TestCase):
             command.pprint([[names]], ['names'])
             self.assertEqual(expected, output.getvalue())
 
-
-
     def test_rendering_float(self):
         """Test rendering an array"""
         expected = "\n".join(['+---------------+',
@@ -203,3 +227,4 @@ class CommandTest(TestCase):
         with patch('sys.stdout', new_callable=StringIO) as output:
             command.pprint([[3.1415926535], [42.0]], ['number'])
             self.assertEqual(expected, output.getvalue())
+

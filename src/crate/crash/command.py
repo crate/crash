@@ -81,17 +81,18 @@ class CrateCmd(Cmd):
         "refresh", "alter",
     ]
 
-    def __init__(self, stdin=None, stdout=None):
+    def __init__(self, stdin=None, stdout=None, error_trace=False):
         Cmd.__init__(self, "tab", stdin, stdout)
         self.exit_code = 0
         self.partial_lines = []
+        self.error_trace = error_trace
 
     def do_connect(self, server, error_trace=False):
         """
         connect to one or more server
         with "connect servername:port[ servername:port [...]]"
         """
-        self.conn = client.connect(servers=server, error_trace=error_trace)
+        self.conn = client.connect(servers=server, error_trace=self.error_trace)
         self.cursor = self.conn.cursor()
         results = []
         failed = 0
@@ -132,6 +133,9 @@ class CrateCmd(Cmd):
                 print(e.message)
             else:
                 print(e)
+            if self.error_trace and hasattr(e, "error_trace") and e.error_trace:
+                print(e.error_trace)
+
         return False
 
     def pprint(self, rows, cols=None):
@@ -422,7 +426,7 @@ def parse_args():
     parser.add_argument('-c', '--command', type=str,
                         help='execute sql statement')
     parser.add_argument('--hosts', type=str, nargs='*',
-                        help='the crate host to connect to', metavar='HOST')
+                        help='the crate hosts to connect to', metavar='HOST')
     args = parser.parse_args()
     return args
 
@@ -482,8 +486,8 @@ def main():
         stream=sys.stdout
     )
 
-    cmd = CrateCmd()
-    cmd.do_connect(args.hosts, error_trace=error_trace)
+    cmd = CrateCmd(error_trace=error_trace)
+    cmd.do_connect(args.hosts)
     # select.select on sys.stdin doesn't work on windows
     # so currently there is no pipe support
     done = False

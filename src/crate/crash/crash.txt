@@ -11,6 +11,10 @@ invoking `crash` in a terminal.
 another host use the `connect` command inside the shell or use the `--hosts`
 argument when launching the shell.
 
+`crash` started with the `-v` switch (once or more times) will log useful information
+ when it comes to debugging, like what connection attempts are made and full tracebacks
+ of server errors.
+
 When you connect to a server that is not reachable or whose hostname cannot be resolved
 you will get an error::
 
@@ -82,6 +86,11 @@ Limitations
 
 Nested Objects and Arrays
 -------------------------
+
+.. note::
+
+    Since crate 0.39.0 it is possible to use object and array literals and the
+    limitation does not apply when connecting to a crate instance running > 0.39.0.
 
 While it is possible to select or filter by nested objects it is currently not
 possible to insert them using crash. In order to do that the `Crate REST

@@ -5,7 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
- - update crate-python to 0.10.6
+ - correctly apply ``-v`` switch to increase verbosity
+
+ - update crate-python to version 0.10.6
 
 2014/06/27 0.9.13
 =================

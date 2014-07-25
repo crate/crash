@@ -2,6 +2,13 @@
 Changes for crash
 =================
 
+Unreleased
+==========
+
+ - update crate-python to version 0.10.7 which includes the following fixes:
+
+   - fix: ``cursor.executemany()`` now correctly sets the cursor description
+
 2014/07/18 0.9.14
 =================
 

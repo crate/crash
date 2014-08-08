@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+- improved formatting of field lists in docs
+  by adding docutils configuration to docs build process
+
  - update crate-python to version 0.10.7 which includes the following fixes:
 
    - fix: ``cursor.executemany()`` now correctly sets the cursor description

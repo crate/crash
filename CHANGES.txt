@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2014/09/02 0.10.0
+=================
+
  - crate server version information is now also included in the connect-output.
 
  - improved formatting of field lists in docs

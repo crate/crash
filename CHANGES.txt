@@ -5,12 +5,13 @@ Changes for crash
 Unreleased
 ==========
 
-- improved formatting of field lists in docs
+ - crate server version information is now also included in the connect-output.
+
+ - improved formatting of field lists in docs
   by adding docutils configuration to docs build process
 
- - update crate-python to version 0.10.7 which includes the following fixes:
-
-   - fix: ``cursor.executemany()`` now correctly sets the cursor description
+ - updated crate-python to version 0.11.1 to get a more reliable failover
+   mechanism if a host goes down.
 
 2014/07/18 0.9.14
 =================

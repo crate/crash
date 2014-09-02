@@ -101,14 +101,14 @@ class CrateCmd(Cmd):
                 server_infos = self.conn.client.server_infos(server)
             except ConnectionError as e:
                 failed += 1
-                results.append([server, None, False, e.message])
+                results.append([server, None, '0.0.0', False, e.message])
             else:
                 results.append(
                     server_infos + (True, "OK", )
                 )
         self.pprint(
             results,
-            ["server_url", "node_name", "connected", "message"])
+            ["server_url", "node_name", "version", "connected", "message"])
         if failed == len(results):
             self.print_error("connect")
         else:

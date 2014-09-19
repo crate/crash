@@ -19,4 +19,4 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-__version__ = '0.10.0'
+__version__ = '0.10.1'

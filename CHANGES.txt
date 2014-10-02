@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2014/10/02 0.10.2
+=================
+
  - require crate-python 0.12.1 so crash sends the correct Accept Header when
    requesting crate
 

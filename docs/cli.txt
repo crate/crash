@@ -1,0 +1,69 @@
+.. _cli:
+
+======================
+Command Line Arguments
+======================
+
+The ``crash`` binary supports several command line arguments.
+
++---------------------------------------+--------------------------------------------------+
+| Argument                              | Description                                      |
++=======================================+==================================================+
+| ``-h``, ``--help``                    | Show the help message end exit.                  |
++---------------------------------------+--------------------------------------------------+
+| ``-v``, ``--verbose``                 | Print debug information to stdout.               |
++---------------------------------------+--------------------------------------------------+
+| ``-c COMMAND``, ``--command COMMAND`` | Execute the SQL statement and exit.              |
++---------------------------------------+--------------------------------------------------+
+| ``--hosts HOSTS``                     | The Crate hosts to connect to.                   |
++---------------------------------------+--------------------------------------------------+
+| ``--history HISTORY``                 | The history file the Crate shell uses.           |
++---------------------------------------+--------------------------------------------------+
+| ``--format FORMAT``                   | Specifies the output format of the SQL response. |
++---------------------------------------+--------------------------------------------------+
+
+
+Example Usage
+=============
+
+::
+
+    $ crash --hosts st1.crate.io:4200 st2.crate.io st3.crate.io \
+            --format json \
+            -c 'select * from sys.nodes' > output.json
+
+
+.. _commands:
+
+==============
+Crash Commands
+==============
+
+.. note::
+
+    Crash client commands are only available since version ``0.11.x``!
+
+Crash has several client command, which start with a backslash (``\``).
+
+You can get a list of commands by typing the command ``\?``:
+
++----------------------+------------------------------------------------------------------------------------+
+| Command              | Description                                                                        |
++======================+====================================================================================+
+| ``\?``               | List all available commands.                                                       |
++----------------------+------------------------------------------------------------------------------------+
+| ``\c``, ``\connect`` | Connect to the given server.                                                       |
+|                      | Same as ``--host`` command line option.                                            |
++----------------------+------------------------------------------------------------------------------------+
+| ``\dt``              | Print existing tables.                                                             |
+|                      | The list does not include tables in the ``sys`` and ``information_schema`` schema. |
++----------------------+------------------------------------------------------------------------------------+
+| ``\format``          | Switch the output format of the SQL response.                                      |
+|                      | Same as ``--format`` command line option.                                          |
+|                      | Available formats are: ``tabular``, ``raw``, ``json``, ``csv`` and ``mixed``       |
+|                      |                                                                                    |
+|                      | see :ref:`formats` for details                                                     |
++----------------------+------------------------------------------------------------------------------------+
+| ``\q``               | Quit Crate shell                                                                   |
++----------------------+------------------------------------------------------------------------------------+
+

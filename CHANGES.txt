@@ -5,6 +5,17 @@ Changes for crash
 Unreleased
 ==========
 
+ - support for different response output formats
+   such as ``tabular``, ``raw``, ``json``, ``csv`` and ``mixed``
+
+ - BREAKING CHANGE
+   the ``CONNECT <host>`` client command was changed to ``\connect <host>``
+   see documentation for further details
+
+ - added ``--format`` command line option
+
+ - alternative cli implementation using prompt_toolkit
+
  - added support for raw and json response output
 
  - added coloured printing when in interactive shell

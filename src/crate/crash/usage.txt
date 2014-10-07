@@ -1,24 +1,29 @@
-===========
-Crate Shell
-===========
+====================
+Installation & Usage
+====================
 
-The crash shell provides a CLI for the Crate Server.
+If the package was installed using ``pip`` the shell can be started by
+invoking ``crash`` in a terminal.
 
-If the package was installed using `pip` the shell can be started by
-invoking `crash` in a terminal.
+::
 
-`crash` by default will try to connect to `localhost:4200`. To connect to
-another host use the `connect` command inside the shell or use the `--hosts`
+    pip install crash
+
+
+``crash`` by default will try to connect to ``localhost:4200``. To connect to
+another host use the ``connect`` command inside the shell or use the ``--hosts``
 argument when launching the shell.
 
-`crash` started with the `-v` switch (once or more times) will log useful information
+``crash`` started with the ``-v`` switch (once or more times) will log useful information
 when it comes to debugging, like what connection attempts are made and full tracebacks
 of server errors.
+
+For more information about the available command line arguments see :doc:`cli`.
 
 When you connect to a server that is not reachable or whose hostname cannot be resolved
 you will get an error::
 
-    cr> connect 127.0.0.1:65535
+    cr> \connect 127.0.0.1:65535
     +------------------------+-----------+---------+-----------+-----------...-+
     | server_url             | node_name | version | connected | message       |
     +------------------------+-----------+---------+-----------+-----------...-+
@@ -26,7 +31,9 @@ you will get an error::
     +------------------------+-----------+---------+-----------+-----------...-+
     CONNECT ERROR
 
-    cr> connect null.lol:4200
+::
+
+    cr> \connect null.lol:4200
     +----------------------+-----------+---------+-----------+-------------...-+
     | server_url           | node_name | version | connected | message         |
     +----------------------+-----------+---------+-----------+-------------...-+
@@ -36,7 +43,7 @@ you will get an error::
 
 Successful connects will give you some information about the servers you connect to::
 
-    cr> connect 127.0.0.1:44209
+    cr> \connect 127.0.0.1:44209
     +------------------------+-----------+---------+-----------+---------+
     | server_url             | node_name | version | connected | message |
     +------------------------+-----------+---------+-----------+---------+
@@ -47,7 +54,7 @@ Successful connects will give you some information about the servers you connect
 If you connect to more than one server, the command will succeed
 if at least one server is reachable::
 
-    cr> CONNECT 127.0.0.1:44209 null.lol:4295
+    cr> \connect 127.0.0.1:44209 null.lol:4295
     +------------------------+-----------+---------+-----------+-----------...-+
     | server_url             | node_name | version | connected | message       |
     +------------------------+-----------+---------+-----------+-----------...-+
@@ -60,7 +67,7 @@ Once the shell is connected, SQL statements can be executed simply by entering
 them without any special arguments like this::
 
     cr> SELECT schema_name, table_name FROM information_schema.tables
-    ... ORDER BY table_name
+    ... ORDER BY table_name;
     +--------------------+-------------------+
     | schema_name        | table_name        |
     +--------------------+-------------------+
@@ -79,6 +86,7 @@ them without any special arguments like this::
     | information_schema | tables            |
     +--------------------+-------------------+
     SELECT 13 rows in set (... sec)
+
 
 Limitations
 ===========

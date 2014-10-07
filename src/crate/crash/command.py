@@ -1,4 +1,5 @@
 # -*- coding: utf-8; -*-
+# vim: set fileencodings=utf-8
 #
 # Licensed to CRATE Technology GmbH ("Crate") under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -18,454 +19,62 @@
 # However, if you have executed another commercial license agreement
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
-"""
-crate cli
 
-can be used to query crate using SQL
-"""
+
 from __future__ import print_function
-import inspect
-import json
-import logging
+
+import re
 import os
 import sys
+import csv
+import json
 import select
 
-from colorama import init, Fore, Style
-init(autoreset=True)
+from argparse import ArgumentParser
+from colorama import Fore, Style
+from functools import partial
+from six import PY2, StringIO
+
+from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.layout.prompt import DefaultPrompt
+
+from crate.client import connect
+from crate.client.exceptions import ConnectionError, ProgrammingError
 
 from pygments import highlight
-from pygments.lexers.data import JsonLexer
 from pygments.formatters import TerminalFormatter
+from pygments.lexers.data import JsonLexer
+from pygments.lexers.sql import SqlLexer
+from pygments.token import Token
+from pygments.styles.monokai import MonokaiStyle
+
+from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate
+from .printer import ColorPrinter, PrintWrapper
+
+from appdirs import user_data_dir
 
 _json_lexer = JsonLexer()
 _formatter = TerminalFormatter()
 
-_has_readline = False
-try:
-    import readline
-    _has_readline = True
-except ImportError:
-    _has_readline = False
-
-import atexit
-from appdirs import user_data_dir
-
-from cmd import Cmd
-from argparse import ArgumentParser
-
-from crate import client
-from crate.client.exceptions import ConnectionError, Error, Warning
-from crate.client.compat import raw_input
-from .tabulate import TableFormat, Line, DataRow, tabulate
-
-
-MAX_HISTORY_LENGTH = 10000
-
-
-crate_fmt = TableFormat(lineabove=Line("+", "-", "+", "+"),
-                        linebelowheader=Line("+", "-", "+", "+"),
-                        linebetweenrows=None,
-                        linebelow=Line("+", "-", "+", "+"),
-                        headerrow=DataRow("|", "|", "|"),
-                        datarow=DataRow("|", "|", "|"),
-                        padding=1, with_header_hide=None)
-
-class ColorLog(object):
-    """
-    Print in color if interactive tty
-    """
-
-    def __init__(self, isatty=None):
-        self.pretty = isatty is None and sys.stdout.isatty() or isatty
-
-    def log(self, content, color, style=''):
-        if self.pretty:
-            print(color + style + content)
-        else:
-            print(content)
-
-    def info(self, content):
-        self.log(content, Fore.GREEN)
-
-    def warn(self, content):
-        self.log(content, Fore.YELLOW)
-
-    def critical(self, content):
-        self.log(content, Fore.RED, style=Style.BRIGHT)
-
-
-class CrateCmd(Cmd):
-    prompt = 'cr> '
-    line_delimiter = ';'
-    multi_line_prompt = '... '
-    NULL = u'NULL'
-    TRUE = u'TRUE'
-    FALSE = u'FALSE'
-
-    keywords = [
-        "table", "index", "from", "into", "where", "values", "and", "or",
-        "set", "with", "by", "using", "like",
-        "boolean", "integer", "string", "float", "double", "short", "long",
-        "byte", "timestamp", "ip", "object", "dynamic", "strict", "ignored",
-        "array", "blob", "primary key",
-        "analyzer", "extends", "tokenizer", "char_filters", "token_filters",
-        "number_of_replicas", "clustered",
-        "refresh", "alter",
-    ]
-
-    def __init__(self, stdin=None, stdout=None,
-                 error_trace=False, output_format='tabular', interactive=True):
-        Cmd.__init__(self, "tab", stdin, stdout)
-        self.exit_code = 0
-        self.partial_lines = []
-        self.error_trace = error_trace
-        self.interactive = interactive
-        self.logger = ColorLog(isatty=interactive)
-        self.output_format = output_format
-
-    def do_connect(self, server, error_trace=False):
-        """
-        connect to one or more server
-        with "connect servername:port[ servername:port [...]]"
-        """
-        self.conn = client.connect(servers=server, error_trace=self.error_trace)
-        self.cursor = self.conn.cursor()
-        results = []
-        failed = 0
-        for server in self.conn.client.active_servers:
-            try:
-                server_infos = self.conn.client.server_infos(server)
-            except ConnectionError as e:
-                failed += 1
-                results.append([server, None, '0.0.0', False, e.message])
-            else:
-                results.append(
-                    server_infos + (True, "OK", )
-                )
-        self.pprint(
-            results,
-            ["server_url", "node_name", "version", "connected", "message"])
-        if failed == len(results):
-            self.print_error("connect")
-        else:
-            self.print_success("connect")
-
-    def execute_query(self, statement):
-        if self.execute(statement):
-            self.pprint(self.cursor.fetchall())
-            self.print_rows_selected()
-
-    def execute(self, statement):
-        try:
-            self.cursor.execute(statement)
-            return True
-        except ConnectionError:
-            self.exit_code = 1
-            self.logger.warn(
-                'Use "connect <hostname:port>" to connect to a server first')
-        except (Error, Warning) as e:
-            self.exit_code = 1
-            if hasattr(e, 'message'):
-                self.logger.critical(e.message)
-            else:
-                self.logger.critical(e)
-            if self.error_trace and hasattr(e, "error_trace") and e.error_trace:
-                self.logger.critical(e.error_trace)
-
-        return False
-
-    def pprint_json(self, obj):
-        json_str = json.dumps(obj, indent=2)
-        if self.interactive:
-            return highlight(json_str, _json_lexer, _formatter)
-        return json_str
-
-    def pprint(self, rows, cols=None):
-        if cols is None:
-            cols = self.cols()
-
-        if self.output_format == 'raw':
-            duration = self.cursor.duration
-            out = self.pprint_json(dict(
-                rows=rows,
-                cols=cols,
-                rowcount=self.cursor.rowcount,
-                duration=duration > -1 and float(duration/1000.0) or duration,
-                ))
-        elif self.output_format == 'json':
-            out = self.pprint_json([dict(zip(cols, x)) for x in rows])
-        else:
-            rows = [list(map(self._transform_field, row)) for row in rows]
-            out = tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt="",
-                           missingval=self.NULL)
-        try:
-            print(out)
-        except UnicodeEncodeError:
-            try:
-                print(out.encode('utf-8').decode('ascii', 'replace'))
-            except UnicodeEncodeError:
-                print(out.encode('utf-8').decode('ascii', 'ignore'))
-            self.logger.warn('WARNING: Unicode characters found that cannot be displayed. Check your system locale.')
-
-    def _transform_field(self, field):
-        """transform field for displaying"""
-        if isinstance(field, bool):
-            return self.TRUE if field else self.FALSE
-        elif isinstance(field, (list, dict)):
-            return json.dumps(field, sort_keys=True, ensure_ascii=False)
-        else:
-            return field
-
-    def cols(self):
-        return [c[0] for c in self.cursor.description]
-
-    def do_select(self, statement):
-        """execute a SQL select statement
-
-        E.g.:
-            "select name from locations where name = 'Algol'"
-        """
-        self.execute_query('select ' + statement)
-
-    def do_insert(self, statement):
-        """execute a SQL insert statement
-
-        E.g.:
-            "insert into locations (name) values ('Algol')"
-        """
-        if self.execute('insert ' + statement):
-            self.print_rows_affected("insert")
-
-    def do_delete(self, statement):
-        """execute a SQL delete statement
-
-        E.g.:
-            "delete from locations where name = 'Algol'"
-        """
-        if self.execute('delete ' + statement):
-            self.print_rows_affected("delete")
-
-    def do_update(self, statement):
-        """execute a SQL update statement
-
-        E.g.:
-            "update from locations set name = 'newName' where name = 'Algol'"
-        """
-        if self.execute('update ' + statement):
-            self.print_rows_affected("update")
-
-    def do_alter(self, statement):
-        """execute a SQL ALTER statement
-
-        E.g.:
-            "alter table locations set (number_of_replicas=2)"
-        """
-        if self.execute('alter ' + statement):
-            self.print_success("alter")
-
-    def do_create(self, statement):
-        """execute a SQL create statement
-
-        E.g.:
-            "create table locations (id integer, name string)"
-        """
-        if self.execute('create ' + statement):
-            self.print_success("create")
-
-    def do_crate(self, statement):
-        """alias for ``do_create``"""
-        self.do_create(statement)
-
-    def do_drop(self, statement):
-        """execute a SQL drop statement
-
-        E.g.:
-            "drop table locations"
-        """
-        if self.execute('drop ' + statement):
-            self.print_success("drop")
-
-    def do_copy(self, statement):
-        """execute a SQL copy statement
-
-        E.g.:
-            "copy locations from 'path/to/import/data.json'"
-        """
-        if self.execute('copy ' + statement):
-            self.print_rows_affected("copy")
-
-    def do_refresh(self, statement):
-        """execute a SQL refresh statement
-
-        E.g.:
-            "refresh table locations"
-        """
-        if self.execute('refresh ' + statement):
-            self.print_success("refresh")
-
-    def do_set(self, statement):
-        """execute a SQL set statement
-
-        E.g.:
-            "set global persistent collect_stats=true"
-        """
-        if self.execute('set ' + statement):
-            self.print_success("set")
-
-    def do_reset(self, statement):
-        """execute a SQL reset statement
-
-        E.g.:
-            "reset global persistent collect_stats"
-        """
-        if self.execute('reset ' + statement):
-            self.print_success("reset")
-
-    def do_exit(self, *args):
-        """exit the shell"""
-        self.logger.warn("Bye")
-        sys.exit(0)
-
-    do_quit = do_EOF = do_exit
-
-    def print_rows_affected(self, command):
-        """print success status with rows affected and query duration"""
-        rowcount = self.cursor.rowcount
-        if self.cursor.duration > -1:
-            self.logger.info("{0} OK, {1} row{2} affected ({3:.3f} sec)".format(
-                command.upper(), rowcount, "s"[rowcount == 1:],
-                float(self.cursor.duration) / 1000))
-        else:
-            self.logger.info("{0} OK, {1} row{2} affected".format(
-                command.upper(), rowcount, "s"[rowcount == 1:]))
-
-    def print_rows_selected(self):
-        """print count of rows in result set and query duration"""
-        rowcount = self.cursor.rowcount
-        if self.cursor.duration > -1:
-            self.logger.info("SELECT {0} row{1} in set ({2:.3f} sec)".format(
-                rowcount, "s"[rowcount == 1:],
-                float(self.cursor.duration) / 1000))
-        else:
-            self.logger.info("SELECT {0} row{1} in set".format(
-                rowcount, "s"[rowcount == 1:]))
-
-    def print_success(self, command):
-        """print success status only and duration"""
-        if self.cursor.duration > -1:
-            self.logger.info("{0} OK ({1:.3f} sec)".format(
-                command.upper(), float(self.cursor.duration) / 1000))
-        else:
-            self.logger.info("{0} OK".format(command.upper()))
-
-    def print_error(self, command, exception=None):
-        if exception is not None:
-            self.logger.critical("{0}: {1}".format(
-                exception.__class__.__name__, exception.message))
-        if self.cursor.duration > -1:
-            self.logger.critical("{0} ERROR ({1:.3f} sec)".format(
-                command.upper(), float(self.cursor.duration) / 1000))
-        else:
-            self.logger.critical("{0} ERROR".format(command.upper()))
-
-    def cmdloop(self, intro=None):
-        """Repeatedly issue a prompt, accept input, parse an initial prefix
-        off the received input, and dispatch to action methods, passing them
-        the remainder of the line as argument.
-
-        """
-
-        self.preloop()
-        if self.use_rawinput and self.completekey:
-            if _has_readline:
-                try:
-                    self.old_completer = readline.get_completer()
-                    readline.set_completer(self.complete)
-                    if getattr(readline, "__doc__") is not None \
-                            and 'libedit' in readline.__doc__:
-                        readline.parse_and_bind("bind ^I rl_complete")
-                    else:
-                        readline.parse_and_bind("tab: complete")
-                except ImportError:
-                    pass
-        try:
-            if intro is not None:
-                self.intro = intro
-            if self.intro:
-                self.stdout.write(str(self.intro) + "\n")
-            stop = None
-            prompt = self.prompt
-            while not stop:
-                if self.cmdqueue:
-                    line = self.cmdqueue.pop(0)
-                else:
-                    if self.use_rawinput:
-                        try:
-                            line = raw_input(prompt)
-                        except EOFError:
-                            line = 'EOF'
-                    else:
-                        self.stdout.write(prompt)
-                        self.stdout.flush()
-                        line = self.stdin.readline()
-                        if not len(line):
-                            line = 'EOF'
-                        else:
-                            line = line.rstrip('\r\n')
-                    if (line or self.partial_lines) and line != 'EOF':
-                        if line[-1:] != self.line_delimiter:
-                            self.partial_lines.append(line)
-                            prompt = self.multi_line_prompt
-                        else:
-                            self.partial_lines.append(
-                                line.rstrip(self.line_delimiter))
-                            line = " ".join(self.partial_lines)
-                            self.partial_lines = []
-                            prompt = self.prompt
-                if not self.partial_lines or line == 'EOF':
-                    line = self.precmd(line)
-                    stop = self.onecmd(line)
-                    stop = self.postcmd(stop, line)
-            self.postloop()
-        finally:
-            if self.use_rawinput and self.completekey and _has_readline:
-                readline.set_completer(self.old_completer)
-
-    def default(self, line):
-        if line.lstrip().startswith('--'):
-            return  # ignore comments
-        Cmd.default(self, line)
-
-    def completedefault(self, text, line, begidx, endidx):
-        """Method called to complete an input line when no command-specific
-        complete_*() method is available.
-
-        """
-        mline = line.split(' ')[-1]
-        offs = len(mline) - len(text)
-        return [s[offs:] for s in self.keywords if s.startswith(mline)]
-
-    def emptyline(self):
-        """Called when an empty line is entered in response to the prompt.
-        """
-        pass
-
-# uppercase commands
-for name, attr in inspect.getmembers(
-        CrateCmd,
-        lambda attr: inspect.ismethod(attr) or inspect.isfunction(attr)):
-    if name.startswith("do_"):
-        cmd_name = name.split("do_")[-1]
-        setattr(CrateCmd, "do_{0}".format(cmd_name.upper()), attr)
-
+NULL = u'NULL'
+TRUE = u'TRUE'
+FALSE = u'FALSE'
 
 USER_DATA_DIR = user_data_dir("Crate", "Crate")
 HISTORY_FILE_NAME = 'crash_history'
 HISTORY_PATH = os.path.join(USER_DATA_DIR, HISTORY_FILE_NAME)
+MAX_HISTORY_LENGTH = 10000
 
+crate_fmt = TableFormat(lineabove=TabulateLine("+", "-", "+", "+"),
+                        linebelowheader=TabulateLine("+", "-", "+", "+"),
+                        linebetweenrows=None,
+                        linebelow=TabulateLine("+", "-", "+", "+"),
+                        headerrow=DataRow("|", "|", "|"),
+                        datarow=DataRow("|", "|", "|"),
+                        padding=1, with_header_hide=None)
 
-def parse_args():
+def parse_args(output_formats):
     parser = ArgumentParser(description='crate shell')
     parser.add_argument('-v', '--verbose', action='count',
                         dest='verbose', default=0,
@@ -477,83 +86,398 @@ def parse_args():
                         help='execute sql statement')
     parser.add_argument('--hosts', type=str, nargs='*',
                         help='the crate hosts to connect to', metavar='HOST')
-    parser.add_argument('--format', type=str, default='tabular', choices=['tabular', 'json', 'raw'],
-                        help='output format of the sql response', metavar='FMT')
+    parser.add_argument('--format', type=str, default='tabular', choices=output_formats,
+                        help='output format of the sql response', metavar='FORMAT')
     args = parser.parse_args()
     return args
 
 
+class TruncatedFileHistory(FileHistory):
+
+    def __init__(self, filename, max_length=1000):
+        super(TruncatedFileHistory, self).__init__(filename)
+        base = os.path.dirname(filename)
+        if not os.path.exists(base):
+            os.makedirs(base)
+        if not os.path.exists(filename):
+            with open(filename, 'a'):
+                os.utime(filename, None)
+        self.max_length = max_length
+
+    def append(self, string):
+        self.strings = self.strings[:max(0, self.max_length-1)]
+        super(TruncatedFileHistory, self).append(string)
+
+
+class SQLCompleter(Completer):
+    keywords = [
+        "select", "insert", "update", "delete",
+        "table", "index", "from", "into", "where", "values", "and", "or",
+        "set", "with", "by", "using", "like",
+        "boolean", "integer", "string", "float", "double", "short", "long",
+        "byte", "timestamp", "ip", "object", "dynamic", "strict", "ignored",
+        "array", "blob", "primary key",
+        "analyzer", "extends", "tokenizer", "char_filters", "token_filters",
+        "number_of_replicas", "clustered",
+        "refresh", "alter",
+        "sys", "doc", "blob",
+    ]
+
+    def __init__(self, conn, lines):
+        self.client = conn.client
+        self.lines = lines
+        self.keywords += [kw.upper() for kw in self.keywords]
+
+    def get_completions(self, document):
+        line = document.text
+        if line.startswith('\\'):
+            return
+        word_before_cursor = document.get_word_before_cursor()
+        for keyword in self.keywords:
+            if keyword.startswith(word_before_cursor):
+                yield Completion(keyword, -len(word_before_cursor))
+
+
+def _transform_field(field):
+    """transform field for displaying"""
+    if isinstance(field, bool):
+        return TRUE if field else FALSE
+    elif isinstance(field, (list, dict)):
+        return json.dumps(field, sort_keys=True, ensure_ascii=False)
+    else:
+        return field
+
+def get_num_columns():
+    return 80
+
+
+class CrashPrompt(DefaultPrompt):
+    def __init__(self, lines):
+        self.lines = lines
+
+    def tokens(self, cli):
+        if self.lines:
+            prompt = '... '
+        else:
+            prompt = 'cr> '
+        return [(Token.Prompt, prompt)]
+
+
+class CrateCmd(object):
+
+    OUTPUT_FORMATS = ['tabular', 'json', 'csv', 'raw', 'mixed']
+
+    def __init__(self, connection=None, error_trace=False,
+                 output_format=None, is_tty=True):
+        self.error_trace = error_trace
+        self.is_tty = is_tty
+        self.output_format = output_format
+        self.connection = connection or connect(error_trace=error_trace)
+        self.cursor = self.connection.cursor()
+        self.lines = []
+        self.exit_code = 0
+        self.expanded_mode = False
+        self.commands = {
+            '?': self._help,
+            'q': self._quit,
+            'c': self._connect,
+            'format': self._switch_format,
+            'connect': self._connect,
+            'dt': self._show_tables
+        }
+        self.logger = ColorPrinter(is_tty)
+        self.print = PrintWrapper()
+
+    def pprint(self, rows, cols):
+        try:
+            if self.output_format == 'raw':
+                self.pprint_raw(rows, cols, writer=self.print)
+            elif self.output_format == 'json':
+                self.pprint_json(rows, cols, writer=self.print)
+            elif self.output_format == 'csv':
+                self.pprint_csv(rows, cols, writer=self.print)
+            elif self.output_format == 'mixed':
+                self.pprint_mixed(rows, cols, writer=self.print)
+            else:
+                self.pprint_tabular(rows, cols, writer=self.print)
+            self.print.write('\n')
+        except UnicodeEncodeError:
+            try:
+                print(out.encode('utf-8').decode('ascii', 'replace'))
+            except UnicodeEncodeError:
+                print(out.encode('utf-8').decode('ascii', 'ignore'))
+            self.logger.warn('WARNING: Unicode characters found that cannot be displayed. Check your system locale.')
+
+    def pprint_tabular(self, rows, cols, writer=sys.stdout):
+        rows = [list(map(_transform_field, row)) for row in rows]
+        out = tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt="", missingval=NULL)
+        writer.write(out)
+
+    def pprint_raw(self, rows, cols, writer=sys.stdout):
+        duration = self.cursor.duration
+        self._json_format(dict(
+            rows=rows,
+            cols=cols,
+            rowcount=self.cursor.rowcount,
+            duration=duration > -1 and float(duration/1000.0) or duration,
+        ), writer=writer)
+
+    def pprint_json(self, rows, cols, writer=sys.stdout):
+        obj = [dict(zip(cols, x)) for x in rows]
+        self._json_format(obj, writer=writer)
+
+    def pprint_csv(self, rows, cols, writer=sys.stdout):
+        wr = csv.writer(writer, doublequote=False, escapechar='\\')
+        wr.writerow(cols)
+        for row in rows:
+            wr.writerow(row)
+
+    def pprint_mixed(self, rows, cols, writer=sys.stdout):
+        padding = max_col_len = max(len(c) for c in cols)
+        if self.is_tty:
+            max_col_len += len(Fore.YELLOW + Style.RESET_ALL)
+        tmpl = '{0:<'+str(max_col_len)+'} | {1}'
+        row_delimiter = '-' * get_num_columns()
+        out = []
+        for row in rows:
+            for i, c in enumerate(cols):
+                val = self._mixed_format(row[i], max_col_len, padding)
+                if self.is_tty:
+                    c = Fore.YELLOW + c + Style.RESET_ALL
+                writer.write(tmpl.format(c, val))
+            writer.write(row_delimiter + '\n')
+
+    def _json_format(self, obj, writer=sys.stdout):
+        try:
+            json_str = json.dumps(obj, indent=2)
+        except TypeError as e:
+            pass
+        else:
+            if self.is_tty:
+                json_str = highlight(json_str, _json_lexer, _formatter).rstrip('\n')
+            writer.write(json_str)
+
+    def _mixed_format(self, value, max_col_len, padding):
+        if isinstance(value, dict) or isinstance(value, list):
+            json_str = json.dumps(value, indent=2, sort_keys=True)
+            if self.is_tty:
+                json_str = highlight(json_str, _json_lexer, _formatter).rstrip('\n')
+            lines = json_str.split('\n')
+            lines[-1] = ' ' + lines[-1]
+            lines = [lines[0]] + [' ' * padding + ' |' + l for l in lines[1:]]
+            value = '\n'.join(lines)
+        return '{0}\n'.format(value)
+
+    def process(self, text):
+        if text.lstrip().startswith('--'):
+            return
+        text = text.rstrip()
+        if text.startswith('\\') and not self.lines:
+            self._try_exec_cmd(text.lstrip('\\'))
+        elif text.endswith(';'):
+            line = text.rstrip(';')
+            if self.lines:
+                self.lines.append(line)
+                line = ' '.join(self.lines)
+                self._exec(line)
+                self.lines[:] = []
+            else:
+                self._exec(line)
+        elif text:
+            self.lines.append(text)
+
+    def exit(self):
+        if self.lines:
+            self._exec(' '.join(self.lines))
+            self.lines[:] = []
+
+    def _help(self, *args):
+        """ print this help """
+        out = []
+        for k, v in sorted(self.commands.items()):
+            doc = v.__doc__ and v.__doc__.strip()
+            out.append('\{:<30} {}'.format(k, doc))
+        return '\n'.join(out)
+
+    def _show_tables(self, *args):
+        """ print the existing tables within the 'doc' schema """
+        self._exec("""select format('%s.%s', schema_name, table_name) as name
+                      from information_schema.tables
+                      where schema_name not in ('sys','information_schema')""")
+
+    def _quit(self, *args):
+        """ quit crash """
+        self.logger.warn(u'Bye!')
+        sys.exit(self.exit_code)
+
+    def _switch_format(self, fmt=None):
+        """ switch output format """
+        if fmt and fmt in self.OUTPUT_FORMATS:
+            self.output_format = fmt
+            return u'changed output format to {0}'.format(fmt)
+        return u'{0} is not a valid output format.\nUse one of: {1}'.format(fmt, ', '.join(self.OUTPUT_FORMATS))
+
+    def _connect(self, server):
+        """ connect to the given server """
+        self.connection = connect(servers=server, error_trace=self.error_trace)
+        self.cursor = self.connection.cursor()
+        results = []
+        failed = 0
+        client = self.connection.client
+        for server in client.active_servers:
+            try:
+                infos = client.server_infos(server)
+            except ConnectionError as e:
+                failed += 1
+                results.append([server, None, '0.0.0', False, e.message])
+            else:
+                results.append(infos + (True, 'OK', ))
+        self.pprint(results,
+                    ['server_url', 'node_name', 'version', 'connected', 'message'])
+        if failed == len(results):
+            self.logger.critical('CONNECT ERROR')
+        else:
+            self.logger.info('CONNECT OK')
+
+    def _try_exec_cmd(self, line):
+        words = line.split(' ', 1)
+        if not words or not words[0]:
+            return False
+        cmd = self.commands.get(words[0].lower())
+        if cmd:
+            message = cmd(' '.join(words[1:]))
+            if message:
+                self.logger.info(message)
+            return True
+        return False
+
+    def _exec(self, line):
+        success = self.execute(line)
+        self.exit_code = self.exit_code or int(not success)
+
+    def _execute(self, statement):
+        try:
+            self.cursor.execute(statement)
+            return True
+        except ConnectionError:
+            self.logger.warn('Use \connect <server> to connect to one or more server first.')
+        except ProgrammingError as e:
+            self.logger.critical(e.message.lstrip('SQLActionException[').rstrip(']'))
+        return False
+
+    def execute(self, statement):
+        success = self._execute(statement)
+        if not success:
+            return False
+        cur = self.cursor
+        command = statement[:statement.index(' ')].upper()
+        duration = ''
+        if cur.duration > -1 :
+            duration = ' ({0:.3f} sec)'.format(float(cur.duration / 1000))
+        print_vars = {
+            'command': command,
+            'rowcount': cur.rowcount,
+            's': 's'[cur.rowcount == 1:],
+            'duration': duration
+        }
+        if cur.description:
+            self.pprint(cur.fetchall(), [c[0] for c in cur.description])
+            tmpl = '{command} {rowcount} row{s} in set{duration}'
+        else:
+            tmpl = '{command} OK, {rowcount} row{s} affected{duration}'
+        self.logger.info(tmpl.format(**print_vars))
+        return True
+
+
 def get_stdin():
-    """Get data from stdin, if any
+    """
+    Get data from stdin, if any
     """
     # use select.select to check if input is available
     # otherwise sys.stdin would block
-    partial_lines = []
-    delim = CrateCmd.line_delimiter
     while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
         line = sys.stdin.readline()
         if line:
-            line = line.strip()
-            if line.startswith('--'):
-                continue
-            if line.endswith(delim):
-                line = line.rstrip(delim)
-                if partial_lines:
-                    yield ' '.join(partial_lines + [line])
-                    partial_lines = []
-                else:
-                    yield line
-            else:
-                partial_lines.append(line)
+            yield line
         else:
-            if partial_lines:
-                yield ' '.join(partial_lines + [line])
             break
     return
 
+def _detect_key_bindings():
+    from prompt_toolkit.key_bindings.vi import vi_bindings
+    files = ['/etc/inputrc', os.path.expanduser('~/.inputrc')]
+    for filepath in files:
+        try:
+            with open(filepath, 'r') as f:
+                for line in f:
+                    if line.strip() == 'set editing-mode vi':
+                        return [vi_bindings]
+        except IOError:
+            continue
+    return None
+
+def loop(cmd, history_file):
+    from prompt_toolkit import CommandLineInterface, AbortAction
+    from prompt_toolkit import Exit
+    from prompt_toolkit.layout import Layout
+    from prompt_toolkit.line import Line
+    from prompt_toolkit.renderer import Output
+
+    cli_line = Line(
+        completer=SQLCompleter(cmd.connection, cmd.lines),
+        history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH)
+    )
+    layout = Layout(
+        before_input=CrashPrompt(cmd.lines),
+        menus=[],
+        lexer=SqlLexer,
+        bottom_toolbars=[],
+        show_tildes=False,
+    )
+    key_binding_factories = _detect_key_bindings()
+    cli = CommandLineInterface(
+        style=MonokaiStyle,
+        layout=layout,
+        line=cli_line,
+        key_binding_factories=key_binding_factories
+    )
+    output = Output(cli.renderer.stdout)
+    global get_num_columns
+    def get_num_columns():
+        return output.get_size().columns
+    try:
+        while True:
+            doc = cli.read_input(on_exit=AbortAction.RAISE_EXCEPTION)
+            cmd.process(doc.text)
+    except Exit: # Quit on Ctrl-D keypress
+        cmd.logger.warn(u'Bye!')
+        return
 
 def main():
-    args = parse_args()
-    # optionally read and write history file
-    if _has_readline:
-        history_file_path = args.history
-        readline.set_history_length(MAX_HISTORY_LENGTH)
-        if not os.path.exists(USER_DATA_DIR):
-            os.makedirs(USER_DATA_DIR)
-        try:
-            readline.read_history_file(history_file_path)
-        except IOError:
-            pass
-        atexit.register(readline.write_history_file, history_file_path)
-
+    args = parse_args(CrateCmd.OUTPUT_FORMATS)
     error_trace = args.verbose > 0
-    cmd = CrateCmd(error_trace=error_trace,
-                   output_format=args.format,
-                   interactive=sys.stdout.isatty())
-    cmd.do_connect(args.hosts)
-    # select.select on sys.stdin doesn't work on windows
-    # so currently there is no pipe support
+    conn = connect(args.hosts)
+    cmd = CrateCmd(connection=conn, error_trace=error_trace,
+                   output_format=args.format, is_tty=sys.stdout.isatty())
+    if error_trace:
+        # log CONNECT command only in verbose mode
+        cmd._connect(args.hosts)
     done = False
+    stdin_data = None
     if os.name == 'posix':
         stdin_data = get_stdin()
-    else:
-        stdin_data = None
     if args.command:
-        for single_cmd in args.command.split(CrateCmd.line_delimiter):
-            cmd.onecmd(single_cmd)
+        cmd.process(args.command)
         done = True
     elif stdin_data:
-        for single_cmd in stdin_data:
-            cmd.onecmd(single_cmd)
+        for data in stdin_data:
+            cmd.process(data)
             done = True
     if not done:
-        try:
-            cmd.cmdloop()
-        except KeyboardInterrupt:
-            logger = ColorLog()
-            logger.warn('interrupted exiting ...')
-    else:
-        sys.exit(cmd.exit_code)
+        loop(cmd,args.history)
+    cmd.exit()
+    sys.exit(cmd.exit_code)
+
 
 if __name__ == '__main__':
     main()

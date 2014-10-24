@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed an error that caused crash to crash on non posix platforms.
+
 2014/10/02 0.10.2
 =================
 

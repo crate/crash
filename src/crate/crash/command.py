@@ -493,6 +493,8 @@ def main():
     done = False
     if os.name == 'posix':
         stdin_data = get_stdin()
+    else:
+        stdin_data = None
     if args.command:
         for single_cmd in args.command.split(CrateCmd.line_delimiter):
             cmd.onecmd(single_cmd)

@@ -5,6 +5,12 @@ Changes for crash
 Unreleased
 ==========
 
+2014/10/27 0.10.3
+=================
+
+ - require crate-python 0.12.3 to get support for the iterator protocol
+   on cursor
+
  - Fixed an error that caused crash to crash on non posix platforms.
 
 2014/10/02 0.10.2

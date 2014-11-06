@@ -40,7 +40,7 @@ Successful connects will give you some information about the servers you connect
     +------------------------+-----------+---------+-----------+---------+
     | server_url             | node_name | version | connected | message |
     +------------------------+-----------+---------+-----------+---------+
-    | http://127.0.0.1:44209 | crate     | 0.41.4  | TRUE      | OK      |
+    | http://127.0.0.1:44209 | crate     | 0.45.2  | TRUE      | OK      |
     +------------------------+-----------+---------+-----------+---------+
     CONNECT OK
 
@@ -51,7 +51,7 @@ if at least one server is reachable::
     +------------------------+-----------+---------+-----------+-----------...-+
     | server_url             | node_name | version | connected | message       |
     +------------------------+-----------+---------+-----------+-----------...-+
-    | http://127.0.0.1:44209 | crate     | 0.41.4  | TRUE      | OK            |
+    | http://127.0.0.1:44209 | crate     | 0.45.2  | TRUE      | OK            |
     | http://null.lol:4295   | NULL      | 0.0.0   | FALSE     | Server not... |
     +------------------------+-----------+---------+-----------+-----------...-+
     CONNECT OK

@@ -30,7 +30,6 @@ from crate.testing.layer import CrateLayer
 from .command import CrateCmd
 from .test_command import CommandTest
 
-
 def project_path(*parts):
     return os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
@@ -62,7 +61,7 @@ crate_uri = "http://%s" % crate_host
 
 
 def setUp(test):
-    test.globs['cmd'] = CrateCmd()
+    test.globs['cmd'] = CrateCmd(interactive=False)
 
 
 def test_suite():

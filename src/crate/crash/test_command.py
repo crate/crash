@@ -22,6 +22,68 @@ def fake_stdin(data):
 
 class CommandTest(TestCase):
 
+    def _output_format(self, format, func):
+        orig_argv = sys.argv[:]
+        try:
+            sys.argv = ["testcrash",
+                        "-c", "select name from sys.cluster",
+                        "--hosts", self.crate_host,
+                        '--format', format
+                        ]
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                with patch('sys.stderr', new_callable=StringIO) as err:
+                    try:
+                        main()
+                    except SystemExit as e:
+                        func(self, e, output, err)
+        finally:
+            sys.argv = orig_argv
+
+    def test_tabulate_output(self):
+        def assert_func(self, e, output, err):
+            exception_code = e.code
+            self.assertEqual(exception_code, 0)
+            output = output.getvalue()
+            self.assertTrue("CONNECT OK" in output)
+            self.assertTrue("SELECT 1 row in set" in output)
+            self.assertTrue('| name         |' in output)
+            self.assertTrue('| Testing44209 |' in output)
+        self._output_format('tabular', assert_func)
+
+    def test_json_output(self):
+        def assert_func(self, e, output, err):
+            exception_code = e.code
+            self.assertEqual(exception_code, 0)
+            output = output.getvalue()
+            self.assertTrue("CONNECT OK" in output)
+            self.assertTrue("SELECT 1 row in set" in output)
+            self.assertTrue('"name": "Testing44209"' in output)
+            self.assertTrue('"server_url": "http://127.0.0.1:44209"' in output)
+            self.assertTrue('"version": "0.46.3"' in output)
+            self.assertTrue('"connected": true' in output)
+        self._output_format('json', assert_func)
+
+    def test_raw_output(self):
+        def assert_func(self, e, output, err):
+            exception_code = e.code
+            self.assertEqual(exception_code, 0)
+            output = output.getvalue()
+            self.assertTrue("CONNECT OK" in output)
+            self.assertTrue("SELECT 1 row in set" in output)
+            self.assertTrue('"duration": -1' in output)
+            self.assertTrue('"rowcount": -1' in output)
+            self.assertTrue('"rows": [' in output)
+            self.assertTrue('"cols": [' in output)
+        self._output_format('raw', assert_func)
+
+    def test_invalid_output_format(self):
+        def assert_func(self, e, output, err):
+            exception_code = e.code
+            self.assertEqual(exception_code, 2)
+            output = err.getvalue()
+            self.assertTrue("testcrash: error: argument --format: invalid choice: 'foo' (choose from 'tabular', 'json', 'raw')" in output)
+        self._output_format('foo', assert_func)
+
     def test_pprint_duplicate_keys(self):
         "Output: table with duplicate keys"
         expected = "\n".join(["+------+------+",
@@ -104,7 +166,7 @@ class CommandTest(TestCase):
                     self.assertEqual(exception_code, 0)
                     output = output.getvalue()
                     self.assertTrue("CONNECT OK" in output)
-                    self.assertTrue("| http://127.0.0.1:44209     | crate     | 0.45.2  | TRUE      | OK" in output)
+                    self.assertTrue("| http://127.0.0.1:44209     | crate     | 0.46.3  | TRUE      | OK" in output)
                     self.assertTrue("| http://nonexistent.lol:123 | NULL      | 0.0.0   | FALSE     | Server not available" in output)
         finally:
             try:

@@ -5,6 +5,10 @@ Changes for crash
 Unreleased
 ==========
 
+ - added support for raw and json response output
+
+ - added coloured printing when in interactive shell
+
 2014/10/27 0.10.3
 =================
 

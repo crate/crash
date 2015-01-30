@@ -31,6 +31,16 @@ import os
 import sys
 import select
 
+from colorama import init, Fore, Style
+init(autoreset=True)
+
+from pygments import highlight
+from pygments.lexers.data import JsonLexer
+from pygments.formatters import TerminalFormatter
+
+_json_lexer = JsonLexer()
+_formatter = TerminalFormatter()
+
 _has_readline = False
 try:
     import readline
@@ -61,6 +71,29 @@ crate_fmt = TableFormat(lineabove=Line("+", "-", "+", "+"),
                         datarow=DataRow("|", "|", "|"),
                         padding=1, with_header_hide=None)
 
+class ColorLog(object):
+    """
+    Print in color if interactive tty
+    """
+
+    def __init__(self, isatty=None):
+        self.pretty = isatty is None and sys.stdout.isatty() or isatty
+
+    def log(self, content, color, style=''):
+        if self.pretty:
+            print(color + style + content)
+        else:
+            print(content)
+
+    def info(self, content):
+        self.log(content, Fore.GREEN)
+
+    def warn(self, content):
+        self.log(content, Fore.YELLOW)
+
+    def critical(self, content):
+        self.log(content, Fore.RED, style=Style.BRIGHT)
+
 
 class CrateCmd(Cmd):
     prompt = 'cr> '
@@ -81,11 +114,15 @@ class CrateCmd(Cmd):
         "refresh", "alter",
     ]
 
-    def __init__(self, stdin=None, stdout=None, error_trace=False):
+    def __init__(self, stdin=None, stdout=None,
+                 error_trace=False, output_format='tabular', interactive=True):
         Cmd.__init__(self, "tab", stdin, stdout)
         self.exit_code = 0
         self.partial_lines = []
         self.error_trace = error_trace
+        self.interactive = interactive
+        self.logger = ColorLog(isatty=interactive)
+        self.output_format = output_format
 
     def do_connect(self, server, error_trace=False):
         """
@@ -125,25 +162,43 @@ class CrateCmd(Cmd):
             return True
         except ConnectionError:
             self.exit_code = 1
-            print(
+            self.logger.warn(
                 'Use "connect <hostname:port>" to connect to a server first')
         except (Error, Warning) as e:
             self.exit_code = 1
             if hasattr(e, 'message'):
-                print(e.message)
+                self.logger.critical(e.message)
             else:
-                print(e)
+                self.logger.critical(e)
             if self.error_trace and hasattr(e, "error_trace") and e.error_trace:
-                print(e.error_trace)
+                self.logger.critical(e.error_trace)
 
         return False
+
+    def pprint_json(self, obj):
+        json_str = json.dumps(obj, indent=2)
+        if self.interactive:
+            return highlight(json_str, _json_lexer, _formatter)
+        return json_str
 
     def pprint(self, rows, cols=None):
         if cols is None:
             cols = self.cols()
-        rows = [list(map(self._transform_field, row)) for row in rows]
-        out = tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt="",
-                       missingval=self.NULL)
+
+        if self.output_format == 'raw':
+            duration = self.cursor.duration
+            out = self.pprint_json(dict(
+                rows=rows,
+                cols=cols,
+                rowcount=self.cursor.rowcount,
+                duration=duration > -1 and float(duration/1000.0) or duration,
+                ))
+        elif self.output_format == 'json':
+            out = self.pprint_json([dict(zip(cols, x)) for x in rows])
+        else:
+            rows = [list(map(self._transform_field, row)) for row in rows]
+            out = tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt="",
+                           missingval=self.NULL)
         try:
             print(out)
         except UnicodeEncodeError:
@@ -151,7 +206,7 @@ class CrateCmd(Cmd):
                 print(out.encode('utf-8').decode('ascii', 'replace'))
             except UnicodeEncodeError:
                 print(out.encode('utf-8').decode('ascii', 'ignore'))
-            print('WARNING: Unicode characters found that cannot be displayed. Check your system locale.')
+            self.logger.warn('WARNING: Unicode characters found that cannot be displayed. Check your system locale.')
 
     def _transform_field(self, field):
         """transform field for displaying"""
@@ -269,55 +324,50 @@ class CrateCmd(Cmd):
 
     def do_exit(self, *args):
         """exit the shell"""
-        self.stdout.write("Bye\n")
+        self.logger.warn("Bye")
         sys.exit(0)
 
-    def do_quit(self, *args):
-        """exit the shell"""
-        self.stdout.write("Bye\n")
-        sys.exit(0)
-
-    do_EOF = do_exit
+    do_quit = do_EOF = do_exit
 
     def print_rows_affected(self, command):
         """print success status with rows affected and query duration"""
         rowcount = self.cursor.rowcount
         if self.cursor.duration > -1:
-            print("{0} OK, {1} row{2} affected ({3:.3f} sec)".format(
+            self.logger.info("{0} OK, {1} row{2} affected ({3:.3f} sec)".format(
                 command.upper(), rowcount, "s"[rowcount == 1:],
                 float(self.cursor.duration) / 1000))
         else:
-            print("{0} OK, {1} row{2} affected".format(
+            self.logger.info("{0} OK, {1} row{2} affected".format(
                 command.upper(), rowcount, "s"[rowcount == 1:]))
 
     def print_rows_selected(self):
         """print count of rows in result set and query duration"""
         rowcount = self.cursor.rowcount
         if self.cursor.duration > -1:
-            print("SELECT {0} row{1} in set ({2:.3f} sec)".format(
+            self.logger.info("SELECT {0} row{1} in set ({2:.3f} sec)".format(
                 rowcount, "s"[rowcount == 1:],
                 float(self.cursor.duration) / 1000))
         else:
-            print("SELECT {0} row{1} in set".format(
+            self.logger.info("SELECT {0} row{1} in set".format(
                 rowcount, "s"[rowcount == 1:]))
 
     def print_success(self, command):
         """print success status only and duration"""
         if self.cursor.duration > -1:
-            print("{0} OK ({1:.3f} sec)".format(
+            self.logger.info("{0} OK ({1:.3f} sec)".format(
                 command.upper(), float(self.cursor.duration) / 1000))
         else:
-            print("{0} OK".format(command.upper()))
+            self.logger.info("{0} OK".format(command.upper()))
 
     def print_error(self, command, exception=None):
         if exception is not None:
-            print("{0}: {1}".format(
+            self.logger.critical("{0}: {1}".format(
                 exception.__class__.__name__, exception.message))
         if self.cursor.duration > -1:
-            print("{0} ERROR ({1:.3f} sec)".format(
+            self.logger.critical("{0} ERROR ({1:.3f} sec)".format(
                 command.upper(), float(self.cursor.duration) / 1000))
         else:
-            print("{0} ERROR".format(command.upper()))
+            self.logger.critical("{0} ERROR".format(command.upper()))
 
     def cmdloop(self, intro=None):
         """Repeatedly issue a prompt, accept input, parse an initial prefix
@@ -427,6 +477,8 @@ def parse_args():
                         help='execute sql statement')
     parser.add_argument('--hosts', type=str, nargs='*',
                         help='the crate hosts to connect to', metavar='HOST')
+    parser.add_argument('--format', type=str, default='tabular', choices=['tabular', 'json', 'raw'],
+                        help='output format of the sql response', metavar='FMT')
     args = parser.parse_args()
     return args
 
@@ -474,19 +526,10 @@ def main():
             pass
         atexit.register(readline.write_history_file, history_file_path)
 
-    level = logging.ERROR
     error_trace = args.verbose > 0
-    if args.verbose == 1:
-        level = logging.INFO
-    elif args.verbose >= 2:
-        level = logging.DEBUG
-    logging.basicConfig(
-        level=level,
-        format="[%(asctime)s %(name)-15s %(levelname)-8s] %(message)s]",
-        stream=sys.stdout
-    )
-
-    cmd = CrateCmd(error_trace=error_trace)
+    cmd = CrateCmd(error_trace=error_trace,
+                   output_format=args.format,
+                   interactive=sys.stdout.isatty())
     cmd.do_connect(args.hosts)
     # select.select on sys.stdin doesn't work on windows
     # so currently there is no pipe support
@@ -507,7 +550,8 @@ def main():
         try:
             cmd.cmdloop()
         except KeyboardInterrupt:
-            print("interrupted exiting...")
+            logger = ColorLog()
+            logger.warn('interrupted exiting ...')
     else:
         sys.exit(cmd.exit_code)
 

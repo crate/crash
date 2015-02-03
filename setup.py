@@ -31,6 +31,7 @@ requirements = [
     'Pygments',
     'crate>=0.11.2',
     'appdirs>=1.2,<2.0',
+    'prompt-toolkit'
 ]
 
 if (2, 6) == sys.version_info[:2]:
@@ -42,10 +43,10 @@ def read(path):
 long_description = (
     read('README.rst')
     + '\n' +
-    read('src/crate/crash/crash.txt')
+    read(os.path.join('src','crate','crash','usage.txt'))
 )
 
-versionf_content = open("src/crate/crash/__init__.py").read()
+versionf_content = open(os.path.join('src','crate','crash','__init__.py')).read()
 version_rex = r'^__version__ = [\'"]([^\'"]*)[\'"]$'
 m = re.search(version_rex, versionf_content, re.M)
 if m:

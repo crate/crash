@@ -1,0 +1,110 @@
+.. _formats:
+
+================
+Response Formats
+================
+
+.. _format_tabluar:
+
+tabular
+=======
+
+This is the default output format. It prints the SQL response in a tabular form.
+Each column of the table represents a selected column of the SQL statement.
+
+Example::
+
+    +--------+---------+
+    | name   | version |
+    +--------+---------+
+    | crate1 | 0.46.3  |
+    +--------+---------+
+    | crate2 | 0.46.3  |
+    +--------+---------+
+
+.. _format_json:
+
+json
+====
+
+The ``json`` format prints the result as JSON formatted object array where
+the key of the object is the column name and the value the value of the row.
+
+This is useful if you want to print the result of an SQL statement into a file.
+
+Example::
+
+    [
+      {
+        "name": "crate1",
+        "version": "0.46.3"
+      },
+      {
+        "name": "crate2",
+        "version": "0.46.3"
+      }
+    ]
+
+.. _format_raw:
+
+
+csv
+===
+
+The ``csv`` format prints the resuls as a comma separated value (csv) list,
+where the delimiter is a comma (``,``), the quote character is a double quote (``"``),
+and the escape character is a blackslash (``\``).
+
+The first line of the csv output contains the name of the selected columns.
+
+Example::
+
+    name,version
+    crate1,0.46.3
+    crate2,0.46.3
+
+raw
+===
+
+The ``raw`` format prints the results as it is retured by the Crate Python library.
+It contains a JSON object with 4 keys: ``cols``, ``rows``, ``rowcount``, and ``duration``.
+
+Example::
+
+    {
+      "rows": [
+        [
+          "crate1",
+          "0.46.0"
+        ],
+        [
+          "crate2",
+          "0.46.0"
+        ]
+      ],
+      "cols": [
+        "name",
+        "0.46.3"
+      ],
+      "rowcount": 1,
+      "duration": 0.000
+    }
+
+.. _format_mixed:
+
+mixed
+=====
+
+The ``mixed`` output lists each column in a row and multiple rows are separated by a line delimiter.
+The name of the column is on the left, separated by ``|`` from the value on the right side.
+
+Example::
+
+    name    | crate1
+    version | 0.46.3
+    ---------------------------------------------------------------
+    name    | crate2
+    version | 0.46.3
+    ---------------------------------------------------------------
+
+.. _format_csv:

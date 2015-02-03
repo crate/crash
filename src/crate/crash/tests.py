@@ -21,27 +21,35 @@
 
 from __future__ import absolute_import
 
+import os
+import sys
 import unittest
 import doctest
-import os
-
 import zc.customdoctests
 from crate.testing.layer import CrateLayer
 from .command import CrateCmd
+from .printer import ColorPrinter, PrintWrapper
 from .test_command import CommandTest
+
+
+class CrateTestCmd(CrateCmd):
+
+    def __init__(self, **kwargs):
+        super(CrateTestCmd, self).__init__(**kwargs)
+        doctest_print = PrintWrapper()
+        self.logger = ColorPrinter(False, stream=doctest_print, line_end='')
+
 
 def project_path(*parts):
     return os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
         '..', '..', *parts)
 
-
 def crate_path(*parts):
     return project_path('parts', 'crate', *parts)
 
-
-def crash_transform(s):
-    return u'cmd.onecmd("""{0}""");'.format(s.strip())
+def crash_transform(txt):
+    return u'cmd.process({0})'.format(repr(txt.strip()))
 
 
 crash_parser = zc.customdoctests.DocTestParser(
@@ -61,14 +69,13 @@ crate_uri = "http://%s" % crate_host
 
 
 def setUp(test):
-    test.globs['cmd'] = CrateCmd(interactive=False)
-
+    test.globs['cmd'] = CrateTestCmd(is_tty=False)
 
 def test_suite():
     suite = unittest.TestSuite()
     flags = (doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS)
     s = doctest.DocFileSuite(
-        'crash.txt',
+        'usage.txt',
         setUp=setUp,
         optionflags=flags,
         parser=crash_parser

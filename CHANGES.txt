@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fix: return complete sql exception message
+
 2015/02/03 0.11.0
 =================
 

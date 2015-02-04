@@ -67,3 +67,41 @@ You can get a list of commands by typing the command ``\?``:
 | ``\q``               | Quit Crate shell                                                                   |
 +----------------------+------------------------------------------------------------------------------------+
 
+
+===============
+Status Messages
+===============
+
+The ``SUCCESS`` status messages are only printed when ``crash`` is used as
+an interactive tty.
+
+If the output is routed, e.g. dumped into a file or piped into another command
+(such as `jq`_) for further processing of the response, these messages are omitted.
+
+
+The synopsis of the ``SUCCESS`` message is as follows::
+
+    SUCCESS <STMT>, <NUM> row(s) affected (<DURATION> sec)
+
+If the SQL statement (``SELECT``) returns selected columns::
+
+    SUCCESS <STMT> <NUM> row(s) in set (<DURATION> sec)
+
+The ``STMT`` is the definition/manipulation/query keyword, such as
+``CREATE``, ``INSERT``, ``UPDATE``, ``DELETE``, ``SELECT``, etc.
+
+``NUM`` is the number of rows that were affected by the SQL statement.
+It is ``-1`` for statements that do not affect any rows or
+if the row count of a statement is unknown.
+
+.. note::
+
+    Due to Crate's implementation, the ``DELETE`` statement
+    always returns ``-1`` (unknown). The reason is that Lucene
+    does not return a count when deleting the underlying documents.
+
+``DURATION`` is the time it took to process the SQL statement
+from request to response.
+
+
+.. _jq: http://stedolan.github.io/jq/

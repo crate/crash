@@ -6,6 +6,7 @@ The Crash Shell (``crash``) provides a CLI for the Crate Server.
 
 .. toctree::
    :maxdepth: 2
+
    usage
    cli
    formats

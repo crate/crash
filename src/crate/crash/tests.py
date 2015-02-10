@@ -75,7 +75,7 @@ def test_suite():
     suite = unittest.TestSuite()
     flags = (doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS)
     s = doctest.DocFileSuite(
-        'usage.txt',
+        'usage.txt', 'output.txt',
         setUp=setUp,
         optionflags=flags,
         parser=crash_parser

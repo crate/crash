@@ -157,7 +157,7 @@ class CommandTest(TestCase):
                     exception_code = e.code
                     self.assertEqual(exception_code, 0)
                     output = output.getvalue()
-                    self.assertTrue("| http://127.0.0.1:44209     | crate     | 0.46.3  | TRUE      | OK" in output)
+                    self.assertTrue("| http://127.0.0.1:44209     | crate     | 0.46.5  | TRUE      | OK" in output)
                     self.assertTrue("| http://nonexistent.lol:123 | NULL      | 0.0.0   | FALSE     | Server not available" in output)
         finally:
             try:

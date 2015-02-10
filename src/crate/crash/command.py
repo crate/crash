@@ -166,6 +166,7 @@ class CrashPrompt(DefaultPrompt):
 class CrateCmd(object):
 
     OUTPUT_FORMATS = ['tabular', 'json', 'csv', 'raw', 'mixed']
+    EXCLUDE_ROWCOUNT = ['create', 'alter', 'drop', 'refresh', 'set', 'reset']
 
     def __init__(self, connection=None, error_trace=False,
                  output_format=None, is_tty=True):
@@ -384,7 +385,10 @@ class CrateCmd(object):
             self.pprint(cur.fetchall(), [c[0] for c in cur.description])
             tmpl = '{command} {rowcount} row{s} in set{duration}'
         else:
-            tmpl = '{command} OK, {rowcount} row{s} affected{duration}'
+            tmpl = '{command} OK'
+            if command.lower() not in self.EXCLUDE_ROWCOUNT:
+                tmpl += ', {rowcount} row{s} affected'
+            tmpl += '{duration}'
         self.logger.info(tmpl.format(**print_vars))
         return True
 

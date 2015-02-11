@@ -1,0 +1,85 @@
+====================
+Response Status Test
+====================
+
+Check the correct response status lines.
+
+    cr> \connect 127.0.0.1:44209
+    +------------------------+-----------+---------+-----------+---------+
+    | server_url             | node_name | version | connected | message |
+    +------------------------+-----------+---------+-----------+---------+
+    | http://127.0.0.1:44209 | crate     | ...     | TRUE      | OK      |
+    +------------------------+-----------+---------+-----------+---------+
+    CONNECT OK
+
+**Make sure the response status line of DDL and a few other statements
+that do not affect rows do not print ``affected rows``:**
+
+``CREATE`` **does not** affect rows::
+
+    cr> create table test_table (
+    ...   name string,
+    ...   value float
+    ... ) with (number_of_replicas='0');
+    CREATE OK (... sec)
+
+``INSERT`` **does** affect rows, check for singular/plural::
+
+    cr> insert into test_table (name, value) values ('foo', 0.1);
+    INSERT OK, 1 row affected (... sec)
+
+    cr> insert into test_table (name, value) values
+    ... ('bar', 0.2), ('foobar', 0.3);
+    INSERT OK, 2 rows affected (... sec)
+
+``REFRESH`` **does not** affect rows::
+
+    cr> refresh table test_table;
+    REFRESH OK (... sec)
+
+``UPDATE`` **does** affect rows, check for singular/plural::
+
+    cr> update test_table set name='baz'
+    ... where value > 0.2;
+    UPDATE OK, 1 row affected (... sec)
+
+    cr> update test_table set value=1.0
+    ... where value < 0.3;
+    UPDATE OK, 2 rows affected (... sec)
+
+.. hide::
+
+    cr> refresh table test_table;
+    REFRESH OK (... sec)
+
+``SELECT`` has a different status message format::
+
+    cr> select name, value from test_table order by value, name;
+    +------+-------+
+    | name | value |
+    +------+-------+
+    | baz  |   0.3 |
+    | bar  |   1.0 |
+    | foo  |   1.0 |
+    +------+-------+
+    SELECT 3 rows in set (... sec)
+
+``ALTER TABLE`` **does not** affect any rows::
+
+    cr> alter table test_table set (refresh_interval=0);
+    ALTER OK (... sec)
+
+``SET`` and ``RESET`` **do not** affect rows::
+
+    cr> set global transient stats.enabled = true;
+    SET OK (... sec)
+
+    cr> reset global stats.enabled;
+    RESET OK (... sec)
+
+``DROP`` **does not** affect rows::
+
+    cr> drop table test_table;
+    DROP OK (... sec)
+
+

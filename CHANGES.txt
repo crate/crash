@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2015/02/11 0.11.2
+=================
+
  - Fix: do not print ``rows affected`` in status message
    of DDL statements and other statements that do not affect rows
 

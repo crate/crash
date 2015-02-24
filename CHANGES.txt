@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2015/02/24 0.11.3
+=================
+
  - Fix: query duration was rounded incorrectly to second precision
 
 2015/02/11 0.11.2

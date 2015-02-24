@@ -220,7 +220,7 @@ class CrateCmd(object):
             rows=rows,
             cols=cols,
             rowcount=self.cursor.rowcount,
-            duration=duration > -1 and float(duration/1000.0) or duration,
+            duration=duration > -1 and float(duration)/1000.0 or duration,
         ), writer=writer)
 
     def pprint_json(self, rows, cols, writer=sys.stdout):
@@ -374,7 +374,7 @@ class CrateCmd(object):
         command = statement[:statement.index(' ')].upper()
         duration = ''
         if cur.duration > -1 :
-            duration = ' ({0:.3f} sec)'.format(float(cur.duration / 1000))
+            duration = ' ({0:.3f} sec)'.format(float(cur.duration)/1000.0)
         print_vars = {
             'command': command,
             'rowcount': cur.rowcount,

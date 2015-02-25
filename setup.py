@@ -78,7 +78,8 @@ setup(
         test=['crate[test]',
               'zc.customdoctests',
               'zope.testing',
-              ]
+              ],
+        argcompletion=['argcomplete']
     ),
     install_requires=requirements,
     package_data={'': ['*.txt']},

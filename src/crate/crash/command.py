@@ -1,4 +1,5 @@
 # -*- coding: utf-8; -*-
+# PYTHON_ARGCOMPLETE_OK
 # vim: set fileencodings=utf-8
 #
 # Licensed to CRATE Technology GmbH ("Crate") under one or more contributor
@@ -23,7 +24,6 @@
 
 from __future__ import print_function
 
-import re
 import os
 import sys
 import csv
@@ -32,8 +32,6 @@ import select
 
 from argparse import ArgumentParser
 from colorama import Fore, Style
-from functools import partial
-from six import PY2, StringIO
 
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import FileHistory
@@ -88,6 +86,11 @@ def parse_args(output_formats):
                         help='the crate hosts to connect to', metavar='HOST')
     parser.add_argument('--format', type=str, default='tabular', choices=output_formats,
                         help='output format of the sql response', metavar='FORMAT')
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        pass
     args = parser.parse_args()
     return args
 

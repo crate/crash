@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added argcomplete support. If argcomplete is available bash argument
+   completion will work if argcomplete is loaded.
+
 2015/02/24 0.11.3
 =================
 

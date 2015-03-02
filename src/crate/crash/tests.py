@@ -69,7 +69,7 @@ crate_uri = "http://%s" % crate_host
 
 
 def setUp(test):
-    test.globs['cmd'] = CrateTestCmd(is_tty=False)
+    test.globs['cmd'] = CrateTestCmd(error_trace=True, is_tty=False)
 
 def test_suite():
     suite = unittest.TestSuite()

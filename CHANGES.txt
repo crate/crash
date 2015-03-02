@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fix: print stacktrace when crash is launched in verbose mode
+
  - Added argcomplete support. If argcomplete is available bash argument
    completion will work if argcomplete is loaded.
 

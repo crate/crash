@@ -87,6 +87,15 @@ them without any special arguments like this::
     +--------------------+-------------------+
     SELECT 13 rows in set (... sec)
 
+When the Crate shell is started with the option ``-v`` debugging information will be printed::
+
+    cr> select x from y;
+    SQLActionException[Table 'y' unknown]
+    io.crate.exceptions.TableUnknownException: Table 'y' unknown
+    	at io.crate.metadata.ReferenceInfos.getTableInfoUnsafe(ReferenceInfos.java:109)
+    ...
+
+
 
 Limitations
 ===========

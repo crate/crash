@@ -364,6 +364,8 @@ class CrateCmd(object):
             self.logger.warn('Use \connect <server> to connect to one or more server first.')
         except ProgrammingError as e:
             self.logger.critical(e.message)
+            if self.error_trace:
+                self.print.write('\n' + e.error_trace)
         return False
 
     def execute(self, statement):

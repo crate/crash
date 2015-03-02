@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fix: print stacktrace when crash is launched in verbose mode
+
 2015/02/24 0.11.3
 =================
 

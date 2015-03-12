@@ -1,7 +1,7 @@
-.. image:: https://cdn.crate.io/web/1.0.0/img/logo-solid.png
-   :width: 155px
-   :height: 45px
-   :alt: Crate
+.. image:: https://cdn.crate.io/web/2.0/img/crate-logo_330x72.png
+   :width: 165px
+   :height: 36px
+   :alt: Crate.IO
    :target: https://crate.io
 
 .. image:: https://travis-ci.org/crate/crash.svg?branch=master
@@ -20,7 +20,7 @@
 Overview
 ========
 
-This is the Crate Data shell called ``crash``.
+This is the Crate shell called ``crash``.
 
 Installation
 ============

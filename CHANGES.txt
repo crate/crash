@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed an issue with pasting multi-line statements from clipboard.
+
  - Added argcomplete support. If argcomplete is available bash argument
    completion will work if argcomplete is loaded.
 

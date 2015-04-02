@@ -446,6 +446,13 @@ def _create_default_layout(lines_ref):
         ]
     )])
 
+
+def is_multiline(doc):
+    if not doc.text:
+        return False
+    return not doc.text.rstrip().endswith(';')
+
+
 def loop(cmd, history_file):
     from prompt_toolkit import CommandLineInterface, AbortAction
     from prompt_toolkit import Exit
@@ -457,6 +464,7 @@ def loop(cmd, history_file):
     buffer = Buffer(
         history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
         completer=SQLCompleter(cmd.connection, cmd.lines),
+        is_multiline=is_multiline
     )
     cli = CommandLineInterface(
         style=MonokaiStyle,

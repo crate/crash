@@ -44,7 +44,6 @@ from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers.data import JsonLexer
 from pygments.lexers.sql import SqlLexer
-from pygments.token import Token
 from pygments.styles.monokai import MonokaiStyle
 
 from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate
@@ -131,7 +130,7 @@ class SQLCompleter(Completer):
         self.lines = lines
         self.keywords += [kw.upper() for kw in self.keywords]
 
-    def get_completions(self, document):
+    def get_completions(self, document, complete_event):
         line = document.text
         if line.startswith('\\'):
             return
@@ -150,6 +149,7 @@ def _transform_field(field):
     else:
         return field
 
+
 def get_num_columns():
     return 80
 
@@ -158,12 +158,12 @@ class CrashPrompt(DefaultPrompt):
     def __init__(self, lines):
         self.lines = lines
 
-    def tokens(self, cli):
+    @property
+    def prompt(self):
         if self.lines:
-            prompt = '... '
+            return '... '
         else:
-            prompt = 'cr> '
-        return [(Token.Prompt, prompt)]
+            return 'cr> '
 
 
 class CrateCmd(object):
@@ -412,43 +412,57 @@ def get_stdin():
             break
     return
 
-def _detect_key_bindings():
-    from prompt_toolkit.key_bindings.vi import vi_bindings
+def _enable_vi_mode():
     files = ['/etc/inputrc', os.path.expanduser('~/.inputrc')]
     for filepath in files:
         try:
             with open(filepath, 'r') as f:
                 for line in f:
                     if line.strip() == 'set editing-mode vi':
-                        return [vi_bindings]
+                        return True
         except IOError:
             continue
-    return None
+    return False
+
+
+def _create_default_layout(lines_ref):
+    from prompt_toolkit.layout.dimension import LayoutDimension
+    from prompt_toolkit.layout import HSplit, Window, FloatContainer, Float
+    from prompt_toolkit.layout.controls import BufferControl
+    from prompt_toolkit.layout.menus import CompletionsMenu
+    from prompt_toolkit.filters import HasFocus
+
+    input_processors = [CrashPrompt(lines_ref)]
+    return HSplit([FloatContainer(
+        Window(
+            BufferControl(input_processors, lexer=SqlLexer),
+            LayoutDimension(min=8)
+        ),
+        [
+            Float(xcursor=True,
+                  ycursor=True,
+                  content=CompletionsMenu(max_height=16,
+                                          extra_filter=HasFocus('default')))
+        ]
+    )])
 
 def loop(cmd, history_file):
     from prompt_toolkit import CommandLineInterface, AbortAction
     from prompt_toolkit import Exit
-    from prompt_toolkit.layout import Layout
-    from prompt_toolkit.line import Line
+    from prompt_toolkit.buffer import Buffer
     from prompt_toolkit.renderer import Output
+    from prompt_toolkit.key_binding.manager import KeyBindingManager
 
-    cli_line = Line(
+    key_binding_manager = KeyBindingManager(enable_vi_mode=_enable_vi_mode())
+    buffer = Buffer(
+        history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
         completer=SQLCompleter(cmd.connection, cmd.lines),
-        history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH)
     )
-    layout = Layout(
-        before_input=CrashPrompt(cmd.lines),
-        menus=[],
-        lexer=SqlLexer,
-        bottom_toolbars=[],
-        show_tildes=False,
-    )
-    key_binding_factories = _detect_key_bindings()
     cli = CommandLineInterface(
         style=MonokaiStyle,
-        layout=layout,
-        line=cli_line,
-        key_binding_factories=key_binding_factories
+        layout=_create_default_layout(cmd.lines),
+        buffer=buffer,
+        key_bindings_registry=key_binding_manager.registry
     )
     output = Output(cli.renderer.stdout)
     global get_num_columns
@@ -457,7 +471,8 @@ def loop(cmd, history_file):
     try:
         while True:
             doc = cli.read_input(on_exit=AbortAction.RAISE_EXCEPTION)
-            cmd.process(doc.text)
+            if doc:
+                cmd.process(doc.text)
     except Exit: # Quit on Ctrl-D keypress
         cmd.logger.warn(u'Bye!')
         return

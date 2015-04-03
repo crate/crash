@@ -2,15 +2,15 @@
 Changes for crash
 =================
 
-Unreleased
-==========
+2015/04/03 0.11.5
+=================
 
  - Fixed an issue with pasting multi-line statements from clipboard.
 
  - Added argcomplete support. If argcomplete is available bash argument
    completion will work if argcomplete is loaded.
 
-2014/03/01 0.11.4
+2015/03/01 0.11.4
 =================
 
  - Fix: print stacktrace when crash is launched in verbose mode

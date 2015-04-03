@@ -474,14 +474,17 @@ def loop(cmd, history_file):
     )
     output = Output(cli.renderer.stdout)
     global get_num_columns
-    def get_num_columns():
+
+    def get_num_columns_override():
         return output.get_size().columns
+    get_num_columns = get_num_columns_override
+
     try:
         while True:
             doc = cli.read_input(on_exit=AbortAction.RAISE_EXCEPTION)
             if doc:
                 cmd.process(doc.text)
-    except Exit: # Quit on Ctrl-D keypress
+    except Exit:  # Quit on Ctrl-D keypress
         cmd.logger.warn(u'Bye!')
         return
 

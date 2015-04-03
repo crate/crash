@@ -92,7 +92,7 @@ When the Crate shell is started with the option ``-v`` debugging information wil
     cr> select x from y;
     SQLActionException[Table 'y' unknown]
     io.crate.exceptions.TableUnknownException: Table 'y' unknown
-    	at io.crate.metadata.ReferenceInfos.getTableInfoUnsafe(ReferenceInfos.java:109)
+    	at io.crate.metadata.ReferenceInfos.getTableInfoUnsafe(ReferenceInfos.java:...)
     ...
 
 

@@ -29,6 +29,7 @@ import sys
 import csv
 import json
 import select
+import logging
 
 from argparse import ArgumentParser
 from colorama import Fore, Style
@@ -50,6 +51,17 @@ from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate
 from .printer import ColorPrinter, PrintWrapper
 
 from appdirs import user_data_dir
+
+try:
+    from logging import NullHandler
+except ImportError:
+    from logging import Handler
+
+    class NullHandler(Handler):
+        def emit(self, record):
+            pass
+
+logging.getLogger('crate').addHandler(NullHandler())
 
 _json_lexer = JsonLexer()
 _formatter = TerminalFormatter()

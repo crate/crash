@@ -5,6 +5,9 @@ Changes for crash
 2015/04/03 0.11.5
 =================
 
+ - Fixed misconfigured logging that caused warning logs being printed
+   to stderr.
+
  - Fixed an issue with pasting multi-line statements from clipboard.
 
  - Added argcomplete support. If argcomplete is available bash argument

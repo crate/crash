@@ -2,6 +2,11 @@
 Changes for crash
 =================
 
+Unreleased
+==========
+
+ - added ``--version`` to cli interface to show crash version and exit
+
 2015/04/03 0.11.5
 =================
 

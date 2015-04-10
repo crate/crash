@@ -21,6 +21,8 @@ The ``crash`` binary supports several command line arguments.
 +---------------------------------------+--------------------------------------------------+
 | ``--format FORMAT``                   | Specifies the output format of the SQL response. |
 +---------------------------------------+--------------------------------------------------+
+| ``--version``                         | Print the crash version and exit.                |
++---------------------------------------+--------------------------------------------------+
 
 
 Example Usage

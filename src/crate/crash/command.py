@@ -38,6 +38,7 @@ from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.layout.prompt import DefaultPrompt
 
+from ..crash import __version__ as crash_version
 from crate.client import connect
 from crate.client.exceptions import ConnectionError, ProgrammingError
 
@@ -97,6 +98,8 @@ def parse_args(output_formats):
                         help='the crate hosts to connect to', metavar='HOST')
     parser.add_argument('--format', type=str, default='tabular', choices=output_formats,
                         help='output format of the sql response', metavar='FORMAT')
+    parser.add_argument('--version', action='store_true', default=False,
+                        help='show crash version and exit')
     try:
         import argcomplete
         argcomplete.autocomplete(parser)
@@ -500,8 +503,12 @@ def loop(cmd, history_file):
         cmd.logger.warn(u'Bye!')
         return
 
+
 def main():
     args = parse_args(CrateCmd.OUTPUT_FORMATS)
+    if args.version:
+        print(crash_version)
+        sys.exit(0)
     error_trace = args.verbose > 0
     conn = connect(args.hosts)
     cmd = CrateCmd(connection=conn, error_trace=error_trace,

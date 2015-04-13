@@ -313,6 +313,9 @@ class CrateCmd(object):
     def _help(self, *args):
         """ print this help """
         out = []
+        if args[0] is "":
+            self.logger.critical("Command does not take any arguments.")
+            return
         for k, v in sorted(self.commands.items()):
             doc = v.__doc__ and v.__doc__.strip()
             out.append('\{:<30} {}'.format(k, doc))
@@ -320,12 +323,18 @@ class CrateCmd(object):
 
     def _show_tables(self, *args):
         """ print the existing tables within the 'doc' schema """
+        if args[0] is "":
+            self.logger.critical("Command does not take any arguments.")
+            return
         self._exec("""select format('%s.%s', schema_name, table_name) as name
                       from information_schema.tables
                       where schema_name not in ('sys','information_schema')""")
 
     def _quit(self, *args):
         """ quit crash """
+        if args[0] is "":
+            self.logger.critical("Command does not take any arguments.")
+            return
         self.logger.warn(u'Bye!')
         sys.exit(self.exit_code)
 
@@ -368,6 +377,8 @@ class CrateCmd(object):
             if message:
                 self.logger.info(message)
             return True
+        else:
+            self.logger.critical('Unknown command. Type \? for a full list of available commands.')
         return False
 
     def _exec(self, line):
@@ -465,8 +476,9 @@ def _create_default_layout(lines_ref):
 def is_multiline(doc):
     if not doc.text:
         return False
+    if doc.text.startswith('\\'):
+        return False
     return not doc.text.rstrip().endswith(';')
-
 
 def loop(cmd, history_file):
     from prompt_toolkit import CommandLineInterface, AbortAction

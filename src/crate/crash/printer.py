@@ -54,7 +54,7 @@ class ColorPrinter(object):
 
     def __init__(self, is_tty=None, stream=sys.stderr, line_end='\n'):
         self.stream = stream
-        self.pretty = is_tty is None and sys.stdout.isatty() or is_tty
+        self.pretty = is_tty is None and stream.isatty() or is_tty
         self.line_end = line_end
 
     def log(self, content, color, style=''):

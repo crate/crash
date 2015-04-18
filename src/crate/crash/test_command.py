@@ -1,13 +1,14 @@
 import sys
 import os
+import logging
 from unittest import TestCase
 from six import PY2, StringIO
 import tempfile
 from io import TextIOWrapper
 from mock import patch
 
-from .command import CrateCmd, main, get_stdin
-
+from .command import CrateCmd, main, get_stdin, noargs_command
+from .printer import ColorPrinter
 
 def fake_stdin(data):
     if PY2:
@@ -281,3 +282,44 @@ class CommandTest(TestCase):
             command.pprint([[3.1415926535], [42.0]], ['number'])
             self.assertEqual(expected, output.getvalue())
 
+    def test_help_command(self):
+        """Test output of help command"""
+        command = CrateCmd(is_tty=False)
+        expected = "\n".join([
+            '\\?                              print this help',
+            '\\c                              connect to the given server',
+            '\\connect                        connect to the given server',
+            '\\dt                             print the existing tables within the \'doc\' schema',
+            '\\format                         switch output format',
+            '\\q                              quit crash'
+            ])
+        self.assertEqual(expected, command._help())
+        command = CrateCmd(is_tty=False)
+
+        output = StringIO()
+        command.logger = ColorPrinter(False, stream=output)
+        text = command._help('arg1', 'arg2')
+        self.assertEqual(None, text)
+        self.assertEqual('Command does not take any arguments.\n', output.getvalue())
+
+    def test_noargs_decorator(self):
+        """Test noargs decorator"""
+        output = StringIO()
+        
+        class MyCmd:
+            
+            logger = ColorPrinter(False, stream=output)
+            
+            @noargs_command
+            def my_cmd(self, *args):
+                return 'awesome'
+
+        command = MyCmd()
+        command.my_cmd()
+        
+        text = command.my_cmd()
+        self.assertEqual('awesome', text)
+        
+        text = command.my_cmd('arg1')
+        self.assertEqual(None, text)
+        self.assertEqual('Command does not take any arguments.\n', output.getvalue())

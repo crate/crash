@@ -1,6 +1,6 @@
+# vim: set fileencodings=utf-8
 # -*- coding: utf-8; -*-
 # PYTHON_ARGCOMPLETE_OK
-# vim: set fileencodings=utf-8
 #
 # Licensed to CRATE Technology GmbH ("Crate") under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
@@ -181,6 +181,16 @@ class CrashPrompt(DefaultPrompt):
             return 'cr> '
 
 
+def noargs_command(fn):
+    def inner_fn(self, *args):
+        if len(args):
+            self.logger.critical("Command does not take any arguments.")
+            return
+        return fn(self, *args)
+    inner_fn.__doc__ = fn.__doc__
+    return inner_fn
+
+
 class CrateCmd(object):
 
     OUTPUT_FORMATS = ['tabular', 'json', 'csv', 'raw', 'mixed']
@@ -310,31 +320,26 @@ class CrateCmd(object):
             self._exec(' '.join(self.lines))
             self.lines[:] = []
 
+
+    @noargs_command
     def _help(self, *args):
         """ print this help """
         out = []
-        if args[0] is "":
-            self.logger.critical("Command does not take any arguments.")
-            return
         for k, v in sorted(self.commands.items()):
             doc = v.__doc__ and v.__doc__.strip()
-            out.append('\{:<30} {}'.format(k, doc))
+            out.append('\{0:<30} {1}'.format(k, doc))
         return '\n'.join(out)
 
+    @noargs_command
     def _show_tables(self, *args):
         """ print the existing tables within the 'doc' schema """
-        if args[0] is "":
-            self.logger.critical("Command does not take any arguments.")
-            return
         self._exec("""select format('%s.%s', schema_name, table_name) as name
                       from information_schema.tables
                       where schema_name not in ('sys','information_schema')""")
 
+    @noargs_command
     def _quit(self, *args):
         """ quit crash """
-        if args[0] is "":
-            self.logger.critical("Command does not take any arguments.")
-            return
         self.logger.warn(u'Bye!')
         sys.exit(self.exit_code)
 
@@ -373,7 +378,7 @@ class CrateCmd(object):
             return False
         cmd = self.commands.get(words[0].lower())
         if cmd:
-            message = cmd(' '.join(words[1:]))
+            message = cmd(*words[1:])
             if message:
                 self.logger.info(message)
             return True

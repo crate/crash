@@ -313,7 +313,7 @@ class CrateCmd(object):
     def _help(self, *args):
         """ print this help """
         out = []
-        if args[0] is "":
+        if args[0] is not "":
             self.logger.critical("Command does not take any arguments.")
             return
         for k, v in sorted(self.commands.items()):
@@ -323,7 +323,7 @@ class CrateCmd(object):
 
     def _show_tables(self, *args):
         """ print the existing tables within the 'doc' schema """
-        if args[0] is "":
+        if args[0] is not "":
             self.logger.critical("Command does not take any arguments.")
             return
         self._exec("""select format('%s.%s', schema_name, table_name) as name
@@ -332,7 +332,7 @@ class CrateCmd(object):
 
     def _quit(self, *args):
         """ quit crash """
-        if args[0] is "":
+        if args[0] is not "":
             self.logger.critical("Command does not take any arguments.")
             return
         self.logger.warn(u'Bye!')

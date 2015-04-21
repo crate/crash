@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Improved readability of sql syntax highlighting 
+
  - Attempting to use unknown command now results in an error
 
  - added ``--version`` to cli interface to show crash version and exit

@@ -46,9 +46,9 @@ from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers.data import JsonLexer
 from pygments.lexers.sql import SqlLexer
-from pygments.styles.monokai import Style
+from pygments.style import Style as PygmentsStyle
+from pygments.token import Keyword, Comment, Operator, Number, Literal, String, Error
 
-from pygments.token import Keyword, Comment, Operator, Number, Literal
 from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate
 from .printer import ColorPrinter, PrintWrapper
 
@@ -191,15 +191,19 @@ def noargs_command(fn):
     inner_fn.__doc__ = fn.__doc__
     return inner_fn
 
-class CrateStyle(Style):
+
+class CrateStyle(PygmentsStyle):
     default_style = "noinherit"
     styles = {
-        Keyword: '#4B95A3',
-        Comment: '#75715e',
-        Operator: '#F9264D',
-        Literal.Number: '#ae81ff',
-        Literal.String: '#BF9B45'
+        Keyword: 'bold #4b95a3',
+        Comment: '#757265',
+        Operator: '#e83131',
+        Number: '#be61ff',
+        Literal: '#ae81ff',
+        String: '#f4a33d',
+        Error: '#ff3300',
     }
+
 
 class CrateCmd(object):
 

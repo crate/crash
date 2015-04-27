@@ -5,7 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
- - Improved readability of sql syntax highlighting 
+ - Fixed broken 'mixed' output style due to overriding import
+
+ - Improved readability of sql syntax highlighting
 
  - Attempting to use unknown command now results in an error
 

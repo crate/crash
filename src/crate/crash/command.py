@@ -46,7 +46,7 @@ from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers.data import JsonLexer
 from pygments.lexers.sql import SqlLexer
-from pygments.styles.monokai import Style
+from pygments.styles.monokai import Style as MonokaiStyle
 
 from pygments.token import Keyword, Comment, Operator, Number, Literal
 from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate
@@ -191,7 +191,7 @@ def noargs_command(fn):
     inner_fn.__doc__ = fn.__doc__
     return inner_fn
 
-class CrateStyle(Style):
+class CrateStyle(MonokaiStyle):
     default_style = "noinherit"
     styles = {
         Keyword: '#4B95A3',

@@ -55,8 +55,24 @@ You can then start the generated file like this::
 
     ./crash_standalone
 
-Deployment to Pypi
-==================
+Preparing a new Release
+=======================
+
+Before creating a new Crash distribution, a new version and tag need to be created:
+
+ - Update the ``__version__`` in ``src/crate/crash/__init__.py``.
+
+ - Add a note for the new version at the ``CHANGES.txt`` file.
+
+ - Commit e.g. using message 'prepare release x.x.x'.
+
+ - Push to origin
+
+ - Create a tag using the ``create_tag.sh`` script
+   (run ``./devtools/create_tag.sh``).
+
+Deployment to PyPi
+------------------
 
 To create the packages use::
 
@@ -72,6 +88,11 @@ but does only support plaintext authentication::
 
     bin/py setup.py upload
 
+Release Crate Standalone
+-------------------------
+
+Building and releasing the standalone version is done by a Jenkins_ job.
+
 Writing Documentation
 =====================
 
@@ -82,6 +103,8 @@ Normally the documentation is built by `Read the Docs`_.
 However if you work on the documentation you can run sphinx
 directly, which can be done by just running ``bin/sphinx``.
 The output can then be found in the ``out/html`` directory.
+
+.. _Jenkins: http://jenkins-ci.org/
 
 .. _Sphinx: http://sphinx-doc.org/
 

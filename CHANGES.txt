@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2015/04/28 0.12.0
+=================
+
  - Fixed broken 'mixed' output style due to overriding import
 
  - Improved readability of sql syntax highlighting

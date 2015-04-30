@@ -232,24 +232,17 @@ class CrateCmd(object):
         self.print = PrintWrapper()
 
     def pprint(self, rows, cols):
-        try:
-            if self.output_format == 'raw':
-                self.pprint_raw(rows, cols, writer=self.print)
-            elif self.output_format == 'json':
-                self.pprint_json(rows, cols, writer=self.print)
-            elif self.output_format == 'csv':
-                self.pprint_csv(rows, cols, writer=self.print)
-            elif self.output_format == 'mixed':
-                self.pprint_mixed(rows, cols, writer=self.print)
-            else:
-                self.pprint_tabular(rows, cols, writer=self.print)
-            self.print.write('\n')
-        except UnicodeEncodeError:
-            try:
-                print(out.encode('utf-8').decode('ascii', 'replace'))
-            except UnicodeEncodeError:
-                print(out.encode('utf-8').decode('ascii', 'ignore'))
-            self.logger.warn('WARNING: Unicode characters found that cannot be displayed. Check your system locale.')
+        if self.output_format == 'raw':
+            self.pprint_raw(rows, cols, writer=self.print)
+        elif self.output_format == 'json':
+            self.pprint_json(rows, cols, writer=self.print)
+        elif self.output_format == 'csv':
+            self.pprint_csv(rows, cols, writer=self.print)
+        elif self.output_format == 'mixed':
+            self.pprint_mixed(rows, cols, writer=self.print)
+        else:
+            self.pprint_tabular(rows, cols, writer=self.print)
+        self.print.write('\n')
 
     def pprint_tabular(self, rows, cols, writer=sys.stdout):
         rows = [list(map(_transform_field, row)) for row in rows]
@@ -281,7 +274,6 @@ class CrateCmd(object):
             max_col_len += len(Fore.YELLOW + Style.RESET_ALL)
         tmpl = '{0:<'+str(max_col_len)+'} | {1}'
         row_delimiter = '-' * get_num_columns()
-        out = []
         for row in rows:
             for i, c in enumerate(cols):
                 val = self._mixed_format(row[i], max_col_len, padding)
@@ -293,7 +285,7 @@ class CrateCmd(object):
     def _json_format(self, obj, writer=sys.stdout):
         try:
             json_str = json.dumps(obj, indent=2)
-        except TypeError as e:
+        except TypeError:
             pass
         else:
             if self.is_tty:

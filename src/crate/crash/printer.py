@@ -38,7 +38,14 @@ class PrintWrapper(object):
         pass
 
     def write(self, line, end=''):
-        print(line, end=end)
+        try:
+            print(line, end=end)
+        except UnicodeEncodeError:
+            try:
+                print(line.encode('utf-8').decode('ascii', 'replace'), end=end)
+            except UnicodeEncodeError:
+                print(line.encode('utf-8').decode('ascii', 'ignore'), end=end)
+            print('WARNING: Unicode characters found that cannot be displayed. Check your system locale.')
 
     def close(self):
         pass

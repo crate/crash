@@ -205,9 +205,17 @@ class CrateStyle(PygmentsStyle):
     }
 
 
+def val_len(v):
+    if not v:
+        return 4  # will be displayed as NULL
+    if isinstance(v, (list, dict)):
+        return len(json.dumps(v))
+    return len(v)
+
+
 class CrateCmd(object):
 
-    OUTPUT_FORMATS = ['tabular', 'json', 'csv', 'raw', 'mixed']
+    OUTPUT_FORMATS = ['tabular', 'json', 'csv', 'raw', 'mixed', 'dynamic']
     EXCLUDE_ROWCOUNT = ['create', 'alter', 'drop', 'refresh', 'set', 'reset']
 
     def __init__(self, connection=None, error_trace=False,
@@ -240,6 +248,8 @@ class CrateCmd(object):
             self.pprint_csv(rows, cols, writer=self.print)
         elif self.output_format == 'mixed':
             self.pprint_mixed(rows, cols, writer=self.print)
+        elif self.output_format == 'dynamic':
+            self.pprint_dynamic(rows, cols, writer=self.print)
         else:
             self.pprint_tabular(rows, cols, writer=self.print)
         self.print.write('\n')
@@ -268,6 +278,17 @@ class CrateCmd(object):
         for row in rows:
             wr.writerow(row)
 
+    def pprint_dynamic(self, rows, cols, writer=sys.stdout):
+        max_cols_required = sum(len(c) + 4 for c in cols) + 1
+        for row in rows:
+            cols_required = sum(val_len(v) + 4 for v in row) + 1
+            if cols_required > max_cols_required:
+                max_cols_required = cols_required
+        if max_cols_required > get_num_columns():
+            self.pprint_mixed(rows, cols, writer)
+        else:
+            self.pprint_tabular(rows, cols, writer)
+
     def pprint_mixed(self, rows, cols, writer=sys.stdout):
         padding = max_col_len = max(len(c) for c in cols)
         if self.is_tty:
@@ -293,7 +314,7 @@ class CrateCmd(object):
             writer.write(json_str)
 
     def _mixed_format(self, value, max_col_len, padding):
-        if isinstance(value, dict) or isinstance(value, list):
+        if isinstance(value, (list, dict)):
             json_str = json.dumps(value, indent=2, sort_keys=True)
             if self.is_tty:
                 json_str = highlight(json_str, _json_lexer, _formatter).rstrip('\n')

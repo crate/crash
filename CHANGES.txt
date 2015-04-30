@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - added `dynamic` as output format option
+
 2015/04/28 0.12.0
 =================
 

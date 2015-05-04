@@ -210,7 +210,9 @@ def val_len(v):
         return 4  # will be displayed as NULL
     if isinstance(v, (list, dict)):
         return len(json.dumps(v))
-    return len(v)
+    if hasattr(v, '__len__'):
+        return len(v)
+    return len(str(v))
 
 
 class CrateCmd(object):

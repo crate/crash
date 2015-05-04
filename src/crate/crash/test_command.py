@@ -1,13 +1,12 @@
 import sys
 import os
-import logging
 from unittest import TestCase
 from six import PY2, StringIO
 import tempfile
 from io import TextIOWrapper
 from mock import patch
 
-from .command import CrateCmd, main, get_stdin, noargs_command
+from .command import CrateCmd, main, get_stdin, noargs_command, val_len
 from .printer import ColorPrinter
 
 def fake_stdin(data):
@@ -39,6 +38,15 @@ class CommandTest(TestCase):
                         func(self, e, output, err)
         finally:
             sys.argv = orig_argv
+
+    def test_val_len(self):
+        self.assertEqual(val_len(1), 1)
+        self.assertEqual(val_len(12), 2)
+        self.assertEqual(val_len('123'), 3)
+        self.assertEqual(val_len(True), 4)
+        self.assertEqual(val_len(None), 4)
+        self.assertEqual(val_len([1, 2, 3]), 9)
+        self.assertEqual(val_len({'key': 'val'}), 14)
 
     def test_tabulate_output(self):
         def assert_func(self, e, output, err):
@@ -305,21 +313,21 @@ class CommandTest(TestCase):
     def test_noargs_decorator(self):
         """Test noargs decorator"""
         output = StringIO()
-        
+
         class MyCmd:
-            
+
             logger = ColorPrinter(False, stream=output)
-            
+
             @noargs_command
             def my_cmd(self, *args):
                 return 'awesome'
 
         command = MyCmd()
         command.my_cmd()
-        
+
         text = command.my_cmd()
         self.assertEqual('awesome', text)
-        
+
         text = command.my_cmd('arg1')
         self.assertEqual(None, text)
         self.assertEqual('Command does not take any arguments.\n', output.getvalue())

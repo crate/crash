@@ -293,7 +293,9 @@ class CrateCmd(object):
             writer.write(json_str)
 
     def _mixed_format(self, value, max_col_len, padding):
-        if isinstance(value, dict) or isinstance(value, list):
+        if value is None:
+            value = 'NULL'
+        if isinstance(value, (list, dict)):
             json_str = json.dumps(value, indent=2, sort_keys=True)
             if self.is_tty:
                 json_str = highlight(json_str, _json_lexer, _formatter).rstrip('\n')

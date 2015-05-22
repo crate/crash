@@ -18,7 +18,7 @@ argument when launching the shell.
 when it comes to debugging, like what connection attempts are made and full tracebacks
 of server errors.
 
-For more information about the available command line arguments see :doc:`cli`.
+For more information about the available command line arguments see `Command Line Arguments`_.
 
 When you connect to a server that is not reachable or whose hostname cannot be resolved
 you will get an error::
@@ -114,5 +114,6 @@ endpoint`_ or a client library like `crate-python`_ has to be used.
 
 The same also applies for arrays.
 
-.. _`Crate REST endpoint`: https://crate.io/docs/current/sql/rest.html
+.. _`Crate REST Endpoint`: https://crate.io/docs/current/sql/rest.html
+.. _`Command Line Arguments`: https://crate.io/docs/projects/crash/en/stable/cli.html
 .. _`crate-python`: https://pypi.python.org/pypi/crate/

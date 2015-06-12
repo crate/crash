@@ -359,7 +359,7 @@ class CrateCmd(object):
         return u'{0} is not a valid output format.\nUse one of: {1}'.format(fmt, ', '.join(self.OUTPUT_FORMATS))
 
     def _connect(self, server):
-        """ connect to the given server """
+        """ connect to the given server, e.g.: \connect localhost:4200 """
         self.connection = connect(servers=server, error_trace=self.error_trace)
         self.cursor = self.connection.cursor()
         results = []
@@ -386,9 +386,19 @@ class CrateCmd(object):
             return False
         cmd = self.commands.get(words[0].lower())
         if cmd:
-            message = cmd(*words[1:])
-            if message:
-                self.logger.info(message)
+            try:
+                message = cmd(*words[1:])
+            except TypeError as e:
+                self.logger.critical(e.message)
+                doc = cmd.__doc__
+                if doc and not doc.isspace():
+                    self.logger.info('help: {0}'.format(words[0].lower()))
+                    self.logger.info(cmd.__doc__)
+            except Exception as e:
+                self.logger.critical(e.message);
+            else:
+                if message:
+                    self.logger.info(message)
             return True
         else:
             self.logger.critical('Unknown command. Type \? for a full list of available commands.')
@@ -403,7 +413,7 @@ class CrateCmd(object):
             self.cursor.execute(statement)
             return True
         except ConnectionError:
-            self.logger.warn('Use \connect <server> to connect to one or more server first.')
+            self.logger.warn('Use \connect <server> to connect to one or more servers first.')
         except ProgrammingError as e:
             self.logger.critical(e.message)
             if self.error_trace:

@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - display command help in case the command is not used correctly
+
  - display NULL values in mixed mode correctly
 
 2015/04/28 0.12.0

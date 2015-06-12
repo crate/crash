@@ -155,7 +155,7 @@ class CommandTest(TestCase):
             tmphistory = tempfile.mkstemp()[1]
             sys.argv = ["testcrash",
                         "-c", "select * from sys.cluster",
-                        "--hosts", self.crate_host, "nonexistent.lol:123",
+                        "--hosts", self.crate_host, "300.300.300.300:123",
                         '--history', tmphistory,
                         '-vv',
                         ]
@@ -166,8 +166,8 @@ class CommandTest(TestCase):
                     exception_code = e.code
                     self.assertEqual(exception_code, 0)
                     output = output.getvalue()
-                    self.assertTrue("| http://127.0.0.1:44209     | crate     | 0.47.7  | TRUE      | OK" in output, output)
-                    self.assertTrue("| http://nonexistent.lol:123 | NULL      | 0.0.0   | FALSE     | Server not available" in output, output)
+                    self.assertTrue("| http://127.0.0.1:44209     | crate     | 0.49.2  | TRUE      | OK" in output, output)
+                    self.assertTrue("| http://300.300.300.300:123 | NULL      | 0.0.0   | FALSE     | Server not available" in output, output)
         finally:
             try:
                 os.remove(tmphistory)
@@ -295,8 +295,8 @@ class CommandTest(TestCase):
         command = CrateCmd(is_tty=False)
         expected = "\n".join([
             '\\?                              print this help',
-            '\\c                              connect to the given server',
-            '\\connect                        connect to the given server',
+            '\\c                              connect to the given server, e.g.: \\connect localhost:4200',
+            '\\connect                        connect to the given server, e.g.: \\connect localhost:4200',
             '\\dt                             print the existing tables within the \'doc\' schema',
             '\\format                         switch output format',
             '\\q                              quit crash'

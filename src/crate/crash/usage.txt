@@ -33,12 +33,12 @@ you will get an error::
 
 ::
 
-    cr> \connect null.lol:4200
-    +----------------------+-----------+---------+-----------+-------------...-+
-    | server_url           | node_name | version | connected | message         |
-    +----------------------+-----------+---------+-----------+-------------...-+
-    | http://null.lol:4200 |      NULL | 0.0.0   | FALSE     | Server not a... |
-    +----------------------+-----------+---------+-----------+-------------...-+
+    cr> \connect 300.300.300.300:4200
+    +-----------------------------+-----------+---------+-----------+-------------...-+
+    | server_url                  | node_name | version | connected | message         |
+    +-----------------------------+-----------+---------+-----------+-------------...-+
+    | http://300.300.300.300:4200 |      NULL | 0.0.0   | FALSE     | Server not a... |
+    +-----------------------------+-----------+---------+-----------+-------------...-+
     CONNECT ERROR
 
 Successful connects will give you some information about the servers you connect to::
@@ -54,13 +54,13 @@ Successful connects will give you some information about the servers you connect
 If you connect to more than one server, the command will succeed
 if at least one server is reachable::
 
-    cr> \connect 127.0.0.1:44209 null.lol:4295
-    +------------------------+-----------+---------+-----------+-----------...-+
-    | server_url             | node_name | version | connected | message       |
-    +------------------------+-----------+---------+-----------+-----------...-+
-    | http://127.0.0.1:44209 | crate     | ...     | TRUE      | OK            |
-    | http://null.lol:4295   | NULL      | 0.0.0   | FALSE     | Server not... |
-    +------------------------+-----------+---------+-----------+-----------...-+
+    cr> \connect 127.0.0.1:44209 300.300.300.300:4295
+    +-----------------------------+-----------+---------+-----------+-----------...-+
+    | server_url                  | node_name | version | connected | message       |
+    +-----------------------------+-----------+---------+-----------+-----------...-+
+    | http://127.0.0.1:44209      | crate     | ...     | TRUE      | OK            |
+    | http://300.300.300.300:4295 | NULL      | 0.0.0   | FALSE     | Server not... |
+    +-----------------------------+-----------+---------+-----------+-----------...-+
     CONNECT OK
 
 Once the shell is connected, SQL statements can be executed simply by entering
@@ -92,7 +92,7 @@ When the Crate shell is started with the option ``-v`` debugging information wil
     cr> select x from y;
     SQLActionException[Table 'y' unknown]
     io.crate.exceptions.TableUnknownException: Table 'y' unknown
-    	at io.crate.metadata.ReferenceInfos.getTableInfoUnsafe(ReferenceInfos.java:...)
+    	at io.crate.metadata.ReferenceInfos.getTableInfo(ReferenceInfos.java:...)
     ...
 
 

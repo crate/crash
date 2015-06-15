@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - display command help in case the command is not used correctly
+
  - display NULL values in mixed mode correctly
 
  - added `dynamic` as output format option

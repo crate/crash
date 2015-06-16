@@ -205,6 +205,16 @@ class CrateStyle(PygmentsStyle):
     }
 
 
+def val_len(v):
+    if not v:
+        return 4  # will be displayed as NULL
+    if isinstance(v, (list, dict)):
+        return len(json.dumps(v))
+    if hasattr(v, '__len__'):
+        return len(v)
+    return len(str(v))
+
+
 class CrateCmd(object):
 
     OUTPUT_FORMATS = ['tabular', 'json', 'csv', 'raw', 'mixed']

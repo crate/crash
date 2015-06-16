@@ -5,11 +5,14 @@ Changes for crash
 Unreleased
 ==========
 
+ - added `dynamic` as output format option
+
+2015/06/16 0.12.1
+=================
+
  - display command help in case the command is not used correctly
 
  - display NULL values in mixed mode correctly
-
- - added `dynamic` as output format option
 
 2015/04/28 0.12.0
 =================

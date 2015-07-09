@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-#
-# Copyright (c) 2011-2013 Sergey Astanin
+# Copyright (c) 2011-2014 Sergey Astanin
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -401,9 +400,12 @@ def _padleft(width, s, has_invisible=True):
     True
 
     """
-    iwidth = width + len(s) - len(_strip_invisible(s)) if has_invisible else width
-    fmt = "{0:>%ds}" % iwidth
-    return fmt.format(s)
+    def impl(val):
+        iwidth = width + len(val) - len(_strip_invisible(val)) if has_invisible else width
+        fmt = "{0:>%ds}" % iwidth
+        return fmt.format(val)
+    num_lines = s.splitlines()
+    return len(num_lines) > 1 and u'\n'.join(map(impl, num_lines)) or impl(s)
 
 
 def _padright(width, s, has_invisible=True):
@@ -413,9 +415,12 @@ def _padright(width, s, has_invisible=True):
     True
 
     """
-    iwidth = width + len(s) - len(_strip_invisible(s)) if has_invisible else width
-    fmt = "{0:<%ds}" % iwidth
-    return fmt.format(s)
+    def impl(val):
+        iwidth = width + len(val) - len(_strip_invisible(val)) if has_invisible else width
+        fmt = "{0:<%ds}" % iwidth
+        return fmt.format(val)
+    num_lines = s.splitlines()
+    return len(num_lines) > 1 and u'\n'.join(map(impl, num_lines)) or impl(s)
 
 
 def _padboth(width, s, has_invisible=True):
@@ -425,9 +430,12 @@ def _padboth(width, s, has_invisible=True):
     True
 
     """
-    iwidth = width + len(s) - len(_strip_invisible(s)) if has_invisible else width
-    fmt = "{0:^%ds}" % iwidth
-    return fmt.format(s)
+    def impl(val):
+        iwidth = width + len(val) - len(_strip_invisible(val)) if has_invisible else width
+        fmt = "{0:^%ds}" % iwidth
+        return fmt.format(val)
+    num_lines = s.splitlines()
+    return len(num_lines) > 1 and u'\n'.join(map(impl, num_lines)) or impl(s)
 
 
 def _strip_invisible(s):
@@ -437,6 +445,17 @@ def _strip_invisible(s):
     else:  # a bytestring
         return re.sub(_invisible_codes_bytes, "", s)
 
+def _max_line_width(s):
+    """
+    Visible width of a potentially multinie content.
+
+    >>> _max_line_width('this\\nis\\na\\nmultiline\\ntext')
+    9
+
+    """
+    if not s:
+        return 0
+    return max(map(len, s.splitlines()))
 
 def _visible_width(s):
     """Visible width of a printed string. ANSI color codes are removed.
@@ -446,9 +465,9 @@ def _visible_width(s):
 
     """
     if isinstance(s, _text_type) or isinstance(s, _binary_type):
-        return len(_strip_invisible(s))
+        return _max_line_width(_strip_invisible(s))
     else:
-        return len(_text_type(s))
+        return _max_line_width(_text_type(s))
 
 
 def _align_column(strings, alignment, minwidth=0, has_invisible=True):
@@ -485,7 +504,7 @@ def _align_column(strings, alignment, minwidth=0, has_invisible=True):
     if has_invisible:
         width_fn = _visible_width
     else:
-        width_fn = len
+        width_fn = _max_line_width
 
     maxwidth = max(max(map(width_fn, strings)), minwidth)
     padded_strings = [padfn(maxwidth, s, has_invisible) for s in strings]
@@ -795,6 +814,19 @@ def tabulate(tabular_data, headers=(), tablefmt="simple",
     | eggs      |  451      |
     +-----------+-----------+
 
+    >>> print(tabulate([["this\\nis\\na multiline\\ntext", "41.9999", "foo\\nbar"], ["NULL", "451.0", ""]],
+    ...                ["text", "numbers", "other"], "grid"))
+    +-------------+----------+-------+
+    | text        |  numbers | other |
+    +=============+==========+=======+
+    | this        |  41.9999 | foo   |
+    | is          |          | bar   |
+    | a multiline |          |       |
+    | text        |          |       |
+    +-------------+----------+-------+
+    | NULL        | 451      |       |
+    +-------------+----------+-------+
+
     >>> print(tabulate([["spam", 41.9999], ["eggs", "451.0"]], tablefmt="grid"))
     +------+----------+
     | spam |  41.9999 |
@@ -922,7 +954,7 @@ def tabulate(tabular_data, headers=(), tablefmt="simple",
     if has_invisible:
         width_fn = _visible_width
     else:
-        width_fn = len
+        width_fn = _max_line_width
 
     # format rows and columns, convert numeric values to strings
     cols = list(zip(*list_of_lists))
@@ -984,8 +1016,8 @@ def _build_line(colwidths, colaligns, linefmt):
 
 def _pad_row(cells, padding):
     if cells:
-        pad = " "*padding
-        padded_cells = [pad + cell + pad for cell in cells]
+        pad = " " * padding
+        padded_cells = ['\n'.join([pad + sub_cell + pad for sub_cell in cell.splitlines()]) for cell in cells]
         return padded_cells
     else:
         return cells
@@ -1002,6 +1034,15 @@ def _format_table(fmt, headers, rows, colwidths, colaligns):
     padded_headers = _pad_row(headers, pad)
     padded_rows = [_pad_row(row, pad) for row in rows]
 
+    def get_sub_row(row, idx):
+        new_row = []
+        col_idx = 0
+        for col in row:
+            subrows = col.splitlines()
+            new_row.append(idx < len(subrows) and subrows[idx] or " " * padded_widths[col_idx])
+            col_idx += 1
+        return new_row
+
     if fmt.lineabove and "lineabove" not in hidden:
         lines.append(_build_line(padded_widths, colaligns, fmt.lineabove))
 
@@ -1013,13 +1054,17 @@ def _format_table(fmt, headers, rows, colwidths, colaligns):
     if padded_rows and fmt.linebetweenrows and "linebetweenrows" not in hidden:
         # initial rows with a line below
         for row in padded_rows[:-1]:
-            lines.append(_build_row(row, padded_widths, colaligns, fmt.datarow))
+            max_height = max(map(lambda x: len(x.splitlines()), row))
+            for line in range(max_height):
+                lines.append(_build_row(get_sub_row(row, line), padded_widths, colaligns, fmt.datarow))
             lines.append(_build_line(padded_widths, colaligns, fmt.linebetweenrows))
         # the last row without a line below
         lines.append(_build_row(padded_rows[-1], padded_widths, colaligns, fmt.datarow))
     else:
         for row in padded_rows:
-            lines.append(_build_row(row, padded_widths, colaligns, fmt.datarow))
+            max_height = max(map(lambda x: len(x.splitlines()), row))
+            for line in range(max_height):
+                lines.append(_build_row(get_sub_row(row, line), padded_widths, colaligns, fmt.datarow))
 
     if fmt.linebelow and "linebelow" not in hidden:
         lines.append(_build_line(padded_widths, colaligns, fmt.linebelow))

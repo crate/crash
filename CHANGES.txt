@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - added multiline support for tabular output format
+
 2015/06/16 0.13.0
 =================
 

@@ -239,6 +239,24 @@ class CommandTest(TestCase):
             cmd.pprint(rows, cols=['x'])
             self.assertEqual(expected, output.getvalue())
 
+    def test_multiline_row(self):
+        """
+        Create ta column that holds rows with multiline text.
+        """
+        rows = [[u'create table foo (\n  id integer,\n  name string\n)', 'foo\nbar', 1]]
+        expected = "\n".join(['+-----------------------+-----+---+',
+                              '| show create table foo | a   | b |',
+                              '+-----------------------+-----+---+',
+                              '| create table foo (    | foo | 1 |',
+                              '|   id integer,         | bar |   |',
+                              '|   name string         |     |   |',
+                              '| )                     |     |   |',
+                              '+-----------------------+-----+---+\n'])
+        cmd = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            cmd.pprint(rows, cols=['show create table foo', 'a', 'b'])
+            self.assertEqual(expected, output.getvalue())
+
     def test_error_exit_code(self):
         """Test returns an error exit code"""
         stmt = u"select * from invalid sql statement"

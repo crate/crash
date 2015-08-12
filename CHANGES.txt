@@ -5,6 +5,11 @@ Changes for crash
 Unreleased
 ==========
 
+ - updated crate-python to 0.13.4 which includes following changes:
+
+    - Fix urllib3 error with invalid kwargs for ``HTTPConnectionPool``
+      when ``REQUESTS_CA_BUNDLE`` is set
+
 2015/07/09 0.13.1
 =================
 

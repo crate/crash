@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 from unittest import TestCase
 from six import PY2, StringIO
 import tempfile
@@ -166,8 +167,9 @@ class CommandTest(TestCase):
                     exception_code = e.code
                     self.assertEqual(exception_code, 0)
                     output = output.getvalue()
-                    self.assertTrue("| http://127.0.0.1:44209     | crate     | 0.49.2  | TRUE      | OK" in output, output)
-                    self.assertTrue("| http://300.300.300.300:123 | NULL      | 0.0.0   | FALSE     | Server not available" in output, output)
+                    lines = output.split('\n')
+                    self.assertTrue(re.match('^\| http://[\d\.:]+. *\| crate .*\| TRUE .*\| OK', lines[3]) is not None, lines[3])
+                    self.assertTrue(re.match('^\| http://[\d\.:]+ .*\| NULL .*\| FALSE .*\| Server not available', lines[4]) is not None, lines[4])
         finally:
             try:
                 os.remove(tmphistory)

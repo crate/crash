@@ -11,6 +11,7 @@ Check the correct response status lines.
     | http://127.0.0.1:44209 | crate     | ...     | TRUE      | OK      |
     +------------------------+-----------+---------+-----------+---------+
     CONNECT OK
+    Crate 0.51.1 does not support the cluster "check" command
 
 **Make sure the response status line of DDL and a few other statements
 that do not affect rows do not print ``affected rows``:**

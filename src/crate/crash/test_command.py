@@ -315,12 +315,14 @@ class CommandTest(TestCase):
         command = CrateCmd(is_tty=False)
         expected = "\n".join([
             '\\?                              print this help',
-            '\\c                              connect to the given server, e.g.: \\connect localhost:4200',
-            '\\connect                        connect to the given server, e.g.: \\connect localhost:4200',
+            '\\c                              connect to the given server, e.g.: \connect localhost:4200',
+            '\\check                          print failed cluster checks',
+            '\\connect                        connect to the given server, e.g.: \connect localhost:4200',
             '\\dt                             print the existing tables within the \'doc\' schema',
             '\\format                         switch output format',
             '\\q                              quit crash'
             ])
+
         self.assertEqual(expected, command._help())
         command = CrateCmd(is_tty=False)
 

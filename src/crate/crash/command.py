@@ -54,6 +54,10 @@ from .printer import ColorPrinter, PrintWrapper
 
 from appdirs import user_data_dir
 
+from distutils.version import StrictVersion
+
+CHECK_MIN_VERSION = StrictVersion("0.52.0")
+
 try:
     from logging import NullHandler
 except ImportError:
@@ -236,7 +240,8 @@ class CrateCmd(object):
             'c': self._connect,
             'format': self._switch_format,
             'connect': self._connect,
-            'dt': self._show_tables
+            'dt': self._show_tables,
+            'check': self._check,
         }
         self.logger = ColorPrinter(is_tty)
         self.print = PrintWrapper()
@@ -368,6 +373,36 @@ class CrateCmd(object):
                       from information_schema.tables
                       where schema_name not in ('sys','information_schema')""")
 
+    def check(self, *args):
+        success = self._execute("""select description as "Failed checks"
+                                   from sys.checks
+                                   where severity > 5""")
+        self.exit_code = self.exit_code or int(not success)
+        if not success:
+            return False
+        cur = self.cursor
+        print_vars = {
+            's': 'S'[cur.rowcount == 1:],
+            'rowcount': cur.rowcount
+        }
+        checks = cur.fetchall()
+        if len(checks):
+            self.pprint(checks, [c[0] for c in cur.description])
+            tmpl = '{rowcount} CHECK{s} FAILED'
+            self.logger.critical(tmpl.format(**print_vars))
+        else:
+            self.logger.info('CLUSTER CHECK OK')
+        return True
+
+    @noargs_command
+    def _check(self, *args):
+        """ print failed cluster checks """
+        if self.connection.lowest_server_version >= CHECK_MIN_VERSION:
+            self.check()
+        else:
+            tmpl = '\nCrate {version} does not support the cluster "check" command'
+            self.logger.warn(tmpl.format(version=self.connection.lowest_server_version))
+
     @noargs_command
     def _quit(self, *args):
         """ quit crash """
@@ -402,6 +437,7 @@ class CrateCmd(object):
             self.logger.critical('CONNECT ERROR')
         else:
             self.logger.info('CONNECT OK')
+            self._check()
 
     def _try_exec_cmd(self, line):
         words = line.split(' ', 1)

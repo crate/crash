@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added the check command which queries the ``sys.checks`` table for
+   cluster checks
+
  - updated crate-python to 0.13.4 which includes following changes:
 
     - Fix urllib3 error with invalid kwargs for ``HTTPConnectionPool``

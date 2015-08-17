@@ -376,7 +376,7 @@ class CrateCmd(object):
     def check(self, *args):
         success = self._execute("""select description as "Failed checks"
                                    from sys.checks
-                                   where severity > 5""")
+                                   where passed=false """)
         self.exit_code = self.exit_code or int(not success)
         if not success:
             return False

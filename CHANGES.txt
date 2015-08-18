@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Updated wording of the cluster check command output.
+
  - Added the check command which queries the ``sys.checks`` table for
    cluster checks
 

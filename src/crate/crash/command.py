@@ -388,7 +388,7 @@ class CrateCmd(object):
         checks = cur.fetchall()
         if len(checks):
             self.pprint(checks, [c[0] for c in cur.description])
-            tmpl = '{rowcount} CHECK{s} FAILED'
+            tmpl = '{rowcount} CLUSTER CHECK{s} FAILED'
             self.logger.critical(tmpl.format(**print_vars))
         else:
             self.logger.info('CLUSTER CHECK OK')

@@ -96,6 +96,18 @@ class CommandTest(TestCase):
             command.pprint([], ['name', 'name'])
             self.assertEqual(expected, output.getvalue())
 
+    def test_pprint_dont_guess_type(self):
+        "Output: table with duplicate keys"
+        expected = "\n".join(["+---------+",
+                              "| version |",
+                              "+---------+",
+                              "| 0.50    |",
+                              "+---------+\n"])
+        command = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            command.pprint([["0.50"]], ['version'])
+            self.assertEqual(expected, output.getvalue())
+
     @patch('sys.stdin', fake_stdin(u"select 'via-stdin' from sys.cluster"))
     def test_stdin_cmd(self):
         "Test passing in SQL via stdin"

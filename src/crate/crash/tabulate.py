@@ -518,7 +518,7 @@ def _more_generic(type1, type2):
     return invtypes[moregeneric]
 
 
-def _column_type(strings, has_invisible=True):
+def _column_type(values, has_invisible=True):
     """The least generic type all column values are convertible to.
 
     >>> _column_type(["1", "2"]) is _int_type
@@ -538,8 +538,7 @@ def _column_type(strings, has_invisible=True):
     True
 
     """
-    types = [_type(s, has_invisible) for s in strings ]
-    return reduce(_more_generic, types, int)
+    return reduce(_more_generic, [type(v) for v in values], int)
 
 
 def _format(val, valtype, floatfmt, missingval="", has_invisible=True):

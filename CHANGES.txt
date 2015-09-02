@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed output tabular format bug which results in wrong representation
+   of a string containing a floating point value.
+
  - Updated wording of the cluster check command output.
 
  - Added the check command which queries the ``sys.checks`` table for

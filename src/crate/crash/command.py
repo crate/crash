@@ -443,7 +443,9 @@ class CrateCmd(object):
         words = line.split(' ', 1)
         if not words or not words[0]:
             return False
-        cmd = self.commands.get(words[0].lower())
+        cmd = self.commands.get(words[0].lower().rstrip(';'))
+        if len(words) > 1:
+            words[1] = words[1].rstrip(';')
         if cmd:
             try:
                 message = cmd(*words[1:])

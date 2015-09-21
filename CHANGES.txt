@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed the issue casuing parsing error while using internal ``non-sql`` crash
+   commands with semicolon.
+
 2015/09/02 0.14.0
 =================
 

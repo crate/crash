@@ -43,7 +43,7 @@ you will get an error::
 
 Successful connects will give you some information about the servers you connect to::
 
-    cr> \connect 127.0.0.1:44209
+    cr> \connect 127.0.0.1:44209;
     +------------------------+-----------+---------+-----------+---------+
     | server_url             | node_name | version | connected | message |
     +------------------------+-----------+---------+-----------+---------+
@@ -55,7 +55,7 @@ Successful connects will give you some information about the servers you connect
 If you connect to more than one server, the command will succeed
 if at least one server is reachable::
 
-    cr> \connect 127.0.0.1:44209 300.300.300.300:4295
+    cr> \connect 127.0.0.1:44209 300.300.300.300:4295;
     +-----------------------------+-----------+---------+-----------+-----------...-+
     | server_url                  | node_name | version | connected | message       |
     +-----------------------------+-----------+---------+-----------+-----------...-+

@@ -7,7 +7,8 @@ import tempfile
 from io import TextIOWrapper
 from mock import patch
 
-from .command import CrateCmd, main, get_stdin, noargs_command, val_len
+from .command import CrateCmd, main, get_stdin, noargs_command
+from .outputs import _val_len as val_len
 from .printer import ColorPrinter
 
 def fake_stdin(data):

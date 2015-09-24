@@ -26,13 +26,11 @@ from __future__ import print_function
 
 import os
 import sys
-import csv
-import json
 import select
 import logging
 
 from argparse import ArgumentParser
-from colorama import Fore, Style
+from collections import namedtuple
 
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import FileHistory
@@ -43,9 +41,6 @@ from ..crash import __version__ as crash_version
 from crate.client import connect
 from crate.client.exceptions import ConnectionError, ProgrammingError
 
-from pygments import highlight
-from pygments.formatters import TerminalFormatter
-from pygments.lexers.data import JsonLexer
 from pygments.lexers.sql import SqlLexer
 from pygments.style import Style as PygmentsStyle
 from pygments.token import (Keyword,
@@ -56,8 +51,8 @@ from pygments.token import (Keyword,
                             String,
                             Error)
 
-from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate
 from .printer import ColorPrinter, PrintWrapper
+from .outputs import OutputWriter
 
 from appdirs import user_data_dir
 
@@ -76,25 +71,17 @@ except ImportError:
 
 logging.getLogger('crate').addHandler(NullHandler())
 
-_json_lexer = JsonLexer()
-_formatter = TerminalFormatter()
-
-NULL = u'NULL'
-TRUE = u'TRUE'
-FALSE = u'FALSE'
-
 USER_DATA_DIR = user_data_dir("Crate", "Crate")
 HISTORY_FILE_NAME = 'crash_history'
 HISTORY_PATH = os.path.join(USER_DATA_DIR, HISTORY_FILE_NAME)
 MAX_HISTORY_LENGTH = 10000
 
-crate_fmt = TableFormat(lineabove=TabulateLine("+", "-", "+", "+"),
-                        linebelowheader=TabulateLine("+", "-", "+", "+"),
-                        linebetweenrows=None,
-                        linebelow=TabulateLine("+", "-", "+", "+"),
-                        headerrow=DataRow("|", "|", "|"),
-                        datarow=DataRow("|", "|", "|"),
-                        padding=1, with_header_hide=None)
+Result = namedtuple('Result', ['cols',
+                               'rows',
+                               'rowcount',
+                               'duration',
+                               'output_width'])
+
 
 def parse_args(output_formats):
     parser = ArgumentParser(description='crate shell')
@@ -167,20 +154,6 @@ class SQLCompleter(Completer):
                 yield Completion(keyword, -len(word_before_cursor))
 
 
-def _transform_field(field):
-    """transform field for displaying"""
-    if isinstance(field, bool):
-        return TRUE if field else FALSE
-    elif isinstance(field, (list, dict)):
-        return json.dumps(field, sort_keys=True, ensure_ascii=False)
-    else:
-        return field
-
-
-def get_num_columns():
-    return 80
-
-
 def noargs_command(fn):
     def inner_fn(self, *args):
         if len(args):
@@ -204,28 +177,19 @@ class CrateStyle(PygmentsStyle):
     }
 
 
-def val_len(v):
-    if not v:
-        return 4  # will be displayed as NULL
-    if isinstance(v, (list, dict)):
-        return len(json.dumps(v))
-    if hasattr(v, '__len__'):
-        return len(v)
-    return len(str(v))
-
-
 class CrateCmd(object):
 
-    OUTPUT_FORMATS = ['tabular', 'json', 'csv', 'raw', 'mixed', 'dynamic']
     EXCLUDE_ROWCOUNT = ['create', 'alter', 'drop', 'refresh', 'set', 'reset']
 
-    def __init__(self, connection=None, error_trace=False,
-                 output_format=None, is_tty=True):
+    def __init__(self,
+                 output_writer=None,
+                 connection=None,
+                 error_trace=False,
+                 is_tty=True):
         self.error_trace = error_trace
-        self.is_tty = is_tty
-        self.output_format = output_format
         self.connection = connection or connect(error_trace=error_trace)
         self.cursor = self.connection.cursor()
+        self.output_writer = output_writer or OutputWriter(PrintWrapper(), is_tty)
         self.lines = []
         self.exit_code = 0
         self.expanded_mode = False
@@ -239,94 +203,17 @@ class CrateCmd(object):
             'check': self._check,
         }
         self.logger = ColorPrinter(is_tty)
-        self.print = PrintWrapper()
+
+    def get_num_columns(self):
+        return 80
 
     def pprint(self, rows, cols):
-        if self.output_format == 'raw':
-            self.pprint_raw(rows, cols, writer=self.print)
-        elif self.output_format == 'json':
-            self.pprint_json(rows, cols, writer=self.print)
-        elif self.output_format == 'csv':
-            self.pprint_csv(rows, cols, writer=self.print)
-        elif self.output_format == 'mixed':
-            self.pprint_mixed(rows, cols, writer=self.print)
-        elif self.output_format == 'dynamic':
-            self.pprint_dynamic(rows, cols, writer=self.print)
-        else:
-            self.pprint_tabular(rows, cols, writer=self.print)
-        self.print.write('\n')
-
-    def pprint_tabular(self, rows, cols, writer=sys.stdout):
-        rows = [list(map(_transform_field, row)) for row in rows]
-        out = tabulate(rows, headers=cols, tablefmt=crate_fmt, floatfmt="", missingval=NULL)
-        writer.write(out)
-
-    def pprint_raw(self, rows, cols, writer=sys.stdout):
-        duration = self.cursor.duration
-        self._json_format(dict(
-            rows=rows,
-            cols=cols,
-            rowcount=self.cursor.rowcount,
-            duration=duration > -1 and float(duration)/1000.0 or duration,
-        ), writer=writer)
-
-    def pprint_json(self, rows, cols, writer=sys.stdout):
-        obj = [dict(zip(cols, x)) for x in rows]
-        self._json_format(obj, writer=writer)
-
-    def pprint_csv(self, rows, cols, writer=sys.stdout):
-        wr = csv.writer(writer, doublequote=False, escapechar='\\')
-        wr.writerow(cols)
-        for row in rows:
-            wr.writerow(row)
-
-    def pprint_dynamic(self, rows, cols, writer=sys.stdout):
-        max_cols_required = sum(len(c) + 4 for c in cols) + 1
-        for row in rows:
-            cols_required = sum(val_len(v) + 4 for v in row) + 1
-            if cols_required > max_cols_required:
-                max_cols_required = cols_required
-        if max_cols_required > get_num_columns():
-            self.pprint_mixed(rows, cols, writer)
-        else:
-            self.pprint_tabular(rows, cols, writer)
-
-    def pprint_mixed(self, rows, cols, writer=sys.stdout):
-        padding = max_col_len = max(len(c) for c in cols)
-        if self.is_tty:
-            max_col_len += len(Fore.YELLOW + Style.RESET_ALL)
-        tmpl = '{0:<'+str(max_col_len)+'} | {1}'
-        row_delimiter = '-' * get_num_columns()
-        for row in rows:
-            for i, c in enumerate(cols):
-                val = self._mixed_format(row[i], max_col_len, padding)
-                if self.is_tty:
-                    c = Fore.YELLOW + c + Style.RESET_ALL
-                writer.write(tmpl.format(c, val))
-            writer.write(row_delimiter + '\n')
-
-    def _json_format(self, obj, writer=sys.stdout):
-        try:
-            json_str = json.dumps(obj, indent=2)
-        except TypeError:
-            pass
-        else:
-            if self.is_tty:
-                json_str = highlight(json_str, _json_lexer, _formatter).rstrip('\n')
-            writer.write(json_str)
-
-    def _mixed_format(self, value, max_col_len, padding):
-        if value is None:
-            value = 'NULL'
-        if isinstance(value, (list, dict)):
-            json_str = json.dumps(value, indent=2, sort_keys=True)
-            if self.is_tty:
-                json_str = highlight(json_str, _json_lexer, _formatter).rstrip('\n')
-            lines = json_str.split('\n')
-            lines[-1] = ' ' + lines[-1]
-            lines = [lines[0]] + [' ' * padding + ' |' + l for l in lines[1:]]
-            value = '\n'.join(lines)
-        return '{0}\n'.format(value)
+        result = Result(cols,
+                        rows,
+                        self.cursor.rowcount,
+                        self.cursor.duration,
+                        self.get_num_columns())
+        self.output_writer.write(result)
 
     def process(self, text):
         if text.lstrip().startswith('--'):
@@ -406,10 +293,11 @@ class CrateCmd(object):
 
     def _switch_format(self, fmt=None):
         """ switch output format """
-        if fmt and fmt in self.OUTPUT_FORMATS:
-            self.output_format = fmt
+        if fmt and fmt in self.output_writer.formats:
+            self.output_writer.output_format = fmt
             return u'changed output format to {0}'.format(fmt)
-        return u'{0} is not a valid output format.\nUse one of: {1}'.format(fmt, ', '.join(self.OUTPUT_FORMATS))
+        return u'{0} is not a valid output format.\nUse one of: {1}'.format(
+            fmt, ', '.join(self.output_writer.formats))
 
     def _connect(self, server):
         """ connect to the given server, e.g.: \connect localhost:4200 """
@@ -473,7 +361,7 @@ class CrateCmd(object):
         except ProgrammingError as e:
             self.logger.critical(e.message)
             if self.error_trace:
-                self.print.write('\n' + e.error_trace)
+                self.logger.critical('\n' + e.error_trace)
         return False
 
     def execute(self, statement):
@@ -596,10 +484,9 @@ def loop(cmd, history_file):
         output=output
     )
 
-    global get_num_columns
     def get_num_columns_override():
         return output.get_size().columns
-    get_num_columns = get_num_columns_override
+    cmd.get_num_columns = get_num_columns_override
 
     while True:
         try:
@@ -612,14 +499,20 @@ def loop(cmd, history_file):
 
 
 def main():
-    args = parse_args(CrateCmd.OUTPUT_FORMATS)
+    is_tty = sys.stdout.isatty()
+    output_writer = OutputWriter(PrintWrapper(), is_tty)
+    args = parse_args(output_writer.formats)
+    output_writer.output_format = args.format
+
     if args.version:
         print(crash_version)
         sys.exit(0)
     error_trace = args.verbose > 0
     conn = connect(args.hosts)
-    cmd = CrateCmd(connection=conn, error_trace=error_trace,
-                   output_format=args.format, is_tty=sys.stdout.isatty())
+    cmd = CrateCmd(connection=conn,
+                   error_trace=error_trace,
+                   output_writer=output_writer,
+                   is_tty=is_tty)
     if error_trace:
         # log CONNECT command only in verbose mode
         cmd._connect(args.hosts)

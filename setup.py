@@ -31,7 +31,7 @@ requirements = [
     'Pygments',
     'crate>=0.11.2',
     'appdirs>=1.2,<2.0',
-    'prompt-toolkit==0.31'
+    'prompt-toolkit==0.52'
 ]
 
 if (2, 6) == sys.version_info[:2]:

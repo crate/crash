@@ -36,7 +36,8 @@ from colorama import Fore, Style
 
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import FileHistory
-from prompt_toolkit.layout.prompt import DefaultPrompt
+from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.filters import Condition, IsDone, HasFocus, Always
 
 from ..crash import __version__ as crash_version
 from crate.client import connect
@@ -47,7 +48,13 @@ from pygments.formatters import TerminalFormatter
 from pygments.lexers.data import JsonLexer
 from pygments.lexers.sql import SqlLexer
 from pygments.style import Style as PygmentsStyle
-from pygments.token import Keyword, Comment, Operator, Number, Literal, String, Error
+from pygments.token import (Keyword,
+                            Comment,
+                            Operator,
+                            Number,
+                            Literal,
+                            String,
+                            Error)
 
 from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate
 from .printer import ColorPrinter, PrintWrapper
@@ -172,18 +179,6 @@ def _transform_field(field):
 
 def get_num_columns():
     return 80
-
-
-class CrashPrompt(DefaultPrompt):
-    def __init__(self, lines):
-        self.lines = lines
-
-    @property
-    def prompt(self):
-        if self.lines:
-            return '... '
-        else:
-            return 'cr> '
 
 
 def noargs_command(fn):
@@ -535,69 +530,85 @@ def _enable_vi_mode():
     return False
 
 
-def _create_default_layout(lines_ref):
-    from prompt_toolkit.layout.dimension import LayoutDimension
-    from prompt_toolkit.layout import HSplit, Window, FloatContainer, Float
-    from prompt_toolkit.layout.controls import BufferControl
-    from prompt_toolkit.layout.menus import CompletionsMenu
-    from prompt_toolkit.filters import HasFocus
+class CrashBuffer(Buffer):
+    def __init__(self, *args, **kwargs):
 
-    input_processors = [CrashPrompt(lines_ref)]
-    return HSplit([FloatContainer(
-        Window(
-            BufferControl(input_processors, lexer=SqlLexer),
-            LayoutDimension(min=8)
-        ),
-        [
-            Float(xcursor=True,
-                  ycursor=True,
-                  content=CompletionsMenu(max_height=16,
-                                          extra_filter=HasFocus('default')))
-        ]
-    )])
+        @Condition
+        def is_multiline():
+            doc = self.document
+            if not doc.text:
+                return False
+            if doc.text.startswith('\\'):
+                return False
+            return not doc.text.rstrip().endswith(';')
 
+        super(self.__class__, self).__init__(
+            *args, is_multiline=is_multiline, **kwargs)
 
-def is_multiline(doc):
-    if not doc.text:
-        return False
-    if doc.text.startswith('\\'):
-        return False
-    return not doc.text.rstrip().endswith(';')
 
 def loop(cmd, history_file):
-    from prompt_toolkit import CommandLineInterface, AbortAction
-    from prompt_toolkit import Exit
-    from prompt_toolkit.buffer import Buffer
-    from prompt_toolkit.renderer import Output
+    from prompt_toolkit import CommandLineInterface, AbortAction, Application
+    from prompt_toolkit.interface import AcceptAction
+    from prompt_toolkit.enums import DEFAULT_BUFFER
+    from prompt_toolkit.layout.processors import (
+        HighlightMatchingBracketProcessor,
+        ConditionalProcessor
+    )
     from prompt_toolkit.key_binding.manager import KeyBindingManager
+    from prompt_toolkit.shortcuts import (create_default_layout,
+                                          create_default_output,
+                                          create_eventloop)
 
-    key_binding_manager = KeyBindingManager(enable_vi_mode=_enable_vi_mode())
-    buffer = Buffer(
+    key_binding_manager = KeyBindingManager(
+        enable_search=True,
+        enable_abort_and_exit_bindings=True,
+        enable_vi_mode=Condition(lambda cli: _enable_vi_mode()))
+
+    layout = create_default_layout(
+        message='cr> ',
+        multiline=True,
+        lexer=SqlLexer,
+        extra_input_processors=[
+            ConditionalProcessor(
+                processor=HighlightMatchingBracketProcessor(chars='[](){}'),
+                filter=HasFocus(DEFAULT_BUFFER) & ~IsDone())
+        ]
+    )
+    cli_buffer = CrashBuffer(
         history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
+        accept_action=AcceptAction.RETURN_DOCUMENT,
         completer=SQLCompleter(cmd.connection, cmd.lines),
-        is_multiline=is_multiline
+        complete_while_typing=Always()
     )
-    cli = CommandLineInterface(
+    application = Application(
+        layout=layout,
         style=CrateStyle,
-        layout=_create_default_layout(cmd.lines),
-        buffer=buffer,
-        key_bindings_registry=key_binding_manager.registry
+        buffer=cli_buffer,
+        key_bindings_registry=key_binding_manager.registry,
+        on_exit=AbortAction.RAISE_EXCEPTION,
+        on_abort=AbortAction.RETRY,
     )
-    output = Output(cli.renderer.stdout)
-    global get_num_columns
+    eventloop = create_eventloop()
+    output = create_default_output()
+    cli = CommandLineInterface(
+        application=application,
+        eventloop=eventloop,
+        output=output
+    )
 
+    global get_num_columns
     def get_num_columns_override():
         return output.get_size().columns
     get_num_columns = get_num_columns_override
 
-    try:
-        while True:
-            doc = cli.read_input(on_exit=AbortAction.RAISE_EXCEPTION)
+    while True:
+        try:
+            doc = cli.run()
             if doc:
                 cmd.process(doc.text)
-    except Exit:  # Quit on Ctrl-D keypress
-        cmd.logger.warn(u'Bye!')
-        return
+        except EOFError:
+            cmd.logger.warn(u'Bye!')
+            return
 
 
 def main():

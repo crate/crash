@@ -27,6 +27,16 @@ from __future__ import unicode_literals
 from collections import namedtuple
 from platform import python_version_tuple
 import re
+import sys
+
+
+
+if sys.version_info[:2] == (2, 7):
+    def float_format(val):
+        return repr(val)
+else:
+    def float_format(val):
+        return str(val)
 
 
 if python_version_tuple()[0] < "3":
@@ -569,6 +579,8 @@ def _format(val, valtype, floatfmt, missingval="", has_invisible=True):
             raw_val = _strip_invisible(val)
             formatted_val = format(float(raw_val), floatfmt)
             return val.replace(raw_val, formatted_val)
+        elif not floatfmt:
+            return float_format(val)
         else:
             return format(float(val), floatfmt)
     else:

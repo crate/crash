@@ -22,14 +22,13 @@
 from __future__ import absolute_import
 
 import os
-import sys
 import unittest
 import doctest
 import zc.customdoctests
 from crate.testing.layer import CrateLayer
 from .command import CrateCmd
 from .printer import ColorPrinter, PrintWrapper
-from .test_command import CommandTest
+from .test_command import CommandTest, OutputWriterTest
 
 
 class CrateTestCmd(CrateCmd):
@@ -85,4 +84,5 @@ def test_suite():
     CommandTest.layer = crate_layer
     CommandTest.crate_host = crate_host
     suite.addTest(unittest.makeSuite(CommandTest))
+    suite.addTest(unittest.makeSuite(OutputWriterTest))
     return suite

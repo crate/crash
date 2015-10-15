@@ -7,8 +7,8 @@ import tempfile
 from io import TextIOWrapper
 from mock import patch
 
-from .command import CrateCmd, main, get_stdin, noargs_command
-from .outputs import _val_len as val_len
+from .command import CrateCmd, main, get_stdin, noargs_command, Result
+from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 
 def fake_stdin(data):
@@ -21,6 +21,44 @@ def fake_stdin(data):
     stdin.seek(0)
     return stdin
 
+
+class OutputWriterTest(TestCase):
+    def test_mixed_format_float_precision(self):
+        if sys.version_info[:2] == (2, 6):
+            expected = 'foo | 152462.707549'
+        else:
+            expected = 'foo | 152462.70754934277'
+        ow = OutputWriter(writer=None, is_tty=False)
+        result = Result(cols=['foo'],
+               rows=[[152462.70754934277]],
+               rowcount=1,
+               duration=1,
+               output_width=80)
+        self.assertEqual(
+            next(ow.mixed(result)).rstrip(), expected)
+
+    def test_tabular_format_float_precision(self):
+        if sys.version_info[:2] == (2, 6):
+            expected = u'152462.707549'
+        else:
+            expected = u'152462.70754934277'
+
+        ow = OutputWriter(writer=None, is_tty=False)
+        result = Result(cols=['foo'],
+               rows=[[152462.70754934277]],
+               rowcount=1,
+               duration=1,
+               output_width=80)
+
+        # output is
+        # +---
+        # | header
+        # +----
+        # | value
+        # get the row with the value in it
+        output = ow.tabular(result).split('\n')[3]
+        self.assertEqual(
+            output.strip('|').strip(' '), expected)
 
 class CommandTest(TestCase):
 

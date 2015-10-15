@@ -6,7 +6,7 @@ from pygments.lexers.data import JsonLexer
 from pygments.formatters import TerminalFormatter
 from colorama import Fore, Style
 
-from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate
+from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate, float_format
 
 NULL = u'NULL'
 TRUE = u'TRUE'
@@ -141,11 +141,13 @@ class OutputWriter(object):
     def _mixed_format(self, value, max_col_len, padding):
         if value is None:
             value = NULL
-        if isinstance(value, (list, dict)):
+        elif isinstance(value, (list, dict)):
             self.to_json_str(value, sort_keys=True)
             json_str = json.dumps(value, indent=2, sort_keys=True)
             lines = json_str.split('\n')
             lines[-1] = ' ' + lines[-1]
             lines = [lines[0]] + [' ' * padding + ' |' + l for l in lines[1:]]
             value = '\n'.join(lines)
+        elif isinstance(value, float):
+            value = float_format(value)
         return '{0}\n'.format(value)

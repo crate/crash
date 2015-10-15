@@ -5,6 +5,13 @@ Changes for crash
 Unreleased
 ==========
 
+ - Floating point values are no longer rounded to 6 places under python2.7 if
+   output using the tabular or mixed output format.
+   Now the behaviour for all output formats is the same and consistent with the
+   python3 output format.
+
+   Python2.6 will still display rounded values.
+
  - Fixed the issue casuing parsing error while using internal ``non-sql`` crash
    commands with semicolon.
 

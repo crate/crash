@@ -12,3 +12,4 @@ script:
     - ./bin/test
 notifications:
     email: false
+sudo: false

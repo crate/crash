@@ -13,3 +13,4 @@ crate.egg-info
 *.egg-info
 /eggs/
 /out
+.venv/

@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2015/10/18 0.14.1
+=================
+
  - Floating point values are no longer rounded to 6 places under python2.7 if
    output using the tabular or mixed output format.
    Now the behaviour for all output formats is the same and consistent with the

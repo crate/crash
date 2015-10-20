@@ -453,7 +453,7 @@ def loop(cmd, history_file):
         enable_vi_mode=Condition(lambda cli: _enable_vi_mode()))
 
     layout = create_default_layout(
-        message='cr> ',
+        message=u'cr> ',
         multiline=True,
         lexer=SqlLexer,
         extra_input_processors=[

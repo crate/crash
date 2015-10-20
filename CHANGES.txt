@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed an assertion error that could occur under python2.7
+
 2015/10/18 0.14.1
 =================
 

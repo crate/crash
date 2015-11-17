@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added the ``sysinfo`` command which queries the ``sys`` tables for
+   system and cluster information. The command requires Crate.io >= 0.54.0
+
 2015/10/20 0.14.2
 =================
 

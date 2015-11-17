@@ -371,7 +371,8 @@ class CommandTest(TestCase):
             '\\connect                        connect to the given server, e.g.: \connect localhost:4200',
             '\\dt                             print the existing tables within the \'doc\' schema',
             '\\format                         switch output format',
-            '\\q                              quit crash'
+            '\\q                              quit crash',
+            '\\sysinfo                        print system and cluster info',
             ])
 
         self.assertEqual(expected, command._help())

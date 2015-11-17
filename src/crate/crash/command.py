@@ -53,6 +53,7 @@ from pygments.token import (Keyword,
 
 from .printer import ColorPrinter, PrintWrapper
 from .outputs import OutputWriter
+from .sysinfo import SysInfoCommand
 
 from appdirs import user_data_dir
 
@@ -91,8 +92,13 @@ def parse_args(output_formats):
     parser.add_argument('--history',
                         type=str,
                         help='the history file to use', default=HISTORY_PATH)
-    parser.add_argument('-c', '--command', type=str,
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-c', '--command', type=str,
                         help='execute sql statement')
+    group.add_argument('--sysinfo', action='store_true', default=False,
+                        help='show system information')
+
     parser.add_argument('--hosts', type=str, nargs='*',
                         help='the crate hosts to connect to', metavar='HOST')
     parser.add_argument('--format', type=str, default='tabular', choices=output_formats,
@@ -193,6 +199,7 @@ class CrateCmd(object):
         self.lines = []
         self.exit_code = 0
         self.expanded_mode = False
+        self.sys_info_cmd = SysInfoCommand(self)
         self.commands = {
             '?': self._help,
             'q': self._quit,
@@ -201,6 +208,7 @@ class CrateCmd(object):
             'connect': self._connect,
             'dt': self._show_tables,
             'check': self._check,
+            'sysinfo': self.sys_info_cmd.execute,
         }
         self.logger = ColorPrinter(is_tty)
 
@@ -520,6 +528,12 @@ def main():
     stdin_data = None
     if os.name == 'posix':
         stdin_data = get_stdin()
+    if args.sysinfo:
+        prev_format = cmd.output_writer.output_format
+        cmd._switch_format('mixed')
+        cmd.sys_info_cmd.execute()
+        cmd._switch_format(prev_format)
+        done = True
     if args.command:
         cmd.process(args.command)
         done = True
@@ -528,7 +542,7 @@ def main():
             cmd.process(data)
             done = True
     if not done:
-        loop(cmd,args.history)
+        loop(cmd, args.history)
     cmd.exit()
     sys.exit(cmd.exit_code)
 

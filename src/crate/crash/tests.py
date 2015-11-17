@@ -29,6 +29,7 @@ from crate.testing.layer import CrateLayer
 from .command import CrateCmd
 from .printer import ColorPrinter, PrintWrapper
 from .test_command import CommandTest, OutputWriterTest
+from .test_sysinfo import SysInfoTest
 
 
 class CrateTestCmd(CrateCmd):
@@ -85,4 +86,6 @@ def test_suite():
     CommandTest.crate_host = crate_host
     suite.addTest(unittest.makeSuite(CommandTest))
     suite.addTest(unittest.makeSuite(OutputWriterTest))
+    suite.addTest(unittest.makeSuite(SysInfoTest))
+
     return suite

@@ -50,7 +50,9 @@ class SysInfoCommand(object):
                          where schema_name
                          not in ('information_schema', 'sys') """ ]
 
-    NODES_INFO = [ """ select version['number'] as crate_version,
+    NODES_INFO = [ """ select name,
+                          hostname,
+                          version['number'] as crate_version,
                           round(heap['max'] / 1024.0 / 1024.0)
                                 as total_heap_mb,
                           round((mem['free'] + mem['used']) / 1024.0 / 1024.0)

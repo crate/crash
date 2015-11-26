@@ -62,11 +62,11 @@ class OutputWriterTest(TestCase):
 
 class CommandTest(TestCase):
 
-    def _output_format(self, format, func):
+    def _output_format(self, format, func, query = "select name from sys.cluster"):
         orig_argv = sys.argv[:]
         try:
             sys.argv = ["testcrash",
-                        "-c", "select name from sys.cluster",
+                        "-c", query,
                         "--hosts", self.crate_host,
                         '--format', format
                         ]
@@ -104,6 +104,29 @@ class CommandTest(TestCase):
             output = output.getvalue()
             self.assertTrue('"name": "Testing44209"' in output)
         self._output_format('json', assert_func)
+
+    def test_csv_obj_output(self):
+        query = "select name, settings['udc'] from sys.cluster"
+        def assert_func(self, e, output, err):
+            exception_code = e.code
+            self.assertEqual(exception_code, 0)
+            output = output.getvalue()
+            self.assertTrue('Testing44209,\'{' in output)
+            self.assertTrue('"url": "https://udc.crate.io"' in output)
+            self.assertTrue('"interval": "1d"' in output)
+            self.assertTrue('"enabled": true' in output)
+
+        self._output_format('csv', assert_func, query)
+
+    def test_csv_array_output(self):
+        query = "select fs['disks']['dev'] from sys.nodes"
+        def assert_func(self, e, output, err):
+            exception_code = e.code
+            self.assertEqual(exception_code, 0)
+            output = output.getvalue()
+            self.assertTrue('["/dev/' in output)
+
+        self._output_format('csv', assert_func, query)
 
     def test_raw_output(self):
         def assert_func(self, e, output, err):

@@ -74,6 +74,8 @@ class SysInfoCommand(object):
 
     def execute(self):
         """ print system and cluster info """
+        if not self.cmd.is_conn_avaliable():
+          return
         if self.cmd.connection.lowest_server_version >= SYSINFO_MIN_VERSION:
             success, rows = self._sys_info()
             self.cmd.exit_code = self.cmd.exit_code or int(not success)

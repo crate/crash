@@ -307,6 +307,13 @@ class CrateCmd(object):
         return u'{0} is not a valid output format.\nUse one of: {1}'.format(
             fmt, ', '.join(self.output_writer.formats))
 
+    def is_conn_avaliable(self):
+        if self.connection.lowest_server_version == StrictVersion("0.0.0"):
+            self.logger.critical(u'CONNECT ERROR')
+            return False
+        else:
+            return True
+
     def _connect(self, server):
         """ connect to the given server, e.g.: \connect localhost:4200 """
         self.connection = connect(servers=server, error_trace=self.error_trace)

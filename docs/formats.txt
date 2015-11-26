@@ -52,8 +52,9 @@ csv
 ===
 
 The ``csv`` format prints the resuls as a comma separated value (csv) list,
-where the delimiter is a comma (``,``), the quote character is a double quote (``"``),
-and the escape character is a blackslash (``\``).
+where the delimiter is a comma (``,``), the quote character is a single quote (``''``),
+and the escape character is a blackslash (``\``). Please note that column headers
+that contain a single quote (e.g. nested objects) will be escaped.
 
 The first line of the csv output contains the name of the selected columns.
 
@@ -62,6 +63,14 @@ Example::
     name,version
     crate1,0.46.3
     crate2,0.46.3
+
+However, ``objects`` or ``arrays`` are returned as a (``JSON``-) string:
+
+Example::
+
+    name,settings[\'udc\']
+    crate,'{"enabled": true, "initial_delay": "10m", "interval": "1d", "url": "https://udc.crate.io"}'
+
 
 raw
 ===

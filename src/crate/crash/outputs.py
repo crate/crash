@@ -122,10 +122,17 @@ class OutputWriter(object):
         yield self.to_json_str(obj)
 
     def csv(self, result):
-        wr = csv.writer(self.writer, doublequote=False, escapechar='\\')
+        wr = csv.writer(self.writer, doublequote=False, escapechar='\\', quotechar="'")
         wr.writerow(result.cols)
-        for row in result.rows:
-            wr.writerow(row)
+        def json_dumps(r):
+            t = type(r)
+            return json.dumps(r, sort_keys = True) if t == dict or t == list else r
+
+        for row in iter(result.rows):
+            wr.writerow(list(map(json_dumps, row)))
+
+
+
 
     def dynamic(self, result):
         max_cols_required = sum(len(c) + 4 for c in result.cols) + 1

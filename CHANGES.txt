@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2015/12/01 0.14.3
+=================
+
  - Python2.6/2.7 output now prints unicode strings correctly when using
    csv output format
 

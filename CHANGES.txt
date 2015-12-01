@@ -5,13 +5,16 @@ Changes for crash
 Unreleased
 ==========
 
- - Python2.6/2.7 output now prints unicode strings correctly when using
-   csv output format
-
  - Do not try to execute sysinfo command when no servers are available.
 
  - Added the ``sysinfo`` command which queries the ``sys`` tables for
    system and cluster information. The command requires Crate.io >= 0.54.0
+
+2015/12/01 0.14.3
+=================
+
+ - Python2.6/2.7 output now prints unicode strings correctly when using
+   csv output format
 
 2015/10/20 0.14.2
 =================

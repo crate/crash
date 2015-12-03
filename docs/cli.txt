@@ -63,7 +63,8 @@ You can get a list of commands by typing the command ``\?``:
 +----------------------+------------------------------------------------------------------------------------+
 | ``\format``          | Switch the output format of the SQL response.                                      |
 |                      | Same as ``--format`` command line option.                                          |
-|                      | Available formats are: ``tabular``, ``raw``, ``json``, ``csv`` and ``mixed``       |
+|                      | Available formats are: ``tabular``, ``raw``, ``json``, ``json_row``, ``csv``       |
+|                      | and ``mixed``                                                                      |
 |                      |                                                                                    |
 |                      | see :ref:`formats` for details                                                     |
 +----------------------+------------------------------------------------------------------------------------+

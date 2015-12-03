@@ -56,6 +56,7 @@ class OutputWriter(object):
             'raw': self.raw,
             'mixed': self.mixed,
             'dynamic': self.dynamic,
+            'json_row': self.json_row
         }
 
     @property
@@ -131,9 +132,6 @@ class OutputWriter(object):
         for row in iter(result.rows):
             wr.writerow(list(map(json_dumps, row)))
 
-
-
-
     def dynamic(self, result):
         max_cols_required = sum(len(c) + 4 for c in result.cols) + 1
         for row in result.rows:
@@ -144,6 +142,14 @@ class OutputWriter(object):
             return self.mixed(result)
         else:
             return self.tabular(result)
+    
+    def json_row(self, result):
+        rows = (json.dumps(dict(zip(result.cols, x))) for x in result.rows)
+        for row in rows:
+            if self.is_tty:
+                yield highlight(row, self._json_lexer, self._formatter)
+            else:
+                yield row + '\n'
 
     def _mixed_format(self, value, max_col_len, padding):
         if value is None:

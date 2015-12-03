@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added new format ``json_row`` which prints a dataset as json row-by-row 
+   in separate lines.
+
  - Do not try to execute sysinfo command when no servers are available.
 
  - Added the ``sysinfo`` command which queries the ``sys`` tables for

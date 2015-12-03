@@ -45,8 +45,24 @@ Example::
       }
     ]
 
-.. _format_raw:
 
+.. _format_json_row:
+
+json_row
+========
+
+This format is related to `format_json`_. However it prints each dataset 
+row-by-row in separate lines. This output is compatible with ``COPY FROM`` 
+statement. Therefore it is useful if you want to export specific datasets in 
+order to import them later via ``COPY FROM``.
+
+Example::
+  
+  {"name": "crate1", "version": "0.46.3"}
+  {"name": "crate2", "version": "0.46.3"}
+
+
+.. _format_csv:
 
 csv
 ===
@@ -71,6 +87,8 @@ Example::
     name,settings[\'udc\']
     crate,'{"enabled": true, "initial_delay": "10m", "interval": "1d", "url": "https://udc.crate.io"}'
 
+
+.. _format_raw:
 
 raw
 ===
@@ -115,5 +133,3 @@ Example::
     name    | crate2
     version | 0.46.3
     ---------------------------------------------------------------
-
-.. _format_csv:

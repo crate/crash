@@ -104,6 +104,15 @@ class CommandTest(TestCase):
             output = output.getvalue()
             self.assertTrue('"name": "Testing44209"' in output)
         self._output_format('json', assert_func)
+    
+    def test_json_row_output(self):
+        query = "select schema_name from information_schema.tables where schema_name = 'sys' limit 2"
+        def assert_func(self, e, output, err):
+            exception_code = e.code
+            self.assertEqual(exception_code, 0)
+            output = output.getvalue()
+            self.assertTrue('{"schema_name": "sys"}\n{"schema_name": "sys"}' in output)
+        self._output_format('json_row', assert_func, query)
 
     def test_csv_obj_output(self):
         query = "select name, settings['udc'] from sys.cluster"

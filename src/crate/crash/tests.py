@@ -78,7 +78,8 @@ def test_suite():
         'usage.txt', 'output.txt',
         setUp=setUp,
         optionflags=flags,
-        parser=crash_parser
+        parser=crash_parser,
+        encoding='utf-8'
     )
     s.layer = crate_layer
     suite.addTest(s)

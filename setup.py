@@ -37,16 +37,16 @@ requirements = [
 if (2, 6) == sys.version_info[:2]:
     requirements.append('argparse>=1.1')
 
+
 def read(path):
     return open(os.path.join(os.path.dirname(__file__), path)).read()
 
 long_description = (
-    read('README.rst')
-    + '\n' +
-    read(os.path.join('src','crate','crash','usage.txt'))
+    read('README.rst') + '\n' +
+    read(os.path.join('src', 'crate', 'crash', 'usage.txt'))
 )
 
-versionf_content = open(os.path.join('src','crate','crash','__init__.py')).read()
+versionf_content = open(os.path.join('src', 'crate', 'crash', '__init__.py')).read()
 version_rex = r'^__version__ = [\'"]([^\'"]*)[\'"]$'
 m = re.search(version_rex, versionf_content, re.M)
 if m:
@@ -83,7 +83,7 @@ setup(
     install_requires=requirements,
     package_data={'': ['*.txt']},
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
@@ -94,6 +94,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Database'

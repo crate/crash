@@ -5,10 +5,11 @@ Changes for crash
 Unreleased
 ==========
 
- - Added new format ``json_row`` which prints a dataset as json row-by-row 
-   in separate lines.
+2015/12/14 0.15.0
+=================
 
- - Do not try to execute sysinfo command when no servers are available.
+ - Added new format ``json_row`` which prints a dataset as json row-by-row
+   in separate lines.
 
  - Added the ``sysinfo`` command which queries the ``sys`` tables for
    system and cluster information. The command requires Crate.io >= 0.54.0

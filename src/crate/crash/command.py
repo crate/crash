@@ -412,12 +412,16 @@ def get_stdin():
     """
     # use select.select to check if input is available
     # otherwise sys.stdin would block
-    while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-        line = sys.stdin.readline()
-        if line:
+    if os.name == 'posix':
+        while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            line = sys.stdin.readline()
+            if line:
+                yield line
+            else:
+                break
+    if os.name == 'nt' and not sys.stdin.isatty():
+        for line in sys.stdin:
             yield line
-        else:
-            break
     return
 
 def _enable_vi_mode():
@@ -532,9 +536,7 @@ def main():
         # log CONNECT command only in verbose mode
         cmd._connect(args.hosts)
     done = False
-    stdin_data = None
-    if os.name == 'posix':
-        stdin_data = get_stdin()
+    stdin_data = get_stdin()
     if args.sysinfo:
         prev_format = cmd.output_writer.output_format
         cmd._switch_format('mixed')

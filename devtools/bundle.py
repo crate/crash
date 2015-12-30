@@ -30,7 +30,7 @@ def zipdir(path, zip):
 def main(out_path, libdir):
 
     with open(out_path, 'w') as out_file:
-        print >> out_file, '#!/usr/bin/env python'
+        out_file.write('#!/usr/bin/env python\n')
 
     st = os.stat(out_path)
     os.chmod(out_path, st.st_mode | stat.S_IEXEC)

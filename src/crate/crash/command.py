@@ -31,24 +31,10 @@ import logging
 from argparse import ArgumentParser
 from collections import namedtuple
 
-from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.history import FileHistory
-from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.filters import Condition, IsDone, HasFocus, Always
-
 from ..crash import __version__ as crash_version
 from crate.client import connect
 from crate.client.exceptions import ConnectionError, ProgrammingError
 
-from pygments.lexers.sql import SqlLexer
-from pygments.style import Style as PygmentsStyle
-from pygments.token import (Keyword,
-                            Comment,
-                            Operator,
-                            Number,
-                            Literal,
-                            String,
-                            Error)
 
 from .printer import ColorPrinter, PrintWrapper
 from .outputs import OutputWriter
@@ -74,7 +60,6 @@ logging.getLogger('crate').addHandler(NullHandler())
 USER_DATA_DIR = user_data_dir("Crate", "Crate")
 HISTORY_FILE_NAME = 'crash_history'
 HISTORY_PATH = os.path.join(USER_DATA_DIR, HISTORY_FILE_NAME)
-MAX_HISTORY_LENGTH = 10000
 
 Result = namedtuple('Result', ['cols',
                                'rows',
@@ -94,9 +79,9 @@ def parse_args(output_formats):
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-c', '--command', type=str,
-                        help='execute sql statement')
+                       help='execute sql statement')
     group.add_argument('--sysinfo', action='store_true', default=False,
-                        help='show system information')
+                       help='show system information')
 
     parser.add_argument('--hosts', type=str, nargs='*',
                         help='the crate hosts to connect to', metavar='HOST')
@@ -113,52 +98,6 @@ def parse_args(output_formats):
     return args
 
 
-class TruncatedFileHistory(FileHistory):
-
-    def __init__(self, filename, max_length=1000):
-        super(TruncatedFileHistory, self).__init__(filename)
-        base = os.path.dirname(filename)
-        if not os.path.exists(base):
-            os.makedirs(base)
-        if not os.path.exists(filename):
-            with open(filename, 'a'):
-                os.utime(filename, None)
-        self.max_length = max_length
-
-    def append(self, string):
-        self.strings = self.strings[:max(0, self.max_length-1)]
-        super(TruncatedFileHistory, self).append(string)
-
-
-class SQLCompleter(Completer):
-    keywords = [
-        "select", "insert", "update", "delete",
-        "table", "index", "from", "into", "where", "values", "and", "or",
-        "set", "with", "by", "using", "like",
-        "boolean", "integer", "string", "float", "double", "short", "long",
-        "byte", "timestamp", "ip", "object", "dynamic", "strict", "ignored",
-        "array", "blob", "primary key",
-        "analyzer", "extends", "tokenizer", "char_filters", "token_filters",
-        "number_of_replicas", "clustered",
-        "refresh", "alter",
-        "sys", "doc", "blob",
-    ]
-
-    def __init__(self, conn, lines):
-        self.client = conn.client
-        self.lines = lines
-        self.keywords += [kw.upper() for kw in self.keywords]
-
-    def get_completions(self, document, complete_event):
-        line = document.text
-        if line.startswith('\\'):
-            return
-        word_before_cursor = document.get_word_before_cursor()
-        for keyword in self.keywords:
-            if keyword.startswith(word_before_cursor):
-                yield Completion(keyword, -len(word_before_cursor))
-
-
 def noargs_command(fn):
     def inner_fn(self, *args):
         if len(args):
@@ -167,19 +106,6 @@ def noargs_command(fn):
         return fn(self, *args)
     inner_fn.__doc__ = fn.__doc__
     return inner_fn
-
-
-class CrateStyle(PygmentsStyle):
-    default_style = "noinherit"
-    styles = {
-        Keyword: 'bold #4b95a3',
-        Comment: '#757265',
-        Operator: '#e83131',
-        Number: '#be61ff',
-        Literal: '#ae81ff',
-        String: '#f4a33d',
-        Error: '#ff3300',
-    }
 
 
 class CrateCmd(object):
@@ -244,7 +170,6 @@ class CrateCmd(object):
         if self.lines:
             self._exec(' '.join(self.lines))
             self.lines[:] = []
-
 
     @noargs_command
     def _help(self, *args):
@@ -353,7 +278,7 @@ class CrateCmd(object):
                     self.logger.info('help: {0}'.format(words[0].lower()))
                     self.logger.info(cmd.__doc__)
             except Exception as e:
-                self.logger.critical(e.message);
+                self.logger.critical(e.message)
             else:
                 if message:
                     self.logger.info(message)
@@ -385,8 +310,8 @@ class CrateCmd(object):
         cur = self.cursor
         command = statement[:statement.index(' ')].upper()
         duration = ''
-        if cur.duration > -1 :
-            duration = ' ({0:.3f} sec)'.format(float(cur.duration)/1000.0)
+        if cur.duration > -1:
+            duration = ' ({0:.3f} sec)'.format(float(cur.duration) / 1000.0)
         print_vars = {
             'command': command,
             'rowcount': cur.rowcount,
@@ -413,99 +338,6 @@ def get_stdin():
         for line in sys.stdin:
             yield line
     return
-
-
-def _enable_vi_mode():
-    files = ['/etc/inputrc', os.path.expanduser('~/.inputrc')]
-    for filepath in files:
-        try:
-            with open(filepath, 'r') as f:
-                for line in f:
-                    if line.strip() == 'set editing-mode vi':
-                        return True
-        except IOError:
-            continue
-    return False
-
-
-class CrashBuffer(Buffer):
-    def __init__(self, *args, **kwargs):
-
-        @Condition
-        def is_multiline():
-            doc = self.document
-            if not doc.text:
-                return False
-            if doc.text.startswith('\\'):
-                return False
-            return not doc.text.rstrip().endswith(';')
-
-        super(self.__class__, self).__init__(
-            *args, is_multiline=is_multiline, **kwargs)
-
-
-def loop(cmd, history_file):
-    from prompt_toolkit import CommandLineInterface, AbortAction, Application
-    from prompt_toolkit.interface import AcceptAction
-    from prompt_toolkit.enums import DEFAULT_BUFFER
-    from prompt_toolkit.layout.processors import (
-        HighlightMatchingBracketProcessor,
-        ConditionalProcessor
-    )
-    from prompt_toolkit.key_binding.manager import KeyBindingManager
-    from prompt_toolkit.shortcuts import (create_default_layout,
-                                          create_default_output,
-                                          create_eventloop)
-
-    key_binding_manager = KeyBindingManager(
-        enable_search=True,
-        enable_abort_and_exit_bindings=True,
-        enable_vi_mode=Condition(lambda cli: _enable_vi_mode()))
-
-    layout = create_default_layout(
-        message=u'cr> ',
-        multiline=True,
-        lexer=SqlLexer,
-        extra_input_processors=[
-            ConditionalProcessor(
-                processor=HighlightMatchingBracketProcessor(chars='[](){}'),
-                filter=HasFocus(DEFAULT_BUFFER) & ~IsDone())
-        ]
-    )
-    cli_buffer = CrashBuffer(
-        history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
-        accept_action=AcceptAction.RETURN_DOCUMENT,
-        completer=SQLCompleter(cmd.connection, cmd.lines),
-        complete_while_typing=Always()
-    )
-    application = Application(
-        layout=layout,
-        style=CrateStyle,
-        buffer=cli_buffer,
-        key_bindings_registry=key_binding_manager.registry,
-        on_exit=AbortAction.RAISE_EXCEPTION,
-        on_abort=AbortAction.RETRY,
-    )
-    eventloop = create_eventloop()
-    output = create_default_output()
-    cli = CommandLineInterface(
-        application=application,
-        eventloop=eventloop,
-        output=output
-    )
-
-    def get_num_columns_override():
-        return output.get_size().columns
-    cmd.get_num_columns = get_num_columns_override
-
-    while True:
-        try:
-            doc = cli.run()
-            if doc:
-                cmd.process(doc.text)
-        except EOFError:
-            cmd.logger.warn(u'Bye!')
-            return
 
 
 def main():
@@ -542,6 +374,7 @@ def main():
             cmd.process(data)
             done = True
     if not done:
+        from .repl import loop
         loop(cmd, args.history)
     cmd.exit()
     sys.exit(cmd.exit_code)

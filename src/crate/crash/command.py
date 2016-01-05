@@ -26,7 +26,6 @@ from __future__ import print_function
 
 import os
 import sys
-import select
 import logging
 
 from argparse import ArgumentParser
@@ -410,19 +409,11 @@ def get_stdin():
     """
     Get data from stdin, if any
     """
-    # use select.select to check if input is available
-    # otherwise sys.stdin would block
-    if os.name == 'posix':
-        while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-            line = sys.stdin.readline()
-            if line:
-                yield line
-            else:
-                break
-    if os.name == 'nt' and not sys.stdin.isatty():
+    if not sys.stdin.isatty():
         for line in sys.stdin:
             yield line
     return
+
 
 def _enable_vi_mode():
     files = ['/etc/inputrc', os.path.expanduser('~/.inputrc')]

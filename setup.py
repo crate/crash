@@ -34,6 +34,8 @@ requirements = [
     'prompt-toolkit==0.52'
 ]
 
+tests_requirements = ['crate[test]', 'zc.customdoctests']
+
 if (2, 6) == sys.version_info[:2]:
     requirements.append('argparse>=1.1')
 
@@ -74,12 +76,11 @@ setup(
         ]
     },
     extras_require=dict(
-        test=['crate[test]',
-              'zc.customdoctests',
-              'zope.testing',
-              ],
-        argcompletion=['argcomplete']
+        argcompletion=['argcomplete'],
+        test=tests_requirements
     ),
+    setup_requires=['zope.testrunner', 'eggtestinfo'],
+    tests_require=tests_requirements,
     install_requires=requirements,
     package_data={'': ['*.txt']},
     classifiers=[

@@ -4,12 +4,8 @@ python:
     - 2.7
     - 3.3
     - 3.4
-install:
-    - pip uninstall setuptools -y
-    - python bootstrap.py
-    - ./bin/buildout
 script:
-    - ./bin/test
+    - python setup.py ftest
 notifications:
     email: false
 sudo: false

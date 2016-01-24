@@ -1,7 +1,7 @@
 import os
 
 from pygments.lexers.sql import SqlLexer
-from pygments.style import Style as PygmentsStyle
+from pygments.style import Style
 from pygments.token import (Keyword,
                             Comment,
                             Operator,
@@ -16,14 +16,15 @@ from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.filters import Condition, IsDone, HasFocus, Always
 from prompt_toolkit import CommandLineInterface, AbortAction, Application
 from prompt_toolkit.interface import AcceptAction
+from prompt_toolkit.styles import PygmentsStyle
 from prompt_toolkit.enums import DEFAULT_BUFFER
 from prompt_toolkit.layout.processors import (
     HighlightMatchingBracketProcessor,
     ConditionalProcessor
 )
 from prompt_toolkit.key_binding.manager import KeyBindingManager
-from prompt_toolkit.shortcuts import (create_default_layout,
-                                      create_default_output,
+from prompt_toolkit.shortcuts import (create_prompt_layout,
+                                      create_output,
                                       create_eventloop)
 
 
@@ -43,7 +44,7 @@ def _enable_vi_mode():
     return False
 
 
-class CrateStyle(PygmentsStyle):
+class CrateStyle(Style):
     default_style = "noinherit"
     styles = {
         Keyword: 'bold #4b95a3',
@@ -124,7 +125,7 @@ def loop(cmd, history_file):
         enable_abort_and_exit_bindings=True,
         enable_vi_mode=Condition(lambda cli: _enable_vi_mode()))
 
-    layout = create_default_layout(
+    layout = create_prompt_layout(
         message=u'cr> ',
         multiline=True,
         lexer=SqlLexer,
@@ -142,14 +143,14 @@ def loop(cmd, history_file):
     )
     application = Application(
         layout=layout,
-        style=CrateStyle,
+        style=PygmentsStyle.from_defaults(pygments_style_cls=CrateStyle),
         buffer=cli_buffer,
         key_bindings_registry=key_binding_manager.registry,
         on_exit=AbortAction.RAISE_EXCEPTION,
         on_abort=AbortAction.RETRY,
     )
     eventloop = create_eventloop()
-    output = create_default_output()
+    output = create_output()
     cli = CommandLineInterface(
         application=application,
         eventloop=eventloop,

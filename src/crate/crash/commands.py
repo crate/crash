@@ -1,4 +1,5 @@
 import functools
+import glob
 
 
 class Command(object):
@@ -31,6 +32,21 @@ class HelpCommand(Command):
         return '\n'.join(out)
 
 
+class ReadFileCommand(Command):
+    """ read and execute statements from a file """
+    def complete(self, text):
+        text = text.lstrip(r'\r ')
+        if text.endswith('.sql'):
+            return []
+        return glob.glob(text + '*.sql')
+
+    def __call__(self, cmd, filename, *args, **kwargs):
+        with open(filename, 'r', encoding='utf-8') as f:
+            for line in f:
+                cmd.process(line)
+
+
 built_in_commands = {
     '?': HelpCommand(),
+    'r': ReadFileCommand(),
 }

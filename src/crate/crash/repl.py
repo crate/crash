@@ -101,7 +101,8 @@ class SQLCompleter(Completer):
             cmd = line[1:]
             return (i for i in self.commands.keys() if i.startswith(cmd))
         parts = line.split(' ', 1)
-        cmd = self.commands.get(parts[0], None)
+        cmd = parts[0].lstrip('\\')
+        cmd = self.commands.get(cmd, None)
         if isinstance(cmd, Command):
             return cmd.complete(line)
         return []

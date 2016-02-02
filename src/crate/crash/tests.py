@@ -29,6 +29,7 @@ from crate.testing.layer import CrateLayer
 from .command import CrateCmd
 from .printer import ColorPrinter, PrintWrapper
 from .test_command import CommandTest, OutputWriterTest
+from .test_commands import ReadFileCommandTest
 from .test_sysinfo import SysInfoTest
 
 
@@ -45,8 +46,10 @@ def project_path(*parts):
         os.path.dirname(os.path.dirname(__file__)),
         '..', '..', *parts)
 
+
 def crate_path(*parts):
     return project_path('parts', 'crate', *parts)
+
 
 def crash_transform(txt):
     return u'cmd.process({0})'.format(repr(txt.strip()))
@@ -71,6 +74,7 @@ crate_uri = "http://%s" % crate_host
 def setUp(test):
     test.globs['cmd'] = CrateTestCmd(error_trace=True, is_tty=False)
 
+
 def test_suite():
     suite = unittest.TestSuite()
     flags = (doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS)
@@ -88,5 +92,6 @@ def test_suite():
     suite.addTest(unittest.makeSuite(CommandTest))
     suite.addTest(unittest.makeSuite(OutputWriterTest))
     suite.addTest(unittest.makeSuite(SysInfoTest))
+    suite.addTest(unittest.makeSuite(ReadFileCommandTest))
 
     return suite

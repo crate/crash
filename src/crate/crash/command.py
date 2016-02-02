@@ -39,6 +39,7 @@ from crate.client.exceptions import ConnectionError, ProgrammingError
 from .printer import ColorPrinter, PrintWrapper
 from .outputs import OutputWriter
 from .sysinfo import SysInfoCommand
+from .commands import built_in_commands, Command
 
 from appdirs import user_data_dir
 
@@ -126,7 +127,6 @@ class CrateCmd(object):
         self.expanded_mode = False
         self.sys_info_cmd = SysInfoCommand(self)
         self.commands = {
-            '?': self._help,
             'q': self._quit,
             'c': self._connect,
             'r': self._read_file,
@@ -136,6 +136,7 @@ class CrateCmd(object):
             'check': self._check,
             'sysinfo': self.sys_info_cmd.execute,
         }
+        self.commands.update(built_in_commands)
         self.logger = ColorPrinter(is_tty)
 
     def get_num_columns(self):
@@ -171,15 +172,6 @@ class CrateCmd(object):
         if self.lines:
             self._exec(' '.join(self.lines))
             self.lines[:] = []
-
-    @noargs_command
-    def _help(self, *args):
-        """ print this help """
-        out = []
-        for k, v in sorted(self.commands.items()):
-            doc = v.__doc__ and v.__doc__.strip()
-            out.append('\{0:<30} {1}'.format(k, doc))
-        return '\n'.join(out)
 
     @noargs_command
     def _show_tables(self, *args):
@@ -277,7 +269,10 @@ class CrateCmd(object):
             words[1] = words[1].rstrip(';')
         if cmd:
             try:
-                message = cmd(*words[1:])
+                if isinstance(cmd, Command):
+                    message = cmd(self, *words[1:])
+                else:
+                    message = cmd(*words[1:])
             except TypeError as e:
                 self.logger.critical(getattr(e, 'message', None) or repr(e))
                 doc = cmd.__doc__

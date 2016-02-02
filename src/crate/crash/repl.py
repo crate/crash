@@ -104,8 +104,7 @@ class SQLCompleter(Completer):
         cmd = self.commands.get(parts[0], None)
         if isinstance(cmd, Command):
             return cmd.complete(line)
-        if not cmd:
-            return []
+        return []
 
     def get_completions(self, document, complete_event):
         line = document.text

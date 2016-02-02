@@ -10,6 +10,7 @@ from mock import patch
 from .command import CrateCmd, main, get_stdin, noargs_command, Result
 from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
+from .commands import Command
 
 
 def fake_stdin(data):
@@ -413,12 +414,14 @@ class CommandTest(TestCase):
             '\\sysinfo                        print system and cluster info',
         ])
 
-        self.assertEqual(expected, command._help())
+        help_ = command.commands['?']
+        self.assertTrue(isinstance(help_, Command))
+        self.assertEqual(expected, help_(command))
         command = CrateCmd(is_tty=False)
 
         output = StringIO()
         command.logger = ColorPrinter(False, stream=output)
-        text = command._help('arg1', 'arg2')
+        text = help_(command, 'arg1', 'arg2')
         self.assertEqual(None, text)
         self.assertEqual('Command does not take any arguments.\n', output.getvalue())
 

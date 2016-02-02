@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added a new ``\r`` command which can be used to read and execute statements
+   from a file.
+
  - Fixed an error that occurred under python 3 if one of the built-in commands
    that require an argument were called without argument.
 

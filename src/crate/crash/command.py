@@ -129,6 +129,7 @@ class CrateCmd(object):
             '?': self._help,
             'q': self._quit,
             'c': self._connect,
+            'r': self._read_file,
             'format': self._switch_format,
             'connect': self._connect,
             'dt': self._show_tables,
@@ -237,6 +238,12 @@ class CrateCmd(object):
             return False
         else:
             return True
+
+    def _read_file(self, filename):
+        """ read and execute statements from a file """
+        with open(filename, 'r', encoding='utf-8') as f:
+            for line in f:
+                self.process(line)
 
     def _connect(self, server):
         """ connect to the given server, e.g.: \connect localhost:4200 """

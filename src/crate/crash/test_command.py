@@ -404,6 +404,7 @@ class CommandTest(TestCase):
             '\\dt                             print the existing tables within the \'doc\' schema',
             '\\format                         switch output format',
             '\\q                              quit crash',
+            '\\r                              read and execute statements from a file',
             '\\sysinfo                        print system and cluster info',
             ])
 

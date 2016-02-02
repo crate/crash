@@ -11,6 +11,7 @@ from .command import CrateCmd, main, get_stdin, noargs_command, Result
 from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 
+
 def fake_stdin(data):
     if PY2:
         stdin = tempfile.TemporaryFile()
@@ -30,10 +31,10 @@ class OutputWriterTest(TestCase):
             expected = 'foo | 152462.70754934277'
         ow = OutputWriter(writer=None, is_tty=False)
         result = Result(cols=['foo'],
-               rows=[[152462.70754934277]],
-               rowcount=1,
-               duration=1,
-               output_width=80)
+                        rows=[[152462.70754934277]],
+                        rowcount=1,
+                        duration=1,
+                        output_width=80)
         self.assertEqual(
             next(ow.mixed(result)).rstrip(), expected)
 
@@ -45,10 +46,10 @@ class OutputWriterTest(TestCase):
 
         ow = OutputWriter(writer=None, is_tty=False)
         result = Result(cols=['foo'],
-               rows=[[152462.70754934277]],
-               rowcount=1,
-               duration=1,
-               output_width=80)
+                        rows=[[152462.70754934277]],
+                        rowcount=1,
+                        duration=1,
+                        output_width=80)
 
         # output is
         # +---
@@ -60,9 +61,10 @@ class OutputWriterTest(TestCase):
         self.assertEqual(
             output.strip('|').strip(' '), expected)
 
+
 class CommandTest(TestCase):
 
-    def _output_format(self, format, func, query = "select name from sys.cluster"):
+    def _output_format(self, format, func, query="select name from sys.cluster"):
         orig_argv = sys.argv[:]
         try:
             sys.argv = ["testcrash",
@@ -104,9 +106,10 @@ class CommandTest(TestCase):
             output = output.getvalue()
             self.assertTrue('"name": "Testing44209"' in output)
         self._output_format('json', assert_func)
-    
+
     def test_json_row_output(self):
         query = "select schema_name from information_schema.tables where schema_name = 'sys' limit 2"
+
         def assert_func(self, e, output, err):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
@@ -116,6 +119,7 @@ class CommandTest(TestCase):
 
     def test_csv_obj_output(self):
         query = "select name, settings['udc'] from sys.cluster"
+
         def assert_func(self, e, output, err):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
@@ -129,6 +133,7 @@ class CommandTest(TestCase):
 
     def test_csv_array_output(self):
         query = "select fs['disks']['dev'] from sys.nodes"
+
         def assert_func(self, e, output, err):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
@@ -270,7 +275,7 @@ class CommandTest(TestCase):
 
         Newlines must be replaced with whitespaces
         """
-        stmt = ''.join(list(get_stdin())).replace('\n',' ')
+        stmt = ''.join(list(get_stdin())).replace('\n', ' ')
         expected = ("create table test( d string ) "
                     "clustered into 2 shards "
                     "with (number_of_replicas=0)")
@@ -286,7 +291,7 @@ class CommandTest(TestCase):
 
         Newlines must be replaced with whitespaces
         """
-        stmt = ''.join(list(get_stdin())).replace('\n',' ')
+        stmt = ''.join(list(get_stdin())).replace('\n', ' ')
         expected = ("create table test( d string ) "
                     "clustered into 2 shards "
                     "with (number_of_replicas=0);")
@@ -406,7 +411,7 @@ class CommandTest(TestCase):
             '\\q                              quit crash',
             '\\r                              read and execute statements from a file',
             '\\sysinfo                        print system and cluster info',
-            ])
+        ])
 
         self.assertEqual(expected, command._help())
         command = CrateCmd(is_tty=False)

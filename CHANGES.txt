@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed an error that occurred under python 3 if one of the built-in commands
+   that require an argument were called without argument.
+
 2015/12/14 0.15.0
 =================
 

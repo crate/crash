@@ -272,13 +272,13 @@ class CrateCmd(object):
             try:
                 message = cmd(*words[1:])
             except TypeError as e:
-                self.logger.critical(e.message)
+                self.logger.critical(getattr(e, 'message', None) or repr(e))
                 doc = cmd.__doc__
                 if doc and not doc.isspace():
                     self.logger.info('help: {0}'.format(words[0].lower()))
                     self.logger.info(cmd.__doc__)
             except Exception as e:
-                self.logger.critical(e.message)
+                self.logger.critical(getattr(e, 'message', None) or repr(e))
             else:
                 if message:
                     self.logger.info(message)

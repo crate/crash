@@ -5,6 +5,9 @@ python:
     - 3.3
     - 3.4
     - 3.5
+    - pypy
+    - pypy3
+    - nightly
 install:
     - pip uninstall setuptools -y
     - python bootstrap.py
@@ -14,3 +17,6 @@ script:
 notifications:
     email: false
 sudo: false
+matrix:
+    allow_failures:
+        - python: nightly

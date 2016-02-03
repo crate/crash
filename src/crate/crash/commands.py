@@ -3,7 +3,7 @@ import glob
 
 
 class Command(object):
-    def complete(self, text):
+    def complete(self, cmd, text):
         return []
 
     def __call__(self, cmd, *args, **kwargs):
@@ -34,8 +34,7 @@ class HelpCommand(Command):
 
 class ReadFileCommand(Command):
     """ read and execute statements from a file """
-    def complete(self, text):
-        text = text.lstrip(r'\r ')
+    def complete(self, cmd, text):
         if text.endswith('.sql'):
             return []
         return glob.glob(text + '*.sql')
@@ -46,7 +45,22 @@ class ReadFileCommand(Command):
                 cmd.process(line)
 
 
+class SwitchFormatCommand(Command):
+    """ switch output format """
+
+    def complete(self, cmd, text):
+        return (i for i in cmd.output_writer.formats if i.startswith(text))
+
+    def __call__(self, cmd, fmt=None):
+        if fmt and fmt in cmd.output_writer.formats:
+            cmd.output_writer.output_format = fmt
+            return u'changed output format to {0}'.format(fmt)
+        return u'{0} is not a valid output format.\nUse one of: {1}'.format(
+            fmt, ', '.join(cmd.output_writer.formats))
+
+
 built_in_commands = {
     '?': HelpCommand(),
     'r': ReadFileCommand(),
+    'format': SwitchFormatCommand(),
 }

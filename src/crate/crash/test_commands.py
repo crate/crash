@@ -11,7 +11,7 @@ class ReadFileCommandTest(TestCase):
         fake_glob.return_value = ['foo', 'foobar']
 
         cmd = ReadFileCommand()
-        results = cmd.complete('fo')
+        results = cmd.complete(None, 'fo')
 
         self.assertEqual(results, ['foo', 'foobar'])
         fake_glob.assert_called_with('fo*.sql')

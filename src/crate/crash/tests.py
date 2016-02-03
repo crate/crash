@@ -31,6 +31,7 @@ from .printer import ColorPrinter, PrintWrapper
 from .test_command import CommandTest, OutputWriterTest
 from .test_commands import ReadFileCommandTest
 from .test_sysinfo import SysInfoTest
+from .test_repl import SQLCompleterTest
 
 
 class CrateTestCmd(CrateCmd):
@@ -93,5 +94,6 @@ def test_suite():
     suite.addTest(unittest.makeSuite(OutputWriterTest))
     suite.addTest(unittest.makeSuite(SysInfoTest))
     suite.addTest(unittest.makeSuite(ReadFileCommandTest))
+    suite.addTest(unittest.makeSuite(SQLCompleterTest))
 
     return suite

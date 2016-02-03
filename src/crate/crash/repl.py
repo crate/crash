@@ -90,28 +90,26 @@ class SQLCompleter(Completer):
         "sys", "doc", "blob",
     ]
 
-    def __init__(self, conn, lines, commands):
-        self.client = conn.client
-        self.lines = lines
-        self.commands = commands
+    def __init__(self, cmd):
+        self.cmd = cmd
         self.keywords += [kw.upper() for kw in self.keywords]
 
-    def get_command_completions(self, line, word_before_cursor):
+    def get_command_completions(self, line):
         if ' ' not in line:
             cmd = line[1:]
-            return (i for i in self.commands.keys() if i.startswith(cmd))
+            return (i for i in self.cmd.commands.keys() if i.startswith(cmd))
         parts = line.split(' ', 1)
         cmd = parts[0].lstrip('\\')
-        cmd = self.commands.get(cmd, None)
+        cmd = self.cmd.commands.get(cmd, None)
         if isinstance(cmd, Command):
-            return cmd.complete(line)
+            return cmd.complete(self.cmd, parts[1])
         return []
 
     def get_completions(self, document, complete_event):
         line = document.text
         word_before_cursor = document.get_word_before_cursor()
         if line.startswith('\\'):
-            for w in self.get_command_completions(line, word_before_cursor):
+            for w in self.get_command_completions(line):
                 yield Completion(w, -len(word_before_cursor))
             return
         for keyword in self.keywords:
@@ -154,7 +152,7 @@ def loop(cmd, history_file):
     cli_buffer = CrashBuffer(
         history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
         accept_action=AcceptAction.RETURN_DOCUMENT,
-        completer=SQLCompleter(cmd.connection, cmd.lines, cmd.commands),
+        completer=SQLCompleter(cmd),
         complete_while_typing=Always()
     )
     application = Application(

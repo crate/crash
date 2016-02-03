@@ -129,7 +129,6 @@ class CrateCmd(object):
         self.commands = {
             'q': self._quit,
             'c': self._connect,
-            'format': self._switch_format,
             'connect': self._connect,
             'dt': self._show_tables,
             'check': self._check,
@@ -214,14 +213,6 @@ class CrateCmd(object):
         """ quit crash """
         self.logger.warn(u'Bye!')
         sys.exit(self.exit_code)
-
-    def _switch_format(self, fmt=None):
-        """ switch output format """
-        if fmt and fmt in self.output_writer.formats:
-            self.output_writer.output_format = fmt
-            return u'changed output format to {0}'.format(fmt)
-        return u'{0} is not a valid output format.\nUse one of: {1}'.format(
-            fmt, ', '.join(self.output_writer.formats))
 
     def is_conn_avaliable(self):
         if self.connection.lowest_server_version == StrictVersion("0.0.0"):

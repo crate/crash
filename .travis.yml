@@ -8,12 +8,16 @@ python:
     - pypy
     - pypy3
     - nightly
+before_install:
+    - pip install codecov
 install:
     - pip uninstall setuptools -y
     - python bootstrap.py
     - ./bin/buildout install scripts crate test
 script:
     - ./bin/test
+after_success:
+    - codecov
 notifications:
     email: false
 sudo: false

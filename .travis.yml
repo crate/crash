@@ -9,15 +9,14 @@ python:
     - pypy3
     - nightly
 before_install:
-    - pip install codecov
-install:
     - pip uninstall setuptools -y
+install:
     - python bootstrap.py
     - ./bin/buildout install scripts crate test
 script:
-    - ./bin/test
+    - bin/coverage run bin/test
 after_success:
-    - codecov
+    - PATH=$PATH:bin/ bin/codecov  # codecov executes coverage which needs to be in $PATH
 notifications:
     email: false
 sudo: false

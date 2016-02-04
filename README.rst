@@ -16,6 +16,9 @@
     :target: https://pypi.python.org/pypi/crash/
     :alt: Downloads
 
+.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
+    :target: https://crate.io/docs/reference/crash/
+
 ========
 Overview
 ========
@@ -60,8 +63,8 @@ Or::
     chmod +x ./crash_standalone_latest
     ./crash_standalone_latest
 
-Invocation
-----------
+Usage
+-----
 
 If the package was installed using `pip` the shell can be started by
 running the command `crash` in a terminal.
@@ -70,11 +73,7 @@ For usage information and command line options invoke::
 
     crash --help
 
-Where to go from here?
-======================
-
-to take a look at the documentation visit
-`https://crate.io/docs/projects/crash/stable/ <https://crate.io/docs/projects/crash/stable/>`_.
+Or consult the `crash documentation 📚 <https://crate.io/docs/reference/crash/>`_.
 
 Are you a Developer?
 ====================

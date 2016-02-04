@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added initial auto-completion support for the internal ``\format`` and
+   ``\r`` commands.
+
  - Added a new ``\r`` command which can be used to read and execute statements
    from a file.
 

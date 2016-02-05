@@ -22,6 +22,7 @@
 from setuptools import setup, find_packages
 import sys
 import os
+import io
 import re
 
 
@@ -39,14 +40,17 @@ if (2, 6) == sys.version_info[:2]:
 
 
 def read(path):
-    return open(os.path.join(os.path.dirname(__file__), path)).read()
+    path = os.path.join(os.path.dirname(__file__), path)
+    with io.open(path, 'r', encoding='utf-8') as f:
+        return f.read()
+
 
 long_description = (
     read('README.rst') + '\n' +
     read(os.path.join('src', 'crate', 'crash', 'usage.txt'))
 )
 
-versionf_content = open(os.path.join('src', 'crate', 'crash', '__init__.py')).read()
+versionf_content = read(os.path.join('src', 'crate', 'crash', '__init__.py'))
 version_rex = r'^__version__ = [\'"]([^\'"]*)[\'"]$'
 m = re.search(version_rex, versionf_content, re.M)
 if m:

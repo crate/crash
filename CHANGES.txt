@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - `Ctrl-c` no longer results in a KeyboardInterrupt exception if invoked while
+   a query is being executed.
+
  - Added initial auto-completion support for the internal ``\format`` and
    ``\r`` commands.
 

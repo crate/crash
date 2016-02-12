@@ -1,5 +1,6 @@
 import csv
 import json
+import sys
 
 from pygments import highlight
 from pygments.lexers.data import JsonLexer
@@ -7,6 +8,12 @@ from pygments.formatters import TerminalFormatter
 from colorama import Fore, Style
 
 from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate, float_format
+
+if sys.version_info[:2] == (2, 6):
+    OrderedDict = dict
+else:
+    from collections import OrderedDict
+
 
 NULL = u'NULL'
 TRUE = u'TRUE'
@@ -20,6 +27,7 @@ crate_fmt = TableFormat(lineabove=TabulateLine("+", "-", "+", "+"),
                         datarow=DataRow("|", "|", "|"),
                         padding=1,
                         with_header_hide=None)
+
 
 def _val_len(v):
     if not v:
@@ -119,15 +127,16 @@ class OutputWriter(object):
             yield row_delimiter + '\n'
 
     def json(self, result):
-        obj = [dict(zip(result.cols, x)) for x in result.rows]
+        obj = [OrderedDict(zip(result.cols, x)) for x in result.rows]
         yield self.to_json_str(obj)
 
     def csv(self, result):
         wr = csv.writer(self.writer, doublequote=False, escapechar='\\', quotechar="'")
         wr.writerow(result.cols)
+
         def json_dumps(r):
             t = type(r)
-            return json.dumps(r, sort_keys = True) if t == dict or t == list else r
+            return json.dumps(r, sort_keys=True) if t == dict or t == list else r
 
         for row in iter(result.rows):
             wr.writerow(list(map(json_dumps, row)))
@@ -142,7 +151,7 @@ class OutputWriter(object):
             return self.mixed(result)
         else:
             return self.tabular(result)
-    
+
     def json_row(self, result):
         rows = (json.dumps(dict(zip(result.cols, x))) for x in result.rows)
         for row in rows:

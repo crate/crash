@@ -349,10 +349,8 @@ def main():
     done = False
     stdin_data = get_stdin()
     if args.sysinfo:
-        prev_format = cmd.output_writer.output_format
-        cmd._switch_format('mixed')
+        cmd.output_writer.output_format = 'mixed'
         cmd.sys_info_cmd.execute()
-        cmd._switch_format(prev_format)
         done = True
     if args.command:
         cmd.process(args.command)

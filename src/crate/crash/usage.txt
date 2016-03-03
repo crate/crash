@@ -49,8 +49,7 @@ Successful connects will give you some information about the servers you connect
     +------------------------+-----------+---------+-----------+---------+
     | http://127.0.0.1:44209 | crate     | ...     | TRUE      | OK      |
     +------------------------+-----------+---------+-----------+---------+
-    CONNECT OK
-    Crate 0.51... does not support the cluster "check" command
+    CONNECT OKCLUSTER CHECK OK
 
 If you connect to more than one server, the command will succeed
 if at least one server is reachable::
@@ -62,8 +61,7 @@ if at least one server is reachable::
     | http://127.0.0.1:44209      | crate     | ...     | TRUE      | OK            |
     | http://300.300.300.300:4295 | NULL      | 0.0.0   | FALSE     | Server not... |
     +-----------------------------+-----------+---------+-----------+-----------...-+
-    CONNECT OK
-    Crate 0.51... does not support the cluster "check" command
+    CONNECT OKCLUSTER CHECK OK
 
 Once the shell is connected, SQL statements can be executed simply by entering
 them without any special arguments like this::
@@ -73,6 +71,7 @@ them without any special arguments like this::
     +--------------------+-------------------+
     | schema_name        | table_name        |
     +--------------------+-------------------+
+    | sys                | checks            |
     | sys                | cluster           |
     | information_schema | columns           |
     | sys                | jobs              |
@@ -80,20 +79,22 @@ them without any special arguments like this::
     | sys                | nodes             |
     | sys                | operations        |
     | sys                | operations_log    |
+    | sys                | repositories      |
     | information_schema | routines          |
     | information_schema | schemata          |
     | sys                | shards            |
+    | sys                | snapshots         |
     | information_schema | table_constraints |
     | information_schema | table_partitions  |
     | information_schema | tables            |
     +--------------------+-------------------+
-    SELECT 13 rows in set (... sec)
+    SELECT 16 rows in set (... sec)
 
 When the Crate shell is started with the option ``-v`` debugging information will be printed::
 
     cr> select x from y;
-    SQLActionException[Table 'y' unknown]
-    io.crate.exceptions.TableUnknownException: Table 'y' unknown
+    SQLActionException[Table 'doc.y' unknown]
+    io.crate.exceptions.TableUnknownException: Table 'doc.y' unknown
     	at io.crate.metadata.ReferenceInfos.getTableInfo(ReferenceInfos.java:...)
     ...
 

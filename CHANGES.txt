@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed call of `sysinfo` command when launching the shell.
+
 2016/02/15 0.16.0
 =================
 

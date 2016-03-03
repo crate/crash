@@ -266,6 +266,17 @@ class CommandTest(TestCase):
                 pass
             sys.argv = orig_argv
 
+    def test_cmd_line_sys_info(self):
+        sys.argv = ["testcrash",
+                    "--hosts", self.crate_host,
+                    "--sysinfo"
+                    ]
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            try:
+                main()
+            except SystemExit as e:
+                self.assertEqual(e.code, 0)
+
     @patch('sys.stdin', fake_stdin('\n'.join(["create table test(",
                                               "d string",
                                               ")",

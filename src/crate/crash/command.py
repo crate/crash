@@ -283,8 +283,6 @@ class CrateCmd(object):
             return True
         except ConnectionError:
             self.logger.warn('Use \connect <server> to connect to one or more servers first.')
-        except KeyboardInterrupt:
-            self.logger.warn("Query not cancelled. Run KILL <jobId> to cancel it")
         except ProgrammingError as e:
             self.logger.critical(e.message)
             if self.error_trace:

@@ -180,6 +180,8 @@ def loop(cmd, history_file):
             doc = cli.run()
             if doc:
                 cmd.process(doc.text)
+        except KeyboardInterrupt:
+            cmd.logger.warn("Query not cancelled. Run KILL <jobId> to cancel it")
         except EOFError:
             cmd.logger.warn(u'Bye!')
             return

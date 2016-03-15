@@ -82,4 +82,33 @@ that do not affect rows do not print ``affected rows``:**
     cr> drop table test_table;
     DROP OK (... sec)
 
+Status messages show the first word only::
 
+    cr> select 1, 2 from sys.cluster limit 1;
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    SELECT 1 row in set (... sec)
+
+
+    cr> select
+    ... 1, 2 from sys.cluster limit 1;
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    SELECT 1 row in set (... sec)
+
+
+    cr> select
+    ... 1,2
+    ... from sys.cluster limit 1;
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    SELECT 1 row in set (... sec)

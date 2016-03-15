@@ -26,6 +26,7 @@ from __future__ import print_function
 
 import os
 import sys
+import re
 import logging
 
 from argparse import ArgumentParser
@@ -296,7 +297,7 @@ class CrateCmd(object):
         if not success:
             return False
         cur = self.cursor
-        command = statement[:statement.index(' ')].upper()
+        command = statement[:re.search("\s", statement).start()].upper()
         duration = ''
         if cur.duration > -1:
             duration = ' ({0:.3f} sec)'.format(float(cur.duration) / 1000.0)

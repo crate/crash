@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed result info command output for whitespace other than space
+   characters in queries. 
+
  - Fixed call of `sysinfo` command when launching the shell.
 
 2016/02/15 0.16.0

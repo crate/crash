@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed a bug in Crash on Windows that caused it to quit when cancel a query 
+   statement.
+
  - Fixed result info command output for whitespace other than space
    characters in queries. 
 

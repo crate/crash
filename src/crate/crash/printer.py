@@ -45,6 +45,8 @@ class PrintWrapper(object):
                 print(line.encode('utf-8').decode('ascii', 'replace'), end=end)
             except UnicodeEncodeError:
                 print(line.encode('utf-8').decode('ascii', 'ignore'), end=end)
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
             print('WARNING: Unicode characters found that cannot be displayed. Check your system locale.')
 
     def close(self):

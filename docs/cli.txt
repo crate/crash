@@ -25,6 +25,12 @@ The ``crash`` binary supports several command line arguments.
 +---------------------------------------+--------------------------------------------------+
 | ``--sysinfo``                         | Print system and cluster information.            |
 +---------------------------------------+--------------------------------------------------+
+| ``-A`` , ``--no-autocomplete``        | Disable autocomplete of SQL keywords on startup. |
+|                                       | Autocomplete requires a minimum terminal         |
+|                                       | height of 8 lines due to size of the dropdown    |
+|                                       | overlay for suggestions.                         |
+|                                       | Disabling autocomplete removes this limitation.  |
++---------------------------------------+--------------------------------------------------+
 
 Example Usage
 =============
@@ -75,6 +81,8 @@ You can get a list of commands by typing the command ``\?``:
 | ``\r <filename>``    | Reads statements from the given file and execute them                              |
 +----------------------+------------------------------------------------------------------------------------+
 | ``\sysinfo``         | Query the ``sys`` tables for system and cluster information                        |
++----------------------+------------------------------------------------------------------------------------+
+| ``\autocomplete``    | Turn autocomplete feature on or off. Works as a toggle.                            |
 +----------------------+------------------------------------------------------------------------------------+
 
 ===============

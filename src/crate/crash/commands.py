@@ -53,6 +53,7 @@ class HelpCommand(Command):
 
 class ReadFileCommand(Command):
     """ read and execute statements from a file """
+
     def complete(self, cmd, text):
         if text.endswith('.sql'):
             return []
@@ -78,8 +79,20 @@ class SwitchFormatCommand(Command):
             fmt, ', '.join(cmd.output_writer.formats))
 
 
+class ToggleAutocompleteCommand(Command):
+    """ toggle autocomplete """
+
+    @noargs_command
+    def __call__(self, cmd, *args, **kwargs):
+        cmd._autocomplete = not cmd._autocomplete
+        return 'Autocomplete {0}'.format(
+            cmd._autocomplete and 'ON' or 'OFF'
+        )
+
+
 built_in_commands = {
     '?': HelpCommand(),
     'r': ReadFileCommand(),
     'format': SwitchFormatCommand(),
+    'autocomplete': ToggleAutocompleteCommand(),
 }

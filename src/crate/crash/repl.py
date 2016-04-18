@@ -1,3 +1,25 @@
+# vim: set fileencodings=utf-8
+# -*- coding: utf-8; -*-
+#
+# Licensed to CRATE Technology GmbH ("Crate") under one or more contributor
+# license agreements.  See the NOTICE file distributed with this work for
+# additional information regarding copyright ownership.  Crate licenses
+# this file to you under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.  You may
+# obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# However, if you have executed another commercial license agreement
+# with Crate these terms will supersede the license and you may use the
+# software solely pursuant to the terms of the relevant commercial agreement.
+
 import os
 
 from pygments.lexers.sql import SqlLexer
@@ -13,7 +35,8 @@ from pygments.token import (Keyword,
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.filters import Condition, IsDone, HasFocus, Always
+from prompt_toolkit.layout.containers import Container
+from prompt_toolkit.filters import Condition, IsDone, HasFocus
 from prompt_toolkit import CommandLineInterface, AbortAction, Application
 from prompt_toolkit.interface import AcceptAction
 from prompt_toolkit.styles import PygmentsStyle
@@ -28,6 +51,7 @@ from prompt_toolkit.shortcuts import (create_prompt_layout,
                                       create_eventloop)
 
 from .commands import Command
+from .command import CrateCmd
 
 
 MAX_HISTORY_LENGTH = 10000
@@ -106,6 +130,8 @@ class SQLCompleter(Completer):
         return []
 
     def get_completions(self, document, complete_event):
+        if not self.cmd.should_autocomplete():
+            return
         line = document.text
         word_before_cursor = document.get_word_before_cursor()
         if line.startswith('\\'):
@@ -118,6 +144,7 @@ class SQLCompleter(Completer):
 
 
 class CrashBuffer(Buffer):
+
     def __init__(self, *args, **kwargs):
 
         @Condition
@@ -133,12 +160,55 @@ class CrashBuffer(Buffer):
             *args, is_multiline=is_multiline, **kwargs)
 
 
-def loop(cmd, history_file):
+
+class CrashApplication(Application):
+
+    def __init__(self, cmd, layout, buffer, autocomplete=True, **kwargs):
+        assert isinstance(cmd, CrateCmd)
+        assert isinstance(layout, Container)
+        assert isinstance(buffer, Buffer)
+        self.cmd = cmd
+        self.cmd._autocomplete = autocomplete
+        self._patch_window_height(layout)
+        do_autocomplete = Condition(lambda: self.do_autocomplete())
+        buffer.complete_while_typing = do_autocomplete
+        kwargs.update(dict(
+            buffer=buffer,
+            layout=layout,
+        ))
+        super(self.__class__, self).__init__(**kwargs)
+
+    def _patch_window_height(self, layout):
+        """
+        Override the default _height implementation of the window content
+        with the specific _height method of the CrashApplication.
+        """
+        window = layout.children[1].content
+        self._height = window._height
+        window._height = self.get_height
+
+    def do_autocomplete(self):
+        """
+        Check if the application should autocomplete.
+        Based on this check the buffer suggests completions (or not) and the
+        layout reserves space for the suggestion dropdown (or not).
+        """
+        return self.cmd.should_autocomplete()
+
+    def get_height(self, cli):
+        """
+        If autocompletion is enabled it returns the reserved height of the
+        completions dropdown, if disabled returns 0.
+        """
+        return self.do_autocomplete() and self._height(cli) or 0
+
+
+def loop(cmd, history_file, autocomplete):
     key_binding_manager = KeyBindingManager(
         enable_search=True,
         enable_abort_and_exit_bindings=True,
-        enable_vi_mode=Condition(lambda cli: _enable_vi_mode()))
-
+        enable_vi_mode=Condition(lambda cli: _enable_vi_mode())
+    )
     layout = create_prompt_layout(
         message=u'cr> ',
         multiline=True,
@@ -149,16 +219,17 @@ def loop(cmd, history_file):
                 filter=HasFocus(DEFAULT_BUFFER) & ~IsDone())
         ]
     )
-    cli_buffer = CrashBuffer(
+    buffer = CrashBuffer(
         history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
         accept_action=AcceptAction.RETURN_DOCUMENT,
-        completer=SQLCompleter(cmd),
-        complete_while_typing=Always()
+        completer=SQLCompleter(cmd)
     )
-    application = Application(
-        layout=layout,
+    application = CrashApplication(
+        cmd,
+        layout,
+        buffer,
+        autocomplete=autocomplete,
         style=PygmentsStyle.from_defaults(pygments_style_cls=CrateStyle),
-        buffer=cli_buffer,
         key_bindings_registry=key_binding_manager.registry,
         on_exit=AbortAction.RAISE_EXCEPTION,
         on_abort=AbortAction.RETRY,

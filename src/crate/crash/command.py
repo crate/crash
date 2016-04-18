@@ -75,6 +75,9 @@ def parse_args(output_formats):
     parser.add_argument('-v', '--verbose', action='count',
                         dest='verbose', default=0,
                         help='use -v to get debug output')
+    parser.add_argument('-A', '--no-autocomplete', action='store_false',
+                        dest='autocomplete', default=True,
+                        help='use -A to disable SQL autocompletion')
     parser.add_argument('--history',
                         type=str,
                         help='the history file to use', default=HISTORY_PATH)
@@ -137,9 +140,13 @@ class CrateCmd(object):
         }
         self.commands.update(built_in_commands)
         self.logger = ColorPrinter(is_tty)
+        self._autocomplete = True
 
     def get_num_columns(self):
         return 80
+
+    def should_autocomplete(self):
+        return self._autocomplete
 
     def pprint(self, rows, cols):
         result = Result(cols,
@@ -360,7 +367,7 @@ def main():
             done = True
     if not done:
         from .repl import loop
-        loop(cmd, args.history)
+        loop(cmd, args.history, args.autocomplete)
     cmd.exit()
     sys.exit(cmd.exit_code)
 

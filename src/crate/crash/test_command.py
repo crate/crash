@@ -415,6 +415,7 @@ class CommandTest(TestCase):
         command = CrateCmd(is_tty=False)
         expected = "\n".join([
             '\\?                              print this help',
+            '\\autocomplete                   toggle autocomplete',
             '\\c                              connect to the given server, e.g.: \connect localhost:4200',
             '\\check                          print failed cluster checks',
             '\\connect                        connect to the given server, e.g.: \connect localhost:4200',

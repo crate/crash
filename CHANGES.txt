@@ -5,8 +5,12 @@ Changes for crash
 Unreleased
 ==========
 
+ - It is now possible to disable autocompletion using ``--no-autocomplete``
+   command line argument and to toggle autocomplete using the ``\autocomplete``
+   crash command.
+
  - Fixed result info command output for whitespace other than space
-   characters in queries. 
+   characters in queries.
 
  - Fixed call of `sysinfo` command when launching the shell.
 

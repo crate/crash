@@ -19,7 +19,7 @@
 
 from unittest import TestCase
 from mock import patch
-from .commands import ReadFileCommand
+from .commands import ReadFileCommand, ToggleAutocompleteCommand
 
 
 class ReadFileCommandTest(TestCase):
@@ -33,3 +33,17 @@ class ReadFileCommandTest(TestCase):
 
         self.assertEqual(results, ['foo', 'foobar'])
         fake_glob.assert_called_with('fo*.sql')
+
+
+class ToggleAutocompleteCommandTest(TestCase):
+
+    @patch('crate.crash.command.CrateCmd')
+    def test_toggle_output(self, fake_cmd):
+        fake_cmd._autocomplete = True
+        command = ToggleAutocompleteCommand()
+        output = command(fake_cmd)
+        self.assertEqual(output, 'Autocomplete OFF')
+        output = command(fake_cmd)
+        self.assertEqual(output, 'Autocomplete ON')
+
+

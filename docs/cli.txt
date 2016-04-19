@@ -50,11 +50,11 @@ Crash Commands
 
 .. note::
 
-    Crash client commands are only available since version ``0.11.x``!
+    Crash client commands are available since version ``0.11.x``!
 
-Crash has several client command, which start with a backslash (``\``).
+Crash has several client commands, which start with a backslash (``\``).
 
-You can get a list of commands by typing the command ``\?``:
+You can get a list of commands by typing ``\?``:
 
 +----------------------+------------------------------------------------------------------------------------+
 | Command              | Description                                                                        |
@@ -78,7 +78,7 @@ You can get a list of commands by typing the command ``\?``:
 +----------------------+------------------------------------------------------------------------------------+
 | ``\check``           | Query the sys.checks table for failing cluster checks                              |
 +----------------------+------------------------------------------------------------------------------------+
-| ``\r <filename>``    | Reads statements from the given file and execute them                              |
+| ``\r <filename>``    | Reads statements from the given file and executes them                              |
 +----------------------+------------------------------------------------------------------------------------+
 | ``\sysinfo``         | Query the ``sys`` tables for system and cluster information                        |
 +----------------------+------------------------------------------------------------------------------------+

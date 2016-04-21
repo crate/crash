@@ -78,7 +78,7 @@ You can get a list of commands by typing ``\?``:
 +----------------------+------------------------------------------------------------------------------------+
 | ``\check``           | Query the sys.checks table for failing cluster checks                              |
 +----------------------+------------------------------------------------------------------------------------+
-| ``\r <filename>``    | Reads statements from the given file and executes them                              |
+| ``\r <filename>``    | Reads statements from the given file and executes them                             |
 +----------------------+------------------------------------------------------------------------------------+
 | ``\sysinfo``         | Query the ``sys`` tables for system and cluster information                        |
 +----------------------+------------------------------------------------------------------------------------+

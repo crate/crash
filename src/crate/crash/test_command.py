@@ -26,10 +26,7 @@ def fake_stdin(data):
 
 class OutputWriterTest(TestCase):
     def test_mixed_format_float_precision(self):
-        if sys.version_info[:2] == (2, 6):
-            expected = 'foo | 152462.707549'
-        else:
-            expected = 'foo | 152462.70754934277'
+        expected = 'foo | 152462.70754934277'
         ow = OutputWriter(writer=None, is_tty=False)
         result = Result(cols=['foo'],
                         rows=[[152462.70754934277]],
@@ -40,10 +37,7 @@ class OutputWriterTest(TestCase):
             next(ow.mixed(result)).rstrip(), expected)
 
     def test_tabular_format_float_precision(self):
-        if sys.version_info[:2] == (2, 6):
-            expected = u'152462.707549'
-        else:
-            expected = u'152462.70754934277'
+        expected = u'152462.70754934277'
 
         ow = OutputWriter(writer=None, is_tty=False)
         result = Result(cols=['foo'],

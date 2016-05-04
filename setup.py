@@ -20,7 +20,6 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 from setuptools import setup, find_packages
-import sys
 import os
 import io
 import re
@@ -34,9 +33,6 @@ requirements = [
     'appdirs>=1.2,<2.0',
     'prompt-toolkit>=1.0,<1.1'
 ]
-
-if (2, 6) == sys.version_info[:2]:
-    requirements.append('argparse>=1.1')
 
 
 def read(path):
@@ -93,7 +89,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',

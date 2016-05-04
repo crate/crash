@@ -40,16 +40,11 @@ To update use::
 
     $ pip install -U crash
 
-If you are using python 2.6 and pip >= 1.5 you have to pass the
-allow-external argument::
-
-    $ pip install crash --allow-external argparse
-
 Standalone
 ----------
 
 There is also a single file executable that includes all dependencies and can
-be run as long as python (>= 2.6) is available on the system.
+be run as long as python (>= 2.7) is available on the system.
 
 `Download Crash bundle
 <https://cdn.crate.io/downloads/releases/crash_standalone_latest>`_
@@ -62,6 +57,11 @@ Or::
 
     chmod +x ./crash_standalone_latest
     ./crash_standalone_latest
+
+
+Crash supported Python 2.6 until 0.16. `Use Crash 0.16.0
+<https://cdn.crate.io/downloads/releases/crash_standalone_0.16.0>`_ if you're
+running Python 2.6
 
 Usage
 -----

@@ -121,7 +121,8 @@ class CrateCmd(object):
                  output_writer=None,
                  connection=None,
                  error_trace=False,
-                 is_tty=True):
+                 is_tty=True,
+                 autocomplete=True):
         self.error_trace = error_trace
         self.connection = connection or connect(error_trace=error_trace)
         self.cursor = self.connection.cursor()
@@ -140,7 +141,7 @@ class CrateCmd(object):
         }
         self.commands.update(built_in_commands)
         self.logger = ColorPrinter(is_tty)
-        self._autocomplete = True
+        self._autocomplete = autocomplete
 
     def get_num_columns(self):
         return 80
@@ -348,7 +349,8 @@ def main():
     cmd = CrateCmd(connection=conn,
                    error_trace=error_trace,
                    output_writer=output_writer,
-                   is_tty=is_tty)
+                   is_tty=is_tty,
+                   autocomplete=args.autocomplete)
     if error_trace:
         # log CONNECT command only in verbose mode
         cmd._connect(args.hosts)
@@ -367,7 +369,7 @@ def main():
             done = True
     if not done:
         from .repl import loop
-        loop(cmd, args.history, args.autocomplete)
+        loop(cmd, args.history)
     cmd.exit()
     sys.exit(cmd.exit_code)
 

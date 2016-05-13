@@ -35,12 +35,11 @@ from pygments.token import (Keyword,
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.layout.containers import Container
 from prompt_toolkit.filters import Condition, IsDone, HasFocus
 from prompt_toolkit import CommandLineInterface, AbortAction, Application
 from prompt_toolkit.interface import AcceptAction
 from prompt_toolkit.styles import PygmentsStyle
-from prompt_toolkit.enums import DEFAULT_BUFFER
+from prompt_toolkit.enums import DEFAULT_BUFFER, EditingMode
 from prompt_toolkit.layout.processors import (
     HighlightMatchingBracketProcessor,
     ConditionalProcessor
@@ -51,23 +50,22 @@ from prompt_toolkit.shortcuts import (create_prompt_layout,
                                       create_eventloop)
 
 from .commands import Command
-from .command import CrateCmd
 
 
 MAX_HISTORY_LENGTH = 10000
 
 
-def _enable_vi_mode():
+def _get_editing_mode():
     files = ['/etc/inputrc', os.path.expanduser('~/.inputrc')]
     for filepath in files:
         try:
             with open(filepath, 'r') as f:
                 for line in f:
                     if line.strip() == 'set editing-mode vi':
-                        return True
+                        return EditingMode.VI
         except IOError:
             continue
-    return False
+    return EditingMode.EMACS
 
 
 class CrateStyle(Style):
@@ -160,54 +158,10 @@ class CrashBuffer(Buffer):
             *args, is_multiline=is_multiline, **kwargs)
 
 
-
-class CrashApplication(Application):
-
-    def __init__(self, cmd, layout, buffer, autocomplete=True, **kwargs):
-        assert isinstance(cmd, CrateCmd)
-        assert isinstance(layout, Container)
-        assert isinstance(buffer, Buffer)
-        self.cmd = cmd
-        self.cmd._autocomplete = autocomplete
-        self._patch_window_height(layout)
-        do_autocomplete = Condition(lambda: self.do_autocomplete())
-        buffer.complete_while_typing = do_autocomplete
-        kwargs.update(dict(
-            buffer=buffer,
-            layout=layout,
-        ))
-        super(self.__class__, self).__init__(**kwargs)
-
-    def _patch_window_height(self, layout):
-        """
-        Override the default _height implementation of the window content
-        with the specific _height method of the CrashApplication.
-        """
-        window = layout.children[1].content
-        self._height = window._height
-        window._height = self.get_height
-
-    def do_autocomplete(self):
-        """
-        Check if the application should autocomplete.
-        Based on this check the buffer suggests completions (or not) and the
-        layout reserves space for the suggestion dropdown (or not).
-        """
-        return self.cmd.should_autocomplete()
-
-    def get_height(self, cli):
-        """
-        If autocompletion is enabled it returns the reserved height of the
-        completions dropdown, if disabled returns 0.
-        """
-        return self.do_autocomplete() and self._height(cli) or 0
-
-
-def loop(cmd, history_file, autocomplete):
+def loop(cmd, history_file):
     key_binding_manager = KeyBindingManager(
         enable_search=True,
-        enable_abort_and_exit_bindings=True,
-        enable_vi_mode=Condition(lambda cli: _enable_vi_mode())
+        enable_abort_and_exit_bindings=True
     )
     layout = create_prompt_layout(
         message=u'cr> ',
@@ -224,13 +178,13 @@ def loop(cmd, history_file, autocomplete):
         accept_action=AcceptAction.RETURN_DOCUMENT,
         completer=SQLCompleter(cmd)
     )
-    application = CrashApplication(
-        cmd,
-        layout,
-        buffer,
-        autocomplete=autocomplete,
+    buffer.complete_while_typing = lambda cli=None: cmd.should_autocomplete()
+    application = Application(
+        layout=layout,
+        buffer=buffer,
         style=PygmentsStyle.from_defaults(pygments_style_cls=CrateStyle),
         key_bindings_registry=key_binding_manager.registry,
+        editing_mode=_get_editing_mode(),
         on_exit=AbortAction.RAISE_EXCEPTION,
         on_abort=AbortAction.RETRY,
     )
@@ -248,7 +202,7 @@ def loop(cmd, history_file, autocomplete):
 
     while True:
         try:
-            doc = cli.run()
+            doc = cli.run(reset_current_buffer=True)
             if doc:
                 cmd.process(doc.text)
         except KeyboardInterrupt:

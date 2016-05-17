@@ -46,7 +46,11 @@ from appdirs import user_data_dir
 
 from distutils.version import StrictVersion
 
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 CHECK_MIN_VERSION = StrictVersion("0.52.0")
+
 
 try:
     from logging import NullHandler
@@ -56,6 +60,7 @@ except ImportError:
     class NullHandler(Handler):
         def emit(self, record):
             pass
+
 
 logging.getLogger('crate').addHandler(NullHandler())
 
@@ -90,6 +95,11 @@ def parse_args(output_formats):
 
     parser.add_argument('--hosts', type=str, nargs='*',
                         help='the crate hosts to connect to', metavar='HOST')
+    parser.add_argument('--verify-ssl', action='store_true', default=False)
+    parser.add_argument('--cert-file', type=str,
+                        help='path to client certificate')
+    parser.add_argument('--key-file', type=str,
+                        help='path to the key file for the client certificate')
     parser.add_argument('--format', type=str, default='tabular', choices=output_formats,
                         help='output format of the sql response', metavar='FORMAT')
     parser.add_argument('--version', action='store_true', default=False,
@@ -345,7 +355,10 @@ def main():
         print(crash_version)
         sys.exit(0)
     error_trace = args.verbose > 0
-    conn = connect(args.hosts)
+    conn = connect(args.hosts,
+                   verify_ssl_cert=args.verify_ssl,
+                   cert_file=args.cert_file,
+                   key_file=args.key_file)
     cmd = CrateCmd(connection=conn,
                    error_trace=error_trace,
                    output_writer=output_writer,

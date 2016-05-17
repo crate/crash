@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added support for client certificates
+
  - It is now possible to disable autocompletion using ``--no-autocomplete``
    command line argument and to toggle autocomplete using the ``\autocomplete``
    crash command.

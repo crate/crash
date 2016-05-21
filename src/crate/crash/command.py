@@ -37,12 +37,13 @@ from crate.client import connect
 from crate.client.exceptions import ConnectionError, ProgrammingError
 
 
+from .config import Configuration, ConfigurationError
 from .printer import ColorPrinter, PrintWrapper
 from .outputs import OutputWriter
 from .sysinfo import SysInfoCommand
 from .commands import built_in_commands, Command
 
-from appdirs import user_data_dir
+from appdirs import user_data_dir, user_config_dir
 
 from distutils.version import StrictVersion
 
@@ -68,24 +69,65 @@ USER_DATA_DIR = user_data_dir("Crate", "Crate")
 HISTORY_FILE_NAME = 'crash_history'
 HISTORY_PATH = os.path.join(USER_DATA_DIR, HISTORY_FILE_NAME)
 
+USER_CONFIG_DIR = user_config_dir("Crate", "Crate")
+CONFIG_FILE_NAME = 'crash.cfg'
+CONFIG_PATH = os.path.join(USER_CONFIG_DIR, CONFIG_FILE_NAME)
+
 Result = namedtuple('Result', ['cols',
                                'rows',
                                'rowcount',
                                'duration',
                                'output_width'])
 
+def parse_config_path(args=sys.argv):
+    """
+    Preprocess sys.argv and extract --config argument.
+    """
 
-def parse_args(output_formats):
+    config = CONFIG_PATH
+    if '--config' in args:
+        idx = args.index('--config')
+        if len(args) > idx + 1:
+            config = args.pop(idx + 1)
+        _ = args.pop(idx)
+    return config
+
+
+def parse_args(parser):
+    """
+    Parse sys.argv arguments with given parser
+    """
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        pass
+    args = parser.parse_args()
+    return args
+
+
+def get_parser(output_formats=[], conf=None):
+    """
+    Create an argument parser that reads default values from a
+    configuration file if provided.
+    """
+
+    def _conf_or_default(key, value):
+        return conf and conf.get_or_set(key, value) or value
+
     parser = ArgumentParser(description='crate shell')
     parser.add_argument('-v', '--verbose', action='count',
-                        dest='verbose', default=0,
+                        dest='verbose', default=int(_conf_or_default('verbosity', 0)),
                         help='use -v to get debug output')
     parser.add_argument('-A', '--no-autocomplete', action='store_false',
-                        dest='autocomplete', default=True,
+                        dest='autocomplete',
+                        default=_conf_or_default('autocomplete', True),
                         help='use -A to disable SQL autocompletion')
-    parser.add_argument('--history',
-                        type=str,
+
+    parser.add_argument('--history', type=str,
                         help='the history file to use', default=HISTORY_PATH)
+    parser.add_argument('--config', type=str,
+                        help='the configuration file to use', default=CONFIG_PATH)
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-c', '--command', type=str,
@@ -94,23 +136,21 @@ def parse_args(output_formats):
                        help='show system information')
 
     parser.add_argument('--hosts', type=str, nargs='*',
+                        default=_conf_or_default('hosts', 'localhost:4200'),
                         help='the crate hosts to connect to', metavar='HOST')
     parser.add_argument('--verify-ssl', action='store_true', default=False)
     parser.add_argument('--cert-file', type=str,
                         help='path to client certificate')
     parser.add_argument('--key-file', type=str,
                         help='path to the key file for the client certificate')
-    parser.add_argument('--format', type=str, default='tabular', choices=output_formats,
+    parser.add_argument('--format', type=str,
+                        default=_conf_or_default('format', 'tabular'),
+                        choices=output_formats,
                         help='output format of the sql response', metavar='FORMAT')
     parser.add_argument('--version', action='store_true', default=False,
                         help='show crash version and exit')
-    try:
-        import argcomplete
-        argcomplete.autocomplete(parser)
-    except ImportError:
-        pass
-    args = parser.parse_args()
-    return args
+
+    return parser
 
 
 def noargs_command(fn):
@@ -347,12 +387,24 @@ def get_stdin():
 
 def main():
     is_tty = sys.stdout.isatty()
+    printer = ColorPrinter(is_tty)
     output_writer = OutputWriter(PrintWrapper(), is_tty)
-    args = parse_args(output_writer.formats)
+
+    config = parse_config_path()
+    conf = None
+    try:
+        conf = Configuration(config)
+    except ConfigurationError as e:
+        printer.warn(str(e))
+        parser = get_parser(output_writer.formats)
+        parser.print_usage()
+        sys.exit(1)
+    parser = get_parser(output_writer.formats, conf=conf)
+    args = parse_args(parser)
     output_writer.output_format = args.format
 
     if args.version:
-        print(crash_version)
+        printer.info(crash_version)
         sys.exit(0)
     error_trace = args.verbose > 0
     conn = connect(args.hosts,
@@ -383,6 +435,7 @@ def main():
     if not done:
         from .repl import loop
         loop(cmd, args.history)
+    conf.save()
     cmd.exit()
     sys.exit(cmd.exit_code)
 

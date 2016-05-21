@@ -5,6 +5,11 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added a configuration file that stores default values for Crash. The file is
+   placed inside the user's application config folder.
+   A path to a custom configuration file can be specified using the ``--config``
+   command line argument.
+
  - Dropped Python 2.6 support
 
  - Added support for client certificates

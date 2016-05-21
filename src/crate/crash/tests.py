@@ -32,6 +32,7 @@ from .test_command import CommandTest, OutputWriterTest
 from .test_commands import ReadFileCommandTest, ToggleAutocompleteCommandTest
 from .test_sysinfo import SysInfoTest
 from .test_repl import SQLCompleterTest
+from .test_config import ConfigurationTest
 
 
 class CrateTestCmd(CrateCmd):
@@ -96,5 +97,6 @@ def test_suite():
     suite.addTest(unittest.makeSuite(ReadFileCommandTest))
     suite.addTest(unittest.makeSuite(ToggleAutocompleteCommandTest))
     suite.addTest(unittest.makeSuite(SQLCompleterTest))
+    suite.addTest(unittest.makeSuite(ConfigurationTest))
 
     return suite

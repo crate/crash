@@ -4,6 +4,8 @@
    :alt: Crate.IO
    :target: https://crate.io
 
+|
+
 .. image:: https://travis-ci.org/crate/crash.svg?branch=master
         :target: https://travis-ci.org/crate/crash
         :alt: Test
@@ -18,6 +20,11 @@
 
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: https://crate.io/docs/reference/crash/
+
+.. image:: https://img.shields.io/pypi/pyversions/crash.svg
+   :target: https://pypi.python.org/pypi/crash/
+   :alt: Python Version
+
 
 ========
 Overview

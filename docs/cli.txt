@@ -111,13 +111,7 @@ The ``STMT`` is the definition/manipulation/query keyword, such as
 It is ``-1`` for statements that do not affect any rows or
 if the row count of a statement is unknown.
 
-.. note::
-
-    Due to Crate's implementation, the ``DELETE`` statement
-    always returns ``-1`` (unknown). The reason is that Lucene
-    does not return a count when deleting the underlying documents.
-
-``DURATION`` is the time it took to process the SQL statement
+``DURATION`` is the time it took to process the SQL statement on the server
 from request to response.
 
 

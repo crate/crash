@@ -19,6 +19,15 @@ The ``crash`` binary supports several command line arguments.
 +---------------------------------------+--------------------------------------------------+
 | ``--history HISTORY``                 | The history file the Crate shell uses.           |
 +---------------------------------------+--------------------------------------------------+
+| ``--config CONFIG``                   | Path to the configuration file which contains    |
+|                                       | default values for Crash.                        |
+|                                       | Defaults to the `user configuration directory`_  |
+|                                       | of the operating system, which is e.g on Linux   |
+|                                       | ``~/.config/Crate``,                             |
+|                                       | ``~/Library/Application Support/Crate`` on OSX   |
+|                                       | or ``C:\\Users\user\AppData\Local\Crate\Crate``  |
+|                                       | on Windows.                                      |
++---------------------------------------+--------------------------------------------------+
 | ``--format FORMAT``                   | Specifies the output format of the SQL response. |
 +---------------------------------------+--------------------------------------------------+
 | ``--version``                         | Print the crash version and exit.                |
@@ -116,3 +125,5 @@ from request to response.
 
 
 .. _jq: http://stedolan.github.io/jq/
+.. _user configuration directory: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+

@@ -108,7 +108,7 @@ class SQLCompleter(Completer):
         "array", "blob", "primary key",
         "analyzer", "extends", "tokenizer", "char_filters", "token_filters",
         "number_of_replicas", "clustered",
-        "refresh", "alter",
+        "refresh", "optimize", "alter",
         "sys", "doc", "blob",
     ]
 

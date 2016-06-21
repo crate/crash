@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Implement OPTIMIZE table statement which optimizes tables and partitions
+   by merging the segments of which each table and partition consists.
+
  - Added a configuration file that stores default values for Crash. The file is
    placed inside the user's application config folder.
    A path to a custom configuration file can be specified using the ``--config``

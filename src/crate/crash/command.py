@@ -105,6 +105,13 @@ def parse_args(parser):
     args = parser.parse_args()
     return args
 
+def boolean(v):
+    if str(v).lower() in ("yes", "true", "t", "1"):
+        return True
+    elif str(v).lower() in ("no", "false", "f", "0"):
+        return False
+    else:
+        raise ValueError('not a boolean value')
 
 def get_parser(output_formats=[], conf=None):
     """
@@ -138,7 +145,7 @@ def get_parser(output_formats=[], conf=None):
     parser.add_argument('--hosts', type=str, nargs='*',
                         default=_conf_or_default('hosts', 'localhost:4200'),
                         help='the crate hosts to connect to', metavar='HOST')
-    parser.add_argument('--verify-ssl', action='store_true', default=False)
+    parser.add_argument('--verify-ssl', type=boolean, default=True)
     parser.add_argument('--cert-file', type=str,
                         help='path to client certificate')
     parser.add_argument('--key-file', type=str,

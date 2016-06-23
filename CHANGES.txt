@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed "read file" command (``\r``) for legacy Python 2.7
+
  - Added a configuration file that stores default values for Crash. The file is
    placed inside the user's application config folder.
    A path to a custom configuration file can be specified using the ``--config``

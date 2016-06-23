@@ -5,6 +5,10 @@ Changes for crash
 Unreleased
 ==========
 
+
+2016/06/23 0.17.0
+=================
+
  - Implement OPTIMIZE table statement which optimizes tables and partitions
    by merging the segments of which each table and partition consists.
 

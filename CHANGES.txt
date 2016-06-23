@@ -5,8 +5,6 @@ Changes for crash
 Unreleased
 ==========
 
- - Fixed "read file" command (``\r``) for legacy Python 2.7
-
  - Added a configuration file that stores default values for Crash. The file is
    placed inside the user's application config folder.
    A path to a custom configuration file can be specified using the ``--config``
@@ -19,6 +17,11 @@ Unreleased
  - It is now possible to disable autocompletion using ``--no-autocomplete``
    command line argument and to toggle autocomplete using the ``\autocomplete``
    crash command.
+
+2016/06/23 0.16.1
+=================
+
+ - Fixed "read file" command (``\r``) for legacy Python 2.7
 
  - Fixed result info command output for whitespace other than space
    characters in queries.

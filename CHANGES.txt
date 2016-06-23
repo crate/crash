@@ -9,8 +9,9 @@ Unreleased
 2016/06/23 0.17.0
 =================
 
- - Implement OPTIMIZE table statement which optimizes tables and partitions
-   by merging the segments of which each table and partition consists.
+ - Added support for OPTIMIZE table statement.
+
+ - All statements will respond with an affected rows count now.
 
  - Added a configuration file that stores default values for Crash. The file is
    placed inside the user's application config folder.

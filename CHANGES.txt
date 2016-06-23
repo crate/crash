@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2016/06/23 0.16.1
+=================
+
  - Fixed "read file" command (``\r``) for legacy Python 2.7
 
  - Fixed result info command output for whitespace other than space

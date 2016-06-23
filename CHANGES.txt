@@ -5,8 +5,10 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed "read file" command (``\r``) for legacy Python 2.7
+
  - Fixed result info command output for whitespace other than space
-   characters in queries. 
+   characters in queries.
 
  - Fixed call of `sysinfo` command when launching the shell.
 

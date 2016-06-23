@@ -1,3 +1,5 @@
+# -*- coding: utf-8; -*-
+# vi: set encoding=utf-8
 # Licensed to CRATE Technology GmbH ("Crate") under one or more contributor
 # license agreements.  See the NOTICE file distributed with this work for
 # additional information regarding copyright ownership.  Crate licenses
@@ -17,12 +19,22 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
+import os
+import shutil
+import tempfile
 from unittest import TestCase
 from mock import patch
 from .commands import ReadFileCommand
 
 
 class ReadFileCommandTest(TestCase):
+
+    def setUp(self):
+        self.tmp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        if os.path.exists(self.tmp_dir):
+            shutil.rmtree(self.tmp_dir)
 
     @patch('glob.glob')
     def test_complete(self, fake_glob):
@@ -33,3 +45,12 @@ class ReadFileCommandTest(TestCase):
 
         self.assertEqual(results, ['foo', 'foobar'])
         fake_glob.assert_called_with('fo*.sql')
+
+    @patch('crate.crash.command.CrateCmd')
+    def test_call(self, fake_cmd):
+        path = os.path.join(self.tmp_dir, 'foo.sql')
+        with open(path, 'w') as fp:
+            fp.write('SELECT * FROM sys.nodes')
+        command = ReadFileCommand()
+        command(fake_cmd, path)
+        fake_cmd.process.assert_called_with('SELECT * FROM sys.nodes')

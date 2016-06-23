@@ -59,9 +59,9 @@ class ReadFileCommand(Command):
         return glob.glob(text + '*.sql')
 
     def __call__(self, cmd, filename, *args, **kwargs):
-        with open(filename, 'r', encoding='utf-8') as f:
+        with open(filename, 'rb') as f:
             for line in f:
-                cmd.process(line)
+                cmd.process(line.decode('utf-8'))
 
 
 class SwitchFormatCommand(Command):

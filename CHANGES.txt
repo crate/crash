@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2016/06/26 0.16.2
+=================
+
  - Fix: crash_standalone could crash because it contained non-ascii character
    but no encoding was declared
 

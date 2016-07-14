@@ -27,7 +27,7 @@ from six import StringIO
 from unittest import TestCase
 from mock import patch
 from .commands import ReadFileCommand, ToggleAutocompleteCommand, \
-    NodeCheckCommand, ClusterCheckCommand
+    NodeCheckCommand, ClusterCheckCommand, CheckCommand
 
 from .command import CrateCmd
 from distutils.version import StrictVersion
@@ -123,3 +123,23 @@ class ChecksCommandTest(TestCase):
         ClusterCheckCommand()(cmd)
         excepted = 'Crate 0.49.4 does not support the cluster "check" command.'
         cmd.logger.warn.assert_called_with(excepted)
+
+    @patch('crate.crash.command.CrateCmd')
+    def test_check_command_with_cluster_check(self, cmd):
+        command = CheckCommand()
+        cmd._execute.return_value = True
+        cmd.cursor.fetchall.return_value = []
+        cmd.connection.lowest_server_version = StrictVersion("0.56.1")
+
+        command(cmd, 'cluster')
+        cmd.logger.info.assert_called_with('CLUSTER CHECK OK')
+
+    @patch('crate.crash.command.CrateCmd')
+    def test_check_command_with_node_check(self, cmd):
+        command = CheckCommand()
+        cmd._execute.return_value = True
+        cmd.cursor.fetchall.return_value = []
+        cmd.connection.lowest_server_version = StrictVersion("0.56.1")
+
+        command(cmd, 'node')
+        cmd.logger.info.assert_called_with('NODE CHECK OK')

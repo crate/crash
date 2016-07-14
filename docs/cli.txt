@@ -85,9 +85,12 @@ You can get a list of commands by typing ``\?``:
 +----------------------+------------------------------------------------------------------------------------+
 | ``\q``               | Quit Crate shell                                                                   |
 +----------------------+------------------------------------------------------------------------------------+
-| ``\checknode``       | Query the sys.node_checks table for failing node checks                            |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\check``           | Query the sys.checks table for failing cluster checks                              |
+| ``\check``           | Query the ``sys`` tables for failing cluster and node checks if no arguments are   |
+|                      | provided.                                                                          |
+|                      |                                                                                    |
+|                      | The following arguments are allowed:                                               |
+|                      |  - ``node``: to query the ``sys.node_checks`` table for failing node checks.       |
+|                      |  - ``cluster``: to query the ``sys.checks`` table for failing cluster checks.      |
 +----------------------+------------------------------------------------------------------------------------+
 | ``\r <filename>``    | Reads statements from the given file and executes them                             |
 +----------------------+------------------------------------------------------------------------------------+

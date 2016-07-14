@@ -9,6 +9,9 @@ python:
     - nightly
 before_install:
     - pip uninstall setuptools -y
+    - sudo apt-add-repository ppa:webupd8team/java -y
+    - sudo apt-get update -y -qq 
+    - sudo apt-get install openjdk-8-jre -y -qq 
 install:
     - python bootstrap.py
     - ./bin/buildout install scripts crate test
@@ -18,7 +21,8 @@ after_success:
     - PATH=$PATH:bin/ bin/codecov  # codecov executes coverage which needs to be in $PATH
 notifications:
     email: false
-sudo: false
+sudo: required
+dist: trusty
 matrix:
     allow_failures:
         - python: nightly

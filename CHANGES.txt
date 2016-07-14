@@ -5,9 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
- - Added the ``nodecheck`` command which queries the ``sys.node_checks`` table
-   for failing node checks. Failing node checks are also displayed in a
-   condensed form at startup.
+ - Make the ``\check`` command to display both, node and cluster checks.
+   Allow ``node`` and ``cluster`` arguments for the command to display
+   node and cluster checks, respectively.
 
 2016/06/28 0.17.1
 =================

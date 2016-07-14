@@ -21,6 +21,7 @@ import functools
 import glob
 
 from distutils.version import StrictVersion
+from collections import OrderedDict
 
 
 class Command(object):
@@ -92,7 +93,7 @@ class ToggleAutocompleteCommand(Command):
         )
 
 
-class CheckCommand(Command):
+class CheckBaseCommand(Command):
 
     CHECK_NAME = None
 
@@ -118,7 +119,7 @@ class CheckCommand(Command):
         return True
 
 
-class NodeCheckCommand(CheckCommand):
+class NodeCheckCommand(CheckBaseCommand):
     """ print failed node checks """
 
     DEFAULT_STMT = """
@@ -139,17 +140,16 @@ class NodeCheckCommand(CheckCommand):
 
     CHECK_NAME = "NODE CHECK"
 
-    @noargs_command
-    def __call__(self, cmd, startup=False, *args, **kwargs):
-        stmt = startup and self.STARTUP_STMT or self.DEFAULT_STMT
+    def __call__(self, cmd, *args, **kwargs):
+        stmt = kwargs.get('startup', False) and self.STARTUP_STMT or self.DEFAULT_STMT
         if cmd.connection.lowest_server_version >= StrictVersion("0.56.0"):
-            self.execute(cmd, stmt, )
+            self.execute(cmd, stmt)
         else:
             tmpl = 'Crate {version} does not support the "nodecheck" command.'
             cmd.logger.warn(tmpl.format(version=cmd.connection.lowest_server_version))
 
 
-class ClusterCheckCommand(CheckCommand):
+class ClusterCheckCommand(CheckBaseCommand):
     """ print failed cluster checks """
 
     STMT = """
@@ -160,7 +160,6 @@ class ClusterCheckCommand(CheckCommand):
 
     CHECK_NAME = "CLUSTER CHECK"
 
-    @noargs_command
     def __call__(self, cmd, *args, **kwargs):
         if cmd.connection.lowest_server_version >= StrictVersion("0.52.0"):
             self.execute(cmd, self.STMT)
@@ -169,11 +168,30 @@ class ClusterCheckCommand(CheckCommand):
             cmd.logger.warn(tmpl.format(version=cmd.connection.lowest_server_version))
 
 
+class CheckCommand(Command):
+    """ print failed cluster and/or node checks, e.g. \check node """
+
+    CHECKS = OrderedDict([
+                ('cluster', ClusterCheckCommand()),
+                ('node', NodeCheckCommand())
+            ])
+
+    def complete(self, cmd, text):
+        return (i for i in self.CHECKS if i.startswith(text))
+
+    def __call__(self, cmd, check_name=None, **kwargs):
+        if not check_name:
+            [check(cmd, kwargs) for check in self.CHECKS.values()]
+        elif check_name and check_name in self.CHECKS:
+            self.CHECKS[check_name](cmd, **kwargs)
+        else:
+            cmd.logger.warn('No check for {}'.format(check_name))
+
+
 built_in_commands = {
     '?': HelpCommand(),
     'r': ReadFileCommand(),
     'format': SwitchFormatCommand(),
     'autocomplete': ToggleAutocompleteCommand(),
-    'check': ClusterCheckCommand(),
-    'checknode': NodeCheckCommand(),
+    'check': CheckCommand(),
 }

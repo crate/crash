@@ -43,14 +43,12 @@ from .outputs import OutputWriter
 from .sysinfo import SysInfoCommand
 from .commands import built_in_commands, Command
 
-from appdirs import user_data_dir, user_config_dir
-
 from distutils.version import StrictVersion
+
+from appdirs import user_data_dir, user_config_dir
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-CHECK_MIN_VERSION = StrictVersion("0.52.0")
 
 
 try:
@@ -191,7 +189,6 @@ class CrateCmd(object):
             'c': self._connect,
             'connect': self._connect,
             'dt': self._show_tables,
-            'check': self._check,
             'sysinfo': self.sys_info_cmd.execute,
         }
         self.commands.update(built_in_commands)
@@ -242,36 +239,6 @@ class CrateCmd(object):
                       from information_schema.tables
                       where schema_name not in ('sys','information_schema')""")
 
-    def check(self, *args):
-        success = self._execute("""select description as "Failed checks"
-                                   from sys.checks
-                                   where passed=false """)
-        self.exit_code = self.exit_code or int(not success)
-        if not success:
-            return False
-        cur = self.cursor
-        print_vars = {
-            's': 'S'[cur.rowcount == 1:],
-            'rowcount': cur.rowcount
-        }
-        checks = cur.fetchall()
-        if len(checks):
-            self.pprint(checks, [c[0] for c in cur.description])
-            tmpl = '{rowcount} CLUSTER CHECK{s} FAILED'
-            self.logger.critical(tmpl.format(**print_vars))
-        else:
-            self.logger.info('CLUSTER CHECK OK')
-        return True
-
-    @noargs_command
-    def _check(self, *args):
-        """ print failed cluster checks """
-        if self.connection.lowest_server_version >= CHECK_MIN_VERSION:
-            self.check()
-        else:
-            tmpl = '\nCrate {version} does not support the cluster "check" command'
-            self.logger.warn(tmpl.format(version=self.connection.lowest_server_version))
-
     @noargs_command
     def _quit(self, *args):
         """ quit crash """
@@ -306,7 +273,9 @@ class CrateCmd(object):
             self.logger.critical('CONNECT ERROR')
         else:
             self.logger.info('CONNECT OK')
-            self._check()
+
+            # check for failing checks in a cluster
+            check = built_in_commands['check'](self)
 
     def _try_exec_cmd(self, line):
         words = line.split(' ', 1)

@@ -10,7 +10,7 @@ Check the correct response status lines.
     +------------------------+-----------+---------+-----------+---------+
     | http://127.0.0.1:44209 | crate     | ...     | TRUE      | OK      |
     +------------------------+-----------+---------+-----------+---------+
-    CONNECT OKCLUSTER CHECK OK
+    CONNECT OKCLUSTER CHECK OKCrate ... does not support the "nodecheck" command.
 
 ``CREATE``::
 

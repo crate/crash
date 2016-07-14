@@ -412,6 +412,7 @@ class CommandTest(TestCase):
             '\\autocomplete                   toggle autocomplete',
             '\\c                              connect to the given server, e.g.: \connect localhost:4200',
             '\\check                          print failed cluster checks',
+            '\\checknode                      print failed node checks',
             '\\connect                        connect to the given server, e.g.: \connect localhost:4200',
             '\\dt                             print the existing tables within the \'doc\' schema',
             '\\format                         switch output format',

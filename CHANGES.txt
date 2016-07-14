@@ -5,6 +5,10 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added the ``nodecheck`` command which queries the ``sys.node_checks`` table
+   for failing node checks. Failing node checks are also displayed in a
+   condensed form at startup.
+
 2016/06/28 0.17.1
 =================
 

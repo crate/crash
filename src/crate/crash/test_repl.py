@@ -30,7 +30,7 @@ class SQLCompleterTest(TestCase):
     def test_get_builtin_command_completions(self):
         c = self.completer
         result = sorted(list(c.get_command_completions('\\c')))
-        self.assertEqual(result, ['c', 'check', 'connect'])
+        self.assertEqual(result, ['c', 'check', 'checknode', 'connect'])
 
     def test_get_command_completions_format(self):
         cmd = CrateCmd()

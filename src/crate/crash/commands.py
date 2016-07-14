@@ -91,41 +91,82 @@ class ToggleAutocompleteCommand(Command):
             cmd._autocomplete and 'ON' or 'OFF'
         )
 
-class ClusterCheckCommand(Command):
-    """ print failed cluster checks """
 
-    CLUSTER_CHECK_STMT = """
-        SELECT description AS "Failed checks"
-        FROM sys.checks
-        WHERE passed = false 
-        ORDER BY id ASC"""
+class CheckCommand(Command):
 
-    @noargs_command
-    def __call__(self, cmd, *args, **kwargs):
-        if cmd.connection.lowest_server_version >= StrictVersion("0.52.0"):
-            self.execute(cmd)
-        else:
-            tmpl = 'Crate {version} does not support the cluster "check" command.'
-            cmd.logger.warn(tmpl.format(version=cmd.connection.lowest_server_version))
+    CHECK_NAME = None
 
-    def execute(self, cmd):
-        success = cmd._execute(ClusterCheckCommand.CLUSTER_CHECK_STMT)
+    def execute(self, cmd, stmt):
+        success = cmd._execute(stmt)
         cmd.exit_code = cmd.exit_code or int(not success)
         if not success:
             return False
         cur = cmd.cursor
+        assert self.CHECK_NAME
         print_vars = {
             's': 'S'[cur.rowcount == 1:],
-            'rowcount': cur.rowcount
+            'rowcount': cur.rowcount,
+            'check_name': self.CHECK_NAME,
         }
         checks = cur.fetchall()
         if len(checks):
             cmd.pprint(checks, [c[0] for c in cur.description])
-            tmpl = '{rowcount} CLUSTER CHECK{s} FAILED'
+            tmpl = '{rowcount} {check_name}{s} FAILED'
             cmd.logger.critical(tmpl.format(**print_vars))
         else:
-            cmd.logger.info('CLUSTER CHECK OK')
+            cmd.logger.info('{} OK'.format(self.CHECK_NAME))
         return True
+
+
+class NodeCheckCommand(CheckCommand):
+    """ print failed node checks """
+
+    DEFAULT_STMT = """
+        SELECT n.name AS "Node Name", c.description AS "Failed Check"
+        FROM sys.node_checks c, sys.nodes n
+        WHERE c.passed = false
+          AND c.acknowledged = false
+          AND c.node_id = n.id
+        ORDER BY c.id, severity asc"""
+
+    STARTUP_STMT = """
+        SELECT description as "Failed Check", count(*) as "Number of Nodes"
+        FROM sys.node_checks
+        WHERE passed = false
+          AND acknowledged = false
+        GROUP BY description
+        ORDER BY description asc"""
+
+    CHECK_NAME = "NODE CHECK"
+
+    @noargs_command
+    def __call__(self, cmd, startup=False, *args, **kwargs):
+        stmt = startup and self.STARTUP_STMT or self.DEFAULT_STMT
+        if cmd.connection.lowest_server_version >= StrictVersion("0.56.0"):
+            self.execute(cmd, stmt, )
+        else:
+            tmpl = 'Crate {version} does not support the "nodecheck" command.'
+            cmd.logger.warn(tmpl.format(version=cmd.connection.lowest_server_version))
+
+
+class ClusterCheckCommand(CheckCommand):
+    """ print failed cluster checks """
+
+    STMT = """
+        SELECT description AS "Failed Check"
+        FROM sys.checks
+        WHERE passed = false
+        ORDER BY id ASC"""
+
+    CHECK_NAME = "CLUSTER CHECK"
+
+    @noargs_command
+    def __call__(self, cmd, *args, **kwargs):
+        if cmd.connection.lowest_server_version >= StrictVersion("0.52.0"):
+            self.execute(cmd, self.STMT)
+        else:
+            tmpl = 'Crate {version} does not support the cluster "check" command.'
+            cmd.logger.warn(tmpl.format(version=cmd.connection.lowest_server_version))
 
 
 built_in_commands = {
@@ -134,4 +175,5 @@ built_in_commands = {
     'format': SwitchFormatCommand(),
     'autocomplete': ToggleAutocompleteCommand(),
     'check': ClusterCheckCommand(),
+    'checknode': NodeCheckCommand(),
 }

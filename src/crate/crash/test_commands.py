@@ -22,9 +22,17 @@
 import os
 import shutil
 import tempfile
+
+from six import StringIO
 from unittest import TestCase
 from mock import patch
-from .commands import ReadFileCommand, ToggleAutocompleteCommand
+from .commands import ReadFileCommand, ToggleAutocompleteCommand, \
+    NodeCheckCommand, ClusterCheckCommand
+
+from .command import CrateCmd
+from distutils.version import StrictVersion
+from .printer import PrintWrapper
+from .outputs import OutputWriter
 
 
 class ReadFileCommandTest(TestCase):
@@ -68,3 +76,50 @@ class ToggleAutocompleteCommandTest(TestCase):
         self.assertEqual(output, 'Autocomplete ON')
 
 
+class ChecksCommandTest(TestCase):
+
+    @patch('crate.crash.command.CrateCmd')
+    def test_node_check(self, cmd):
+        rows = [
+                    [u'local1', u'check1'],
+                    [u'local2', u'check2'],
+                    [u'loca1', u'check2']
+                ]
+        cols = [(u'Failed Check', ), (u'Number of Nodes', )]
+        cmd._execute.return_value = True
+        cmd.cursor.fetchall.return_value = rows
+        cmd.cursor.description = cols
+        cmd.connection.lowest_server_version = StrictVersion("0.56.4")
+
+        NodeCheckCommand()(cmd)
+        cmd.pprint.assert_called_with(rows, [c[0] for c in cols])
+
+    @patch('crate.crash.command.CrateCmd')
+    def test_node_check_for_not_supported_version(self, cmd):
+        cmd.connection.lowest_server_version = StrictVersion("0.52.3")
+        NodeCheckCommand()(cmd)
+        excepted = 'Crate 0.52.3 does not support the "nodecheck" command.'
+        cmd.logger.warn.assert_called_with(excepted)
+
+    @patch('crate.crash.command.CrateCmd')
+    def test_cluster_check(self, cmd):
+        rows = [
+                    [u'local1', u'check1'],
+                    [u'local2', u'check2'],
+                    [u'loca1', u'check2']
+                ]
+        cols = [(u'Failed Check', ), (u'Number of Nodes', )]
+        cmd._execute.return_value = True
+        cmd.cursor.fetchall.return_value = rows
+        cmd.cursor.description = cols
+        cmd.connection.lowest_server_version = StrictVersion("0.53.1")
+
+        ClusterCheckCommand()(cmd)
+        cmd.pprint.assert_called_with(rows, [c[0] for c in cols])
+
+    @patch('crate.crash.command.CrateCmd')
+    def test_cluster_check_for_not_supported_version(self, cmd):
+        cmd.connection.lowest_server_version = StrictVersion("0.49.4")
+        ClusterCheckCommand()(cmd)
+        excepted = 'Crate 0.49.4 does not support the cluster "check" command.'
+        cmd.logger.warn.assert_called_with(excepted)

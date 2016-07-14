@@ -20,6 +20,8 @@
 import functools
 import glob
 
+from distutils.version import StrictVersion
+
 
 class Command(object):
     def complete(self, cmd, text):
@@ -89,10 +91,47 @@ class ToggleAutocompleteCommand(Command):
             cmd._autocomplete and 'ON' or 'OFF'
         )
 
+class ClusterCheckCommand(Command):
+    """ print failed cluster checks """
+
+    CLUSTER_CHECK_STMT = """
+        SELECT description AS "Failed checks"
+        FROM sys.checks
+        WHERE passed = false 
+        ORDER BY id ASC"""
+
+    @noargs_command
+    def __call__(self, cmd, *args, **kwargs):
+        if cmd.connection.lowest_server_version >= StrictVersion("0.52.0"):
+            self.cluster_check(cmd)
+        else:
+            tmpl = '\nCrate {version} does not support the cluster "check" command'
+            self.logger.warn(tmpl.format(version=self.connection.lowest_server_version))
+
+    def cluster_check(self, cmd):
+        success = cmd._execute(ClusterCheckCommand.CLUSTER_CHECK_STMT)
+        cmd.exit_code = cmd.exit_code or int(not success)
+        if not success:
+            return False
+        cur = cmd.cursor
+        print_vars = {
+            's': 'S'[cur.rowcount == 1:],
+            'rowcount': cur.rowcount
+        }
+        checks = cur.fetchall()
+        if len(checks):
+            cmd.pprint(checks, [c[0] for c in cur.description])
+            tmpl = '{rowcount} CLUSTER CHECK{s} FAILED'
+            cmd.logger.critical(tmpl.format(**print_vars))
+        else:
+            cmd.logger.info('CLUSTER CHECK OK')
+        return True
+
 
 built_in_commands = {
     '?': HelpCommand(),
     'r': ReadFileCommand(),
     'format': SwitchFormatCommand(),
     'autocomplete': ToggleAutocompleteCommand(),
+    'check': ClusterCheckCommand(),
 }

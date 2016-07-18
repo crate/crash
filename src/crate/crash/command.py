@@ -274,8 +274,8 @@ class CrateCmd(object):
         else:
             self.logger.info('CONNECT OK')
 
-            """ check for failing node and cluster checks """
-            built_in_commands['check'](self, startup=False)
+            # check for failing node and cluster checks
+            built_in_commands['check'](self, startup=True)
 
     def _try_exec_cmd(self, line):
         words = line.split(' ', 1)

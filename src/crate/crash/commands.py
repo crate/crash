@@ -140,7 +140,7 @@ class NodeCheckCommand(CheckBaseCommand):
 
     CHECK_NAME = "NODE CHECK"
 
-    def __call__(self, cmd, *args, **kwargs):
+    def __call__(self, cmd, **kwargs):
         stmt = kwargs.get('startup', False) and self.STARTUP_STMT or self.DEFAULT_STMT
         if cmd.connection.lowest_server_version >= StrictVersion("0.56.0"):
             self.execute(cmd, stmt)
@@ -160,7 +160,7 @@ class ClusterCheckCommand(CheckBaseCommand):
 
     CHECK_NAME = "CLUSTER CHECK"
 
-    def __call__(self, cmd, *args, **kwargs):
+    def __call__(self, cmd, **kwargs):
         if cmd.connection.lowest_server_version >= StrictVersion("0.52.0"):
             self.execute(cmd, self.STMT)
         else:
@@ -181,7 +181,7 @@ class CheckCommand(Command):
 
     def __call__(self, cmd, check_name=None, **kwargs):
         if not check_name:
-            [check(cmd, kwargs) for check in self.CHECKS.values()]
+            [check(cmd, **kwargs) for check in self.CHECKS.values()]
         elif check_name and check_name in self.CHECKS:
             self.CHECKS[check_name](cmd, **kwargs)
         else:

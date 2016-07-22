@@ -3,12 +3,18 @@ Installation & Usage
 ====================
 
 If the package was installed using ``pip`` the shell can be started by
-invoking ``crash`` in a terminal.
+invoking ``crash`` in a terminal. We recommend to install it to the Python
+user install directory to avoid unwanted dependency conflicts.
 
 ::
 
-    pip install crash
+    pip install --user crash
 
+
+.. note::
+    If ``crash`` is installed in the Python user install directory please ensure
+    that ``~/.local/bin`` (Linux), or ``%APPDATA%\Python\<version>\Scripts``
+    (Windows) is added to the system path.
 
 ``crash`` by default will try to connect to ``localhost:4200``. To connect to
 another host use the ``connect`` command inside the shell or use the ``--hosts``

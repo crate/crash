@@ -95,7 +95,7 @@ class ToggleAutocompleteCommand(Command):
 
 class CheckBaseCommand(Command):
 
-    CHECK_NAME = None
+    check_name = None
 
     def execute(self, cmd, stmt):
         success = cmd._execute(stmt)
@@ -103,11 +103,11 @@ class CheckBaseCommand(Command):
         if not success:
             return False
         cur = cmd.cursor
-        assert self.CHECK_NAME
+        assert self.check_name
         print_vars = {
             's': 'S'[cur.rowcount == 1:],
             'rowcount': cur.rowcount,
-            'check_name': self.CHECK_NAME,
+            'check_name': self.check_name,
         }
         checks = cur.fetchall()
         if len(checks):
@@ -115,7 +115,7 @@ class CheckBaseCommand(Command):
             tmpl = '{rowcount} {check_name}{s} FAILED'
             cmd.logger.critical(tmpl.format(**print_vars))
         else:
-            cmd.logger.info('{} OK'.format(self.CHECK_NAME))
+            cmd.logger.info('{} OK'.format(self.check_name))
         return True
 
 
@@ -138,14 +138,17 @@ class NodeCheckCommand(CheckBaseCommand):
         GROUP BY description
         ORDER BY description asc"""
 
-    CHECK_NAME = "NODE CHECK"
+    check_name = None
 
     def __call__(self, cmd, **kwargs):
-        stmt = kwargs.get('startup', False) and self.STARTUP_STMT or self.DEFAULT_STMT
         if cmd.connection.lowest_server_version >= StrictVersion("0.56.0"):
+            startup = kwargs.get('startup', False)
+            stmt = startup and self.STARTUP_STMT or self.DEFAULT_STMT
+            self.check_name = startup and "TYPES OF NODE CHECK" or "NODE CHECK"
+
             self.execute(cmd, stmt)
         else:
-            tmpl = 'Crate {version} does not support the "nodecheck" command.'
+            tmpl = 'Crate {version} does not support the "\check nodes" command.'
             cmd.logger.warn(tmpl.format(version=cmd.connection.lowest_server_version))
 
 
@@ -158,7 +161,7 @@ class ClusterCheckCommand(CheckBaseCommand):
         WHERE passed = false
         ORDER BY id ASC"""
 
-    CHECK_NAME = "CLUSTER CHECK"
+    check_name = "CLUSTER CHECK"
 
     def __call__(self, cmd, **kwargs):
         if cmd.connection.lowest_server_version >= StrictVersion("0.52.0"):
@@ -169,11 +172,11 @@ class ClusterCheckCommand(CheckBaseCommand):
 
 
 class CheckCommand(Command):
-    """ print failed cluster and/or node checks, e.g. \check node """
+    """ print failed cluster and/or node checks, e.g. \check nodes """
 
     CHECKS = OrderedDict([
                 ('cluster', ClusterCheckCommand()),
-                ('node', NodeCheckCommand())
+                ('nodes', NodeCheckCommand())
             ])
 
     def complete(self, cmd, text):

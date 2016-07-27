@@ -98,7 +98,7 @@ class ChecksCommandTest(TestCase):
     def test_node_check_for_not_supported_version(self, cmd):
         cmd.connection.lowest_server_version = StrictVersion("0.52.3")
         NodeCheckCommand()(cmd)
-        excepted = 'Crate 0.52.3 does not support the "nodecheck" command.'
+        excepted = 'Crate 0.52.3 does not support the "\check nodes" command.'
         cmd.logger.warn.assert_called_with(excepted)
 
     @patch('crate.crash.command.CrateCmd')
@@ -141,5 +141,5 @@ class ChecksCommandTest(TestCase):
         cmd.cursor.fetchall.return_value = []
         cmd.connection.lowest_server_version = StrictVersion("0.56.1")
 
-        command(cmd, 'node')
+        command(cmd, 'nodes')
         cmd.logger.info.assert_called_with('NODE CHECK OK')

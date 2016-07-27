@@ -89,7 +89,7 @@ You can get a list of commands by typing ``\?``:
 |                      | provided.                                                                          |
 |                      |                                                                                    |
 |                      | The following arguments are allowed:                                               |
-|                      |  - ``node``: to query the ``sys.node_checks`` table for failing node checks.       |
+|                      |  - ``nodes``: to query the ``sys.node_checks`` table for failing node checks.      |
 |                      |  - ``cluster``: to query the ``sys.checks`` table for failing cluster checks.      |
 +----------------------+------------------------------------------------------------------------------------+
 | ``\r <filename>``    | Reads statements from the given file and executes them                             |

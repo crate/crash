@@ -123,7 +123,9 @@ class NodeCheckCommand(CheckBaseCommand):
     """ print failed node checks """
 
     DEFAULT_STMT = """
-        SELECT n.name AS "Node Name", c.description AS "Failed Check"
+        SELECT n.name AS "Node Name",
+               n.hostname AS "Host Name",
+               c.description AS "Failed Check"
         FROM sys.node_checks c, sys.nodes n
         WHERE c.passed = false
           AND c.acknowledged = false

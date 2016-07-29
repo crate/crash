@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Increased ``urllib3`` version requirement to >=1.9 to prevent from 
+   compatibility issues.
+
  - Make the ``\check`` command to display both, node and cluster checks.
    Allow ``node`` and ``cluster`` arguments for the command to display
    node and cluster checks, respectively.

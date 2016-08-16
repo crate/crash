@@ -237,7 +237,7 @@ class CrateCmd(object):
         """ print the existing tables within the 'doc' schema """
         self._exec("""select format('%s.%s', schema_name, table_name) as name
                       from information_schema.tables
-                      where schema_name not in ('sys','information_schema')""")
+                      where schema_name not in ('sys','information_schema', 'pg_catalog')""")
 
     @noargs_command
     def _quit(self, *args):

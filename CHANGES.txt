@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Don't show tables from ``pg_catalog`` if ``\dt`` command is used.
+
  - Make the ``\check`` command to display both, node and cluster checks.
    Allow ``node`` and ``cluster`` arguments for the command to display
    node and cluster checks, respectively.

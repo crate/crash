@@ -28,7 +28,7 @@ import re
 requirements = [
     'setuptools',
     'colorama',
-    'Pygments',
+    'Pygments>=2.0',
     'crate>=0.11.2',
     'appdirs>=1.2,<2.0',
     'prompt-toolkit>=1.0,<1.1'

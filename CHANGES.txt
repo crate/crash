@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Require Pygments version greater or equal 2.0
+
  - Don't show tables from ``pg_catalog`` if ``\dt`` command is used.
 
  - Make the ``\check`` command to display both, node and cluster checks.

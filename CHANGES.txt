@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Require Pygments version greater or equal 2.0
+
 2016/06/28 0.17.1
 =================
 

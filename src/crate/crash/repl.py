@@ -100,16 +100,29 @@ class TruncatedFileHistory(FileHistory):
 
 class SQLCompleter(Completer):
     keywords = [
-        "select", "insert", "update", "delete",
-        "table", "index", "from", "into", "where", "values", "and", "or",
-        "set", "with", "by", "using", "like",
-        "boolean", "integer", "string", "float", "double", "short", "long",
-        "byte", "timestamp", "ip", "object", "dynamic", "strict", "ignored",
-        "array", "blob", "primary key",
-        "analyzer", "extends", "tokenizer", "char_filters", "token_filters",
-        "number_of_replicas", "clustered",
-        "refresh", "optimize", "alter",
-        "sys", "doc", "blob",
+        "select", "from", "to", "as", "all", "any", "some",
+        "directory", "distinct", "where", "group", "by", "order", "having",
+        "limit", "offset", "or", "and", "in", "not", "exists", "between",
+        "like", "is", "null", "true", "false", "nulls", "first", "last",
+        "escape", "asc", "desc", "substring", "for", "date", "time",
+        "year", "month", "day", "hour", "minute", "second", "current_date",
+        "current_time", "current_timestamp", "extract", "case", "when",
+        "join", "cross", "outer", "inner", "left", "right", "full",
+        "natural", "using", "on", "over", "partition", "range", "rows",
+        "unbounded", "preceding", "row", "with", "create",
+        "blob", "table", "repository", "snapshot", "alter", "kill",
+        "add", "column", "boolean", "byte", "short", "integer", "int",
+        "long", "float", "double", "timestamp", "ip", "object", "string",
+        "geo_point", "geo_shape", "global", "constraint", "describe", "explain",
+        "format", "type", "text", "distributed", "cast", "try_cast", "show",
+        "tables", "schemas", "catalogs", "columns", "partitions", "functions",
+        "view", "refresh", "restore", "drop", "alias", "union",
+        "except", "intersect", "system", "insert", "into", "values",
+        "delete", "update", "key", "duplicate", "set", "reset", "copy",
+        "clustered", "shards", "primary key", "off", "fulltext", "plain",
+        "index", "dynamic", "strict", "ignored", "array", "analyzer", "extends",
+        "tokenizer", "token_filters", "char_filters", "partitioned", "transient",
+        "persistent", "match", "generated", "always"
     ]
 
     def __init__(self, cmd):

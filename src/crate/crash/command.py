@@ -359,6 +359,23 @@ def get_stdin():
     return
 
 
+def host_and_port(host_or_port):
+    """
+    Return full hostname/IP + port, possible input formats are:
+      * host:port  -> host:port
+      * :          -> localhost:4200
+      * :port      -> localhost:port
+      * host       -> host:4200
+    """
+    if ':' in host_or_port:
+        if len(host_or_port) == 1:
+            return 'localhost:4200'
+        elif host_or_port.startswith(':'):
+            return 'localhost' + host_or_port
+        return host_or_port
+    return host_or_port + ':4200'
+
+
 def main():
     is_tty = sys.stdout.isatty()
     printer = ColorPrinter(is_tty)
@@ -381,7 +398,8 @@ def main():
         printer.info(crash_version)
         sys.exit(0)
     error_trace = args.verbose > 0
-    conn = connect(args.hosts,
+    crate_hosts = [host_and_port(h) for h in args.hosts]
+    conn = connect(crate_hosts,
                    verify_ssl_cert=args.verify_ssl,
                    cert_file=args.cert_file,
                    key_file=args.key_file)
@@ -392,7 +410,7 @@ def main():
                    autocomplete=args.autocomplete)
     if error_trace:
         # log CONNECT command only in verbose mode
-        cmd._connect(args.hosts)
+        cmd._connect(crate_hosts)
     done = False
     stdin_data = get_stdin()
     if args.sysinfo:

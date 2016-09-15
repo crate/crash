@@ -8,7 +8,7 @@ from io import TextIOWrapper
 from mock import patch, Mock
 from crate.client.exceptions import ProgrammingError
 
-from .command import CrateCmd, main, get_stdin, noargs_command, Result
+from .command import CrateCmd, main, get_stdin, noargs_command, Result, host_and_port
 from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 from .commands import Command
@@ -56,6 +56,22 @@ class OutputWriterTest(TestCase):
         output = ow.tabular(result).split('\n')[3]
         self.assertEqual(
             output.strip('|').strip(' '), expected)
+
+
+class CommandLineArgumentsTest(TestCase):
+
+    def test_short_hostnames(self):
+        # both host and port are provided
+        self.assertEqual(host_and_port('localhost:4321'), 'localhost:4321')
+        # only host is provided
+        # default port is used
+        self.assertEqual(host_and_port('localhost'), 'localhost:4200')
+        # only port is provided
+        # localhost is used
+        self.assertEqual(host_and_port(':4000'), 'localhost:4000')
+        # neither host nor port are provided
+        # default host and default port are used
+        self.assertEqual(host_and_port(':'), 'localhost:4200')
 
 
 class CommandTest(TestCase):

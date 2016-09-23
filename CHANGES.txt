@@ -5,15 +5,19 @@ Changes for crash
 Unreleased
 ==========
 
- - Update autocompletion to reflect newest crate features
-
- - Require Pygments version greater or equal 2.0
-
  - Don't show tables from ``pg_catalog`` if ``\dt`` command is used.
 
  - Make the ``\check`` command to display both, node and cluster checks.
    Allow ``node`` and ``cluster`` arguments for the command to display
    node and cluster checks, respectively.
+
+2016/09/23 0.17.2
+=================
+
+ - Update autocompletion to reflect newest crate features
+
+ - Require Pygments version greater or equal 2.0
+
 
 2016/06/28 0.17.1
 =================

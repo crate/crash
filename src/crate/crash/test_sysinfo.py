@@ -27,7 +27,9 @@ from mock import MagicMock, PropertyMock
 
 from .command import CrateCmd
 from .sysinfo import SysInfoCommand, Result as Res
+from distutils.version import StrictVersion
 
+CRATE_VERSION = StrictVersion("0.55.2")
 
 class SysInfoTest(TestCase):
 
@@ -43,6 +45,7 @@ class SysInfoTest(TestCase):
     def setUp(self):
         self.patcher = patch(__name__+'.CrateCmd')
         self.cmd = self.patcher.start()
+        self.cmd.connection.lowest_server_version = CRATE_VERSION
         self.sys_info = SysInfoCommand(self.cmd)
 
         # composing return values for multiple calls of cmd.cursor.fetchall method
@@ -71,8 +74,7 @@ class SysInfoTest(TestCase):
     def test_sys_info(self):
         self.cmd.cursor.fetchall.side_effect = self.fetch_all
         self.cmd._execute.return_value = True
-        type(self.cmd.cursor).description = PropertyMock(side_effect=self.desc)
-
+        type(self.cmd.cursor).description = PropertyMock(side_effect=self.desc)        
         succcess, result = self.sys_info._sys_info()
         self.assertEqual(succcess, True)
         expected_nodes = Res(SysInfoTest.NODES_INFO, SysInfoTest.NODES_FIELDS)

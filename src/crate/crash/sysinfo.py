@@ -33,22 +33,16 @@ from .printer import ColorPrinter
 
 Result = namedtuple('Result', ['rows', 'cols'])
 SYSINFO_MIN_VERSION = StrictVersion("0.54.0")
+TABLE_SCHEMA_MIN_VERSION = StrictVersion("0.57.0")
 
 
 class SysInfoCommand(object):
-
     CLUSTER_INFO = [ """ select count(distinct(id)) as number_of_shards,
                          cast(sum(num_docs) as integer) as number_of_records
-                         from sys.shards """, 
+                         from sys.shards """,
 
                      """ select count(1) as number_of_nodes
-                           from sys.nodes """,
-
-                     """ select count(distinct(table_name))
-                                 as number_of_tables
-                         from information_schema.tables
-                         where schema_name
-                         not in ('information_schema', 'sys') """ ]
+                           from sys.nodes """]
 
     NODES_INFO = [ """ select name,
                           hostname,
@@ -73,34 +67,49 @@ class SysInfoCommand(object):
 
     def __init__(self, cmd):
         self.cmd = cmd
+        schema_name = \
+            "table_schema" if self.cmd.connection.lowest_server_version >= \
+            TABLE_SCHEMA_MIN_VERSION else "schema_name"
+
+        information_schema_query = \
+            """ select count(distinct(table_name))
+                    as number_of_tables
+                from information_schema.tables
+                where {schema}
+                not in ('information_schema', 'sys', 'pg_catalog') """
+
+        self.CLUSTER_INFO.append(
+            information_schema_query.format(schema=schema_name))
 
     def execute(self):
         """ print system and cluster info """
         if not self.cmd.is_conn_avaliable():
-          return
+            return
         if self.cmd.connection.lowest_server_version >= SYSINFO_MIN_VERSION:
             success, rows = self._sys_info()
             self.cmd.exit_code = self.cmd.exit_code or int(not success)
             if success:
                 for result in rows:
                     self.cmd.pprint(result.rows, result.cols)
-                self.cmd.logger.info("For debugging purposes you can send above listed information to support@crate.io")
+                self.cmd.logger.info(
+                    "For debugging purposes you can send above listed information to support@crate.io")
         else:
             tmpl = 'Crate {version} does not support the cluster "sysinfo" command'
             self.cmd.logger.warn(tmpl
-                .format(version=self.cmd.connection.lowest_server_version))
+                                 .format(version=self.cmd.connection.lowest_server_version))
 
     def _sys_info(self):
         result = []
         success = self._cluster_info(result)
         success &= self._nodes_info(result)
         if success is False:
-          result = []
+            result = []
         return (success, result)
 
     def _cluster_info(self, result):
         rows = []
         cols = []
+        
         for query in SysInfoCommand.CLUSTER_INFO:
             success = self.cmd._execute(query)
             if success is False:
@@ -113,6 +122,6 @@ class SysInfoCommand(object):
     def _nodes_info(self, result):
         success = self.cmd._execute(SysInfoCommand.NODES_INFO[0])
         if success:
-            result.append(Result(self.cmd.cursor.fetchall(), \
-                [c[0] for c in self.cmd.cursor.description]))
+            result.append(Result(self.cmd.cursor.fetchall(),
+                                 [c[0] for c in self.cmd.cursor.description]))
         return success

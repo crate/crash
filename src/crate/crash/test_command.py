@@ -120,13 +120,13 @@ class CommandTest(TestCase):
         self._output_format('json', assert_func)
 
     def test_json_row_output(self):
-        query = "select schema_name from information_schema.tables where schema_name = 'sys' limit 2"
+        query = "select table_name from information_schema.tables where table_name = 'cluster'"
 
         def assert_func(self, e, output, err):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertTrue('{"schema_name": "sys"}\n{"schema_name": "sys"}' in output)
+            self.assertTrue('{"table_name": "cluster"}' in output)
         self._output_format('json_row', assert_func, query)
 
     def test_csv_obj_output(self):

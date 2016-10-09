@@ -72,29 +72,14 @@ if at least one server is reachable::
 Once the shell is connected, SQL statements can be executed simply by entering
 them without any special arguments like this::
 
-    cr> SELECT schema_name, table_name FROM information_schema.tables
-    ... ORDER BY table_name;
-    +--------------------+-------------------+
-    | schema_name        | table_name        |
-    +--------------------+-------------------+
-    | sys                | checks            |
-    | sys                | cluster           |
-    | information_schema | columns           |
-    | sys                | jobs              |
-    | sys                | jobs_log          |
-    | sys                | nodes             |
-    | sys                | operations        |
-    | sys                | operations_log    |
-    | sys                | repositories      |
-    | information_schema | routines          |
-    | information_schema | schemata          |
-    | sys                | shards            |
-    | sys                | snapshots         |
-    | information_schema | table_constraints |
-    | information_schema | table_partitions  |
-    | information_schema | tables            |
-    +--------------------+-------------------+
-    SELECT 16 rows in set (... sec)
+    cr> SELECT table_name FROM information_schema.tables 
+    ... WHERE table_name = 'cluster';
+    +------------+
+    | table_name |
+    +------------+
+    | cluster    |
+    +------------+
+    SELECT 1 row in set (... sec)
 
 When the Crate shell is started with the option ``-v`` debugging information will be printed::
 

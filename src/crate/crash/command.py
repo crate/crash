@@ -57,6 +57,7 @@ except ImportError:
     from logging import Handler
 
     class NullHandler(Handler):
+
         def emit(self, record):
             pass
 
@@ -76,6 +77,8 @@ Result = namedtuple('Result', ['cols',
                                'rowcount',
                                'duration',
                                'output_width'])
+
+TABLE_SCHEMA_MIN_VERSION = StrictVersion("0.57.0")
 
 
 def parse_config_path(args=sys.argv):
@@ -182,7 +185,8 @@ class CrateCmd(object):
         self.error_trace = error_trace
         self.connection = connection or connect(error_trace=error_trace)
         self.cursor = self.connection.cursor()
-        self.output_writer = output_writer or OutputWriter(PrintWrapper(), is_tty)
+        self.output_writer = output_writer or OutputWriter(
+            PrintWrapper(), is_tty)
         self.lines = []
         self.exit_code = 0
         self.expanded_mode = False
@@ -238,9 +242,14 @@ class CrateCmd(object):
     @noargs_command
     def _show_tables(self, *args):
         """ print the existing tables within the 'doc' schema """
-        self._exec("""select format('%s.%s', schema_name, table_name) as name
+        schema_name = \
+            "table_schema" if self.connection.lowerst_server_version\
+            >= TABLE_SCHEMA_MIN_VERSION else "schema_name"
+
+        self._exec("""select format('%s.%s', {schema}, table_name) as name
                       from information_schema.tables
-                      where schema_name not in ('sys','information_schema', 'pg_catalog')""")
+                      where table_schema not in ('sys','information_schema', 'pg_catalog')"""
+                   .format(schema=schema_name))
 
     @noargs_command
     def _quit(self, *args):
@@ -306,7 +315,8 @@ class CrateCmd(object):
                     self.logger.info(message)
             return True
         else:
-            self.logger.critical('Unknown command. Type \? for a full list of available commands.')
+            self.logger.critical(
+                'Unknown command. Type \? for a full list of available commands.')
         return False
 
     def _exec(self, line):
@@ -318,7 +328,8 @@ class CrateCmd(object):
             self.cursor.execute(statement)
             return True
         except ConnectionError:
-            self.logger.warn('Use \connect <server> to connect to one or more servers first.')
+            self.logger.warn(
+                'Use \connect <server> to connect to one or more servers first.')
         except ProgrammingError as e:
             self.logger.critical(e.message)
             if self.error_trace and e.error_trace:

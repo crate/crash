@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fix: crashed in verbose mode if crate didn't provide an error trace
+
 2016/09/23 0.18.0
 =================
 

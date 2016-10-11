@@ -5,7 +5,8 @@ from unittest import TestCase
 from six import PY2, StringIO
 import tempfile
 from io import TextIOWrapper
-from mock import patch
+from mock import patch, Mock
+from crate.client.exceptions import ProgrammingError
 
 from .command import CrateCmd, main, get_stdin, noargs_command, Result
 from .outputs import _val_len as val_len, OutputWriter
@@ -364,6 +365,24 @@ class CommandTest(TestCase):
         except SystemExit as e:
             exception_code = e.code
         self.assertEqual(exception_code, 1)
+
+    def test_verbose_with_error_trace(self):
+        command = CrateCmd(error_trace=True)
+        command.logger = Mock()
+        command.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
+                                                                   error_trace="error trace"))
+        command.execute("select invalid statement")
+        command.logger.critical.assert_any_call("the error message")
+        command.logger.critical.assert_called_with("\nerror trace")
+
+    def test_verbose_no_error_trace(self):
+        command = CrateCmd(error_trace=True)
+        command.logger = Mock()
+        command.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
+                                                                   error_trace=None))
+        command.execute("select invalid statement")
+        # only the message is logged
+        command.logger.critical.assert_called_once_with("the error message")
 
     def test_rendering_object(self):
         """Test rendering an object"""

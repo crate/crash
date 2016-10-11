@@ -265,7 +265,7 @@ class CommandTest(TestCase):
                     "--hosts", self.crate_host,
                     "--sysinfo"
                     ]
-        with patch('sys.stdout', new_callable=StringIO) as output:
+        with patch('sys.stdout', new_callable=StringIO):
             try:
                 main()
             except SystemExit as e:

@@ -77,6 +77,7 @@ Result = namedtuple('Result', ['cols',
                                'duration',
                                'output_width'])
 
+
 def parse_config_path(args=sys.argv):
     """
     Preprocess sys.argv and extract --config argument.
@@ -103,6 +104,7 @@ def parse_args(parser):
     args = parser.parse_args()
     return args
 
+
 def boolean(v):
     if str(v).lower() in ("yes", "true", "t", "1"):
         return True
@@ -110,6 +112,7 @@ def boolean(v):
         return False
     else:
         raise ValueError('not a boolean value')
+
 
 def get_parser(output_formats=[], conf=None):
     """

@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2016/10/27 0.19.0
+=================
+
  - Allow "short hosts" as Crate hosts argument,
    such as ``:4200`` for ``localhost:4200``
 

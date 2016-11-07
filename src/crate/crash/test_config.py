@@ -98,18 +98,41 @@ class ConfigurationTest(TestCase):
 
     def test_get_and_set(self):
         path = os.path.join(self.tmp_dir, 'crash.cfg')
+
         conf = Configuration(path)
         conf.get_or_set('format', 'json')
         conf.get_or_set('verbosity', 3)
         conf.get_or_set('autocomplete', False)
+        conf.get_or_set('hosts', ['c1', 'c2'])
         conf.save()
 
+        # Reading raw values
         config = configparser.ConfigParser()
         config.read([path])
         self.assertEqual(config.get('crash', 'format'), 'json')
         self.assertEqual(config.get('crash', 'verbosity'), '3')
-        self.assertEqual(config.get('crash', 'autocomplete'), 'False')
+        self.assertEqual(config.get('crash', 'autocomplete'), '0')
+        self.assertEqual(config.get('crash', 'hosts'), 'c1\nc2')
 
+        # Reading transformed values
+        conf = Configuration(path)
+        self.assertEqual(conf.get_or_set('format', 'mixed'), 'json')
+        self.assertEqual(conf.get_or_set('verbosity', 0), 3)
+        self.assertEqual(conf.get_or_set('autocomplete', True), False)
+        self.assertEqual(conf.get_or_set('hosts', ['localhost']), ['c1', 'c2'])
+
+        # Reading section header
         with open(path) as fp:
             self.assertTrue(fp.read().startswith('[crash]'))
 
+    def test_read_boolean(self):
+        path = os.path.join(self.tmp_dir, 'bwc.cfg')
+
+        conf = Configuration(path)
+        conf.get_or_set('bwc_true', 'True')
+        conf.get_or_set('bwc_false', 'False')
+        conf.save()
+
+        conf = Configuration(path)
+        self.assertEqual(conf.get_or_set('bwc_true', True), True)
+        self.assertEqual(conf.get_or_set('bwc_false', False), False)

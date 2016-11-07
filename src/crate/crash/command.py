@@ -124,11 +124,11 @@ def get_parser(output_formats=[], conf=None):
     """
 
     def _conf_or_default(key, value):
-        return conf and conf.get_or_set(key, value) or value
+        return value if conf is None else conf.get_or_set(key, value)
 
     parser = ArgumentParser(description='crate shell')
     parser.add_argument('-v', '--verbose', action='count',
-                        dest='verbose', default=int(_conf_or_default('verbosity', 0)),
+                        dest='verbose', default=_conf_or_default('verbosity', 0),
                         help='use -v to get debug output')
     parser.add_argument('-A', '--no-autocomplete', action='store_false',
                         dest='autocomplete',
@@ -147,7 +147,7 @@ def get_parser(output_formats=[], conf=None):
                        help='show system information')
 
     parser.add_argument('--hosts', type=str, nargs='*',
-                        default=_conf_or_default('hosts', 'localhost:4200'),
+                        default=_conf_or_default('hosts', ['localhost:4200']),
                         help='the crate hosts to connect to', metavar='HOST')
     parser.add_argument('--verify-ssl', type=boolean, default=True)
     parser.add_argument('--cert-file', type=str,

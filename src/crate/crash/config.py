@@ -27,6 +27,7 @@ try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
+from functools import partial
 
 
 class ConfigurationError(Exception):
@@ -39,7 +40,33 @@ class Configuration(object):
     from a configuration file.
     """
 
+    @classmethod
+    def bwc_bool_transform_from(cls, x):
+        """
+        Read boolean values from old config files correctly
+        and interpret 'True' and 'False' as correct booleans.
+        """
+        if x.lower() == 'true':
+            return True
+        elif x.lower() == 'false':
+            return False
+        return bool(int(x))
+
     def __init__(self, path):
+        self.type_mapping = {
+            str: partial(self._get_or_set,
+                         transform_from=lambda x: str(x),
+                         transform_to=lambda x: str(x)),
+            int: partial(self._get_or_set,
+                         transform_from=lambda x: int(x),
+                         transform_to=lambda x: str(x)),
+            bool: partial(self._get_or_set,
+                          transform_from=Configuration.bwc_bool_transform_from,
+                          transform_to=lambda x: str(int(x))),
+            list: partial(self._get_or_set,
+                          transform_from=lambda x: x.split('\n'),
+                          transform_to=lambda x: '\n'.join(x)),
+        }
         if not path.endswith('.cfg'):
             raise ConfigurationError('Path to configuration file needs to end with .cfg')
         self.path = path
@@ -59,15 +86,24 @@ class Configuration(object):
         if 'crash' not in self.cfg.sections():
             self.cfg.add_section('crash')
 
-    def get_or_set(self, key, default_value=None):
+    def get_or_set(self, key, default_value):
+        option_type = type(default_value)
+        if option_type in self.type_mapping:
+            return self.type_mapping[option_type](key, default_value)
+        return self._get_or_set(key, default_value)
+
+    def _get_or_set(self, key,
+                    default_value=None,
+                    transform_from=lambda x: x,
+                    transform_to=lambda x: x):
         assert 'crash' in self.cfg.sections()
         value = None
         try:
-            value = self.cfg.get('crash', str(key))
+            value = self.cfg.get('crash', key)
         except configparser.NoOptionError:
             if default_value is not None:
-                self.cfg.set('crash', key, str(default_value))
-        return value or default_value
+                self.cfg.set('crash', key, transform_to(default_value))
+        return default_value if value is None else transform_from(value)
 
     def save(self):
         with open(self.path, 'w') as fp:

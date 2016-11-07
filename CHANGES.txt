@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Crash was trying to connect to invalid hosts if no hosts were provided via
+  ``--hosts`` argument and configuration file was already present.
+
 2016/10/27 0.19.0
 =================
 

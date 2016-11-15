@@ -72,7 +72,7 @@ if at least one server is reachable::
 Once the shell is connected, SQL statements can be executed simply by entering
 them without any special arguments like this::
 
-    cr> SELECT table_name FROM information_schema.tables 
+    cr> SELECT table_name FROM information_schema.tables
     ... WHERE table_name = 'cluster';
     +------------+
     | table_name |
@@ -92,16 +92,21 @@ When the Crate shell is started with the option ``-v`` debugging information wil
 Limitations
 ===========
 
+.. note::
+
+    Due to changes in the Information Schema of CrateDB, Crash versions <= 0.19
+    are not compatible with CrateDB > 0.57.
+
 Nested Objects and Arrays
 -------------------------
 
 .. note::
 
-    Since crate 0.39.0 it is possible to use object and array literals and the
-    limitation does not apply when connecting to a crate instance running > 0.39.0.
+    Since CrateDB 0.39.0 it is possible to use object and array literals and the
+    limitation does not apply when connecting to a CrateDB instance running > 0.39.0.
 
 While it is possible to select or filter by nested objects it is currently not
-possible to insert them using crash. In order to do that the `Crate REST
+possible to insert them using Crash. In order to do that the `Crate REST
 endpoint`_ or a client library like `crate-python`_ has to be used.
 
 The same also applies for arrays.

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# vim: set fileencodings=utf-8
+
 import sys
 import os
 import re
@@ -26,21 +29,33 @@ def fake_stdin(data):
 
 
 class OutputWriterTest(TestCase):
+
+    def setUp(self):
+        self.ow = OutputWriter(writer=None, is_tty=False)
+
     def test_mixed_format_float_precision(self):
-        expected = 'foo | 152462.70754934277'
-        ow = OutputWriter(writer=None, is_tty=False)
+        expected = u'foo | 152462.70754934277'
         result = Result(cols=['foo'],
                         rows=[[152462.70754934277]],
                         rowcount=1,
                         duration=1,
                         output_width=80)
         self.assertEqual(
-            next(ow.mixed(result)).rstrip(), expected)
+            next(self.ow.mixed(result)).rstrip(), expected)
+
+    def test_mixed_format_utf8(self):
+        expected = u'name | Großvenediger'
+        result = Result(cols=['name'],
+                        rows=[[u'Großvenediger']],
+                        rowcount=1,
+                        duration=1,
+                        output_width=80)
+        self.assertEqual(
+            next(self.ow.mixed(result)).rstrip(), expected)
 
     def test_tabular_format_float_precision(self):
         expected = u'152462.70754934277'
 
-        ow = OutputWriter(writer=None, is_tty=False)
         result = Result(cols=['foo'],
                         rows=[[152462.70754934277]],
                         rowcount=1,
@@ -53,7 +68,7 @@ class OutputWriterTest(TestCase):
         # +----
         # | value
         # get the row with the value in it
-        output = ow.tabular(result).split('\n')[3]
+        output = self.ow.tabular(result).split('\n')[3]
         self.assertEqual(
             output.strip('|').strip(' '), expected)
 
@@ -379,8 +394,7 @@ class CommandTest(TestCase):
         try:
             main()
         except SystemExit as e:
-            exception_code = e.code
-        self.assertEqual(exception_code, 1)
+            self.assertEqual(e.code, 1)
 
     def test_verbose_with_error_trace(self):
         command = CrateCmd(error_trace=True)

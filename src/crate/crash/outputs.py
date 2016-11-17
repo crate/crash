@@ -116,7 +116,7 @@ class OutputWriter(object):
         padding = max_col_len = max(len(c) for c in result.cols)
         if self.is_tty:
             max_col_len += len(Fore.YELLOW + Style.RESET_ALL)
-        tmpl = '{0:<' + str(max_col_len) + '} | {1}'
+        tmpl = u'{0:<' + str(max_col_len) + '} | {1}'
         row_delimiter = '-' * result.output_width
         for row in result.rows:
             for i, c in enumerate(result.cols):
@@ -172,4 +172,6 @@ class OutputWriter(object):
             value = '\n'.join(lines)
         elif isinstance(value, float):
             value = float_format(value)
-        return '{0}\n'.format(value)
+        elif isinstance(value, int):
+            value = str(value)
+        return value + '\n'

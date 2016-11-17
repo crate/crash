@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - ``--sysinfo`` does not fail any more when the name of the connected CrateDB
+   node contains a unicode character.
+
  - Crash was trying to connect to invalid hosts if no hosts were provided via
   ``--hosts`` argument and configuration file was already present.
 

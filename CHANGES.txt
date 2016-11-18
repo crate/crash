@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2016/11/18 0.19.1
+=================
+
  - ``--sysinfo`` does not fail any more when the name of the connected CrateDB
    node contains a unicode character.
 

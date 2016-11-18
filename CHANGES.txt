@@ -5,14 +5,17 @@ Changes for crash
 Unreleased
 ==========
 
+ - Updated information_schema metadata queries to reflect the current state of
+   CrateDB.
+
+2016/11/18 0.19.1
+=================
+
  - ``--sysinfo`` does not fail any more when the name of the connected CrateDB
    node contains a unicode character.
 
  - Crash was trying to connect to invalid hosts if no hosts were provided via
   ``--hosts`` argument and configuration file was already present.
-
- - Updated information_schema metadata queries to reflect the current state of
-   CrateDB.
 
 2016/10/27 0.19.0
 =================

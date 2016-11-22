@@ -14,10 +14,6 @@
     :target: http://badge.fury.io/py/crash
     :alt: Version
 
-.. image:: https://pypip.in/download/crash/badge.png
-    :target: https://pypi.python.org/pypi/crash/
-    :alt: Downloads
-
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: https://crate.io/docs/reference/crash/
 

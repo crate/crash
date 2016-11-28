@@ -55,7 +55,7 @@ Successful connects will give you some information about the servers you connect
     +------------------------+-----------+---------+-----------+---------+
     | http://127.0.0.1:44209 | crate     | ...     | TRUE      | OK      |
     +------------------------+-----------+---------+-----------+---------+
-    CONNECT OKCLUSTER CHECK OKCrate ... does not support the "\check nodes" command.
+    CONNECT OK...
 
 If you connect to more than one server, the command will succeed
 if at least one server is reachable::
@@ -67,7 +67,7 @@ if at least one server is reachable::
     | http://127.0.0.1:44209      | crate     | ...     | TRUE      | OK            |
     | http://300.300.300.300:4295 | NULL      | 0.0.0   | FALSE     | Server not... |
     +-----------------------------+-----------+---------+-----------+-----------...-+
-    CONNECT OKCLUSTER CHECK OKCrate ... does not support the "\check nodes" command.
+    CONNECT OK...
 
 Once the shell is connected, SQL statements can be executed simply by entering
 them without any special arguments like this::
@@ -84,9 +84,9 @@ them without any special arguments like this::
 When the Crate shell is started with the option ``-v`` debugging information will be printed::
 
     cr> select x from y;
-    SQLActionException[TableUnknownException: Table 'doc.y' unknown]
+    SQLActionException[SchemaUnknownException: Schema 'doc' unknown]
+    SQLActionException: NOT_FOUND 4045 SchemaUnknownException: Schema 'doc' unknown
     ...
-
 
 
 Limitations

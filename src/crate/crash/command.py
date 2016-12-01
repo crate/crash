@@ -243,12 +243,12 @@ class CrateCmd(object):
     def _show_tables(self, *args):
         """ print the existing tables within the 'doc' schema """
         schema_name = \
-            "table_schema" if self.connection.lowest_server_version\
+            "table_schema" if self.connection.lowest_server_version \
             >= TABLE_SCHEMA_MIN_VERSION else "schema_name"
 
-        self._exec("""select format('%s.%s', {schema}, table_name) as name
-                      from information_schema.tables
-                      where table_schema not in ('sys','information_schema', 'pg_catalog')"""
+        self._exec("select format('%s.%s', {schema}, table_name) as name "
+                   "from information_schema.tables "
+                   "where {schema} not in ('sys','information_schema', 'pg_catalog')"
                    .format(schema=schema_name))
 
     @noargs_command

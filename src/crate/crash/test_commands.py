@@ -25,7 +25,7 @@ import tempfile
 
 from six import StringIO
 from unittest import TestCase
-from mock import patch
+from mock import patch, MagicMock
 from .commands import ReadFileCommand, ToggleAutocompleteCommand, \
     NodeCheckCommand, ClusterCheckCommand, CheckCommand
 
@@ -75,6 +75,22 @@ class ToggleAutocompleteCommandTest(TestCase):
         output = command(fake_cmd)
         self.assertEqual(output, 'Autocomplete ON')
 
+
+class ShowTablesCommandTest(TestCase):
+
+    def test_post_0_57(self):
+        cmd = CrateCmd()
+        cmd._exec = MagicMock()
+        cmd.connection.lowest_server_version = StrictVersion("0.57.0")
+        cmd._show_tables()
+        cmd._exec.assert_called_with("select format('%s.%s', table_schema, table_name) as name from information_schema.tables where table_schema not in ('sys','information_schema', 'pg_catalog')")
+
+    def test_pre_0_57(self):
+        cmd = CrateCmd()
+        cmd._exec = MagicMock()
+        cmd.connection.lowest_server_version = StrictVersion("0.56.4")
+        cmd._show_tables()
+        cmd._exec.assert_called_with("select format('%s.%s', schema_name, table_name) as name from information_schema.tables where schema_name not in ('sys','information_schema', 'pg_catalog')")
 
 class ChecksCommandTest(TestCase):
 

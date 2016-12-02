@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2016/12/02 0.20.0
+=================
+
  - Updated information_schema metadata queries to reflect the current state of
    CrateDB.
 

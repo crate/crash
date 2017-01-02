@@ -175,7 +175,8 @@ def loop(cmd, history_file):
     key_binding_manager = KeyBindingManager(
         enable_search=True,
         enable_abort_and_exit_bindings=True,
-        enable_system_bindings=True
+        enable_system_bindings=True,
+        enable_open_in_editor=True
     )
     layout = create_prompt_layout(
         message=u'cr> ',

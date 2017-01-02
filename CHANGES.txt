@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added support for opening an editor to edit the current command.
+   This behaves similar as the same functionality in bash or zsh.
+
  - Added support for suspend (``Ctrl-z``)
 
 2016/12/02 0.20.0

@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed issue that caused the `--sysinfo` command to fail after a connection.
+
 2016/12/02 0.20.0
 =================
 

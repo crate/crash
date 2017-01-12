@@ -285,7 +285,8 @@ class CrateCmd(object):
             self.logger.critical('CONNECT ERROR')
         else:
             self.logger.info('CONNECT OK')
-
+            SysInfoCommand.CLUSTER_INFO['information_schema_query'] = \
+            get_information_schema_query(self.connection.lowest_server_version)
             # check for failing node and cluster checks
             built_in_commands['check'](self, startup=True)
 
@@ -386,6 +387,19 @@ def host_and_port(host_or_port):
         return host_or_port
     return host_or_port + ':4200'
 
+def get_information_schema_query(lowest_server_version):
+    schema_name = \
+        "table_schema" if lowest_server_version >= \
+        TABLE_SCHEMA_MIN_VERSION else "schema_name"
+
+    information_schema_query = \
+        """ select count(distinct(table_name))
+                as number_of_tables
+            from information_schema.tables
+            where {schema}
+            not in ('information_schema', 'sys', 'pg_catalog') """
+
+    return information_schema_query.format(schema=schema_name)
 
 def main():
     is_tty = sys.stdout.isatty()

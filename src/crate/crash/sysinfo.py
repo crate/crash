@@ -33,16 +33,14 @@ from .printer import ColorPrinter
 
 Result = namedtuple('Result', ['rows', 'cols'])
 SYSINFO_MIN_VERSION = StrictVersion("0.54.0")
-TABLE_SCHEMA_MIN_VERSION = StrictVersion("0.57.0")
 
 
 class SysInfoCommand(object):
-    CLUSTER_INFO = [ """ select count(distinct(id)) as number_of_shards,
+    CLUSTER_INFO = { 'shards_query': """ select count(distinct(id)) as number_of_shards,
                          cast(sum(num_docs) as integer) as number_of_records
                          from sys.shards """,
-
-                     """ select count(1) as number_of_nodes
-                           from sys.nodes """]
+                     'nodes_query': """ select count(1) as number_of_nodes
+                           from sys.nodes """}
 
     NODES_INFO = [ """ select name,
                           hostname,
@@ -67,19 +65,6 @@ class SysInfoCommand(object):
 
     def __init__(self, cmd):
         self.cmd = cmd
-        schema_name = \
-            "table_schema" if self.cmd.connection.lowest_server_version >= \
-            TABLE_SCHEMA_MIN_VERSION else "schema_name"
-
-        information_schema_query = \
-            """ select count(distinct(table_name))
-                    as number_of_tables
-                from information_schema.tables
-                where {schema}
-                not in ('information_schema', 'sys', 'pg_catalog') """
-
-        self.CLUSTER_INFO.append(
-            information_schema_query.format(schema=schema_name))
 
     def execute(self):
         """ print system and cluster info """
@@ -111,7 +96,7 @@ class SysInfoCommand(object):
         cols = []
         
         for query in SysInfoCommand.CLUSTER_INFO:
-            success = self.cmd._execute(query)
+            success = self.cmd._execute(SysInfoCommand.CLUSTER_INFO[query])
             if success is False:
                 return success
             rows.extend(self.cmd.cursor.fetchall()[0])

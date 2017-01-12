@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed issue that caused the `--sysinfo` command to fail after a connection.
+
  - Added support for opening an editor to edit the current command.
    This behaves similar as the same functionality in bash or zsh.
 

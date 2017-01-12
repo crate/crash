@@ -11,10 +11,11 @@ from io import TextIOWrapper
 from mock import patch, Mock
 from crate.client.exceptions import ProgrammingError
 
-from .command import CrateCmd, main, get_stdin, noargs_command, Result, host_and_port
+from .command import CrateCmd, main, get_stdin, noargs_command, Result, host_and_port, get_information_schema_query
 from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 from .commands import Command
+from distutils.version import StrictVersion
 
 
 def fake_stdin(data):
@@ -501,3 +502,24 @@ class CommandTest(TestCase):
         text = command.my_cmd('arg1')
         self.assertEqual(None, text)
         self.assertEqual('Command does not take any arguments.\n', output.getvalue())
+
+class TestGetInformationSchemaQuery(TestCase):
+
+    def test_low_version(self):
+        lowest_server_version = StrictVersion("0.56.4")
+        query = get_information_schema_query(lowest_server_version)
+        self.assertEqual(""" select count(distinct(table_name))
+                as number_of_tables
+            from information_schema.tables
+            where schema_name
+            not in ('information_schema', 'sys', 'pg_catalog') """, query)
+
+    def test_high_version(self):
+        lowest_server_version = StrictVersion("1.0.4")
+        query = get_information_schema_query(lowest_server_version)
+        self.assertEqual(""" select count(distinct(table_name))
+                as number_of_tables
+            from information_schema.tables
+            where table_schema
+            not in ('information_schema', 'sys', 'pg_catalog') """, query)
+

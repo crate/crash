@@ -12,8 +12,8 @@ before_install:
     - pip uninstall setuptools -y
 
 install:
-    - python bootstrap.py --setuptools-version=20.2.2
-    - ./bin/buildout install scripts crate test
+    - python bootstrap.py
+    - bin/buildout install scripts crate test
 
 script:
     - bin/coverage run bin/test

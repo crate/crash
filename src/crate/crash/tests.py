@@ -32,7 +32,7 @@ from .test_command import CommandTest, OutputWriterTest, TestGetInformationSchem
 from .test_commands import ReadFileCommandTest, ToggleAutocompleteCommandTest, \
     ChecksCommandTest, ShowTablesCommandTest
 from .test_sysinfo import SysInfoTest
-from .test_repl import SQLCompleterTest
+from .test_repl import SQLCompleterTest, AutoCapitalizeTest
 from .test_config import ConfigurationTest
 
 
@@ -100,6 +100,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(ChecksCommandTest))
     suite.addTest(unittest.makeSuite(ShowTablesCommandTest))
     suite.addTest(unittest.makeSuite(SQLCompleterTest))
+    suite.addTest(unittest.makeSuite(AutoCapitalizeTest))
     suite.addTest(unittest.makeSuite(ConfigurationTest))
     suite.addTest(unittest.makeSuite(TestGetInformationSchemaQuery))
 

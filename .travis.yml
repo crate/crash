@@ -1,19 +1,20 @@
 language: python
+cache: pip
 python:
     - 2.7
     - 3.3
     - 3.4
     - 3.5
+    - 3.6
     - pypy
-    - pypy3
     - nightly
 
 before_install:
-    - pip uninstall setuptools -y
+    - pip install --upgrade setuptools
 
 install:
-    - python bootstrap.py --setuptools-version=20.2.2
-    - ./bin/buildout install scripts crate test
+    - python bootstrap.py
+    - bin/buildout install scripts crate test
 
 script:
     - bin/coverage run bin/test

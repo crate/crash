@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Automatically capitalize keywords while typing,
+   e.g. ``select`` -> ``SELECT``
+
  - Automatically suggest and complete to ``UPPERCASE`` keywords
    when using autocomplete.
 

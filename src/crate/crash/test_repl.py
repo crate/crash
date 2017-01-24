@@ -18,7 +18,9 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 from unittest import TestCase
-from .repl import SQLCompleter
+from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.document import Document
+from .repl import SQLCompleter, auto_capitalize
 from .command import CrateCmd
 
 
@@ -37,3 +39,25 @@ class SQLCompleterTest(TestCase):
         completer = SQLCompleter(cmd)
         result = list(completer.get_command_completions(r'\format dyn'))
         self.assertEqual(result, ['dynamic'])
+
+
+class AutoCapitalizeTest(TestCase):
+
+    def test_capitalize(self):
+        buffer = Buffer()
+
+        text = u'selec'
+        buffer.set_document(Document(text, len(text)))
+        auto_capitalize(buffer)
+        self.assertEqual(u'selec', buffer.text)
+
+        text = u'select'
+        buffer.set_document(Document(text, len(text)))
+        auto_capitalize(buffer)
+        self.assertEqual(u'SELECT', buffer.text)
+
+        text = u'CREATE TABLE "select'
+        buffer.set_document(Document(text, len(text)))
+        auto_capitalize(buffer)
+        self.assertEqual(u'CREATE TABLE "select', buffer.text)
+

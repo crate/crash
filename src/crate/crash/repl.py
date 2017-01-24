@@ -170,6 +170,14 @@ class CrashBuffer(Buffer):
             *args, is_multiline=is_multiline, **kwargs)
 
 
+def auto_capitalize(buffer):
+    # automatically capitalize keywords
+    last_word = buffer.document.get_word_before_cursor(WORD=True)
+    if not last_word.isupper() and last_word.lower() in SQLCompleter.keywords:
+        buffer.delete_before_cursor(len(last_word))
+        buffer.insert_text(last_word.upper(), fire_event=False)
+
+
 def loop(cmd, history_file):
     key_binding_manager = KeyBindingManager(
         enable_search=True,
@@ -190,7 +198,8 @@ def loop(cmd, history_file):
     buffer = CrashBuffer(
         history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
         accept_action=AcceptAction.RETURN_DOCUMENT,
-        completer=SQLCompleter(cmd)
+        completer=SQLCompleter(cmd),
+        on_text_insert=auto_capitalize
     )
     buffer.complete_while_typing = lambda cli=None: cmd.should_autocomplete()
     application = Application(

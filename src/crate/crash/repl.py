@@ -127,7 +127,6 @@ class SQLCompleter(Completer):
 
     def __init__(self, cmd):
         self.cmd = cmd
-        self.keywords += [kw.upper() for kw in self.keywords]
 
     def get_command_completions(self, line):
         if ' ' not in line:
@@ -150,8 +149,8 @@ class SQLCompleter(Completer):
                 yield Completion(w, -len(word_before_cursor))
             return
         for keyword in self.keywords:
-            if keyword.startswith(word_before_cursor):
-                yield Completion(keyword, -len(word_before_cursor))
+            if keyword.startswith(word_before_cursor.lower()):
+                yield Completion(keyword.upper(), -len(word_before_cursor))
 
 
 class CrashBuffer(Buffer):

@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Automatically suggest and complete to ``UPPERCASE`` keywords
+   when using autocomplete.
+
  - Fixed issue that caused the `--sysinfo` command to fail after a connection.
 
  - Added support for opening an editor to edit the current command.

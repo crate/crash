@@ -459,6 +459,7 @@ class CommandTest(TestCase):
         command = CrateCmd(is_tty=False)
         expected = "\n".join([
             '\\?                              print this help',
+            '\\autocapitalize                 toggle automatic capitalization of SQL keywords',
             '\\autocomplete                   toggle autocomplete',
             '\\c                              connect to the given server, e.g.: \connect localhost:4200',
             '\\check                          print failed cluster and/or node checks, e.g. \check nodes',

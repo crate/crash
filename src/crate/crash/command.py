@@ -134,6 +134,10 @@ def get_parser(output_formats=[], conf=None):
                         dest='autocomplete',
                         default=_conf_or_default('autocomplete', True),
                         help='use -A to disable SQL autocompletion')
+    parser.add_argument('-C', '--no-autocapitalize', action='store_false',
+                        dest='autocapitalize',
+                        default=_conf_or_default('autocapitalize', True),
+                        help='use -C to disable automatic capitalization of SQL keywords')
 
     parser.add_argument('--history', type=str,
                         help='the history file to use', default=HISTORY_PATH)
@@ -181,7 +185,8 @@ class CrateCmd(object):
                  connection=None,
                  error_trace=False,
                  is_tty=True,
-                 autocomplete=True):
+                 autocomplete=True,
+                 autocapitalize=True):
         self.error_trace = error_trace
         self.connection = connection or connect(error_trace=error_trace)
         self.cursor = self.connection.cursor()
@@ -201,12 +206,16 @@ class CrateCmd(object):
         self.commands.update(built_in_commands)
         self.logger = ColorPrinter(is_tty)
         self._autocomplete = autocomplete
+        self._autocapitalize = autocapitalize
 
     def get_num_columns(self):
         return 80
 
     def should_autocomplete(self):
         return self._autocomplete
+
+    def should_autocapitalize(self):
+        return self._autocapitalize
 
     def pprint(self, rows, cols):
         result = Result(cols,
@@ -432,7 +441,8 @@ def main():
                    error_trace=error_trace,
                    output_writer=output_writer,
                    is_tty=is_tty,
-                   autocomplete=args.autocomplete)
+                   autocomplete=args.autocomplete,
+                   autocapitalize=args.autocapitalize)
     if error_trace:
         # log CONNECT command only in verbose mode
         cmd._connect(crate_hosts)

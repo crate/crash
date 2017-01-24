@@ -93,6 +93,17 @@ class ToggleAutocompleteCommand(Command):
         )
 
 
+class ToggleAutoCapitalizeCommand(Command):
+    """ toggle automatic capitalization of SQL keywords """
+
+    @noargs_command
+    def __call__(self, cmd, *args, **kwargs):
+        cmd._autocapitalize = not cmd._autocapitalize
+        return 'Auto-capitalization {0}'.format(
+            cmd._autocapitalize and 'ON' or 'OFF'
+        )
+
+
 class CheckBaseCommand(Command):
 
     check_name = None
@@ -198,5 +209,6 @@ built_in_commands = {
     'r': ReadFileCommand(),
     'format': SwitchFormatCommand(),
     'autocomplete': ToggleAutocompleteCommand(),
+    'autocapitalize': ToggleAutoCapitalizeCommand(),
     'check': CheckCommand(),
 }

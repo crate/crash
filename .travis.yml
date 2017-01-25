@@ -21,6 +21,8 @@ script:
 
 after_success:
     - PATH=$PATH:bin/ bin/codecov  # codecov executes coverage which needs to be in $PATH
+    - pip install coveralls
+    - coveralls
 
 notifications:
     email: false

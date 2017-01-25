@@ -7,8 +7,8 @@
 |
 
 .. image:: https://travis-ci.org/crate/crash.svg?branch=master
-        :target: https://travis-ci.org/crate/crash
-        :alt: Test
+    :target: https://travis-ci.org/crate/crash
+    :alt: Travis CI
 
 .. image:: https://badge.fury.io/py/crash.png
     :target: http://badge.fury.io/py/crash
@@ -16,11 +16,15 @@
 
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: https://crate.io/docs/reference/crash/
+    :alt: Documentation
 
 .. image:: https://img.shields.io/pypi/pyversions/crash.svg
-   :target: https://pypi.python.org/pypi/crash/
-   :alt: Python Version
+    :target: https://pypi.python.org/pypi/crash/
+    :alt: Python Version
 
+.. image:: https://img.shields.io/coveralls/crate/crash.svg
+    :target: https://coveralls.io/r/crate/crash?branch=master
+    :alt: Coverage
 
 ========
 Overview

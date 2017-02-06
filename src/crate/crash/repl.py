@@ -21,6 +21,7 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 import os
+import re
 
 from pygments.lexers.sql import SqlLexer
 from pygments.style import Style
@@ -172,6 +173,8 @@ class CrashBuffer(Buffer):
 
 class Capitalizer:
 
+    KEYWORD_RE = r'(?:"\w+)|(?:\'\w+)|\w+'
+
     def __init__(self, cmd):
         self.cmd = cmd
         self.last_changed = None
@@ -179,15 +182,30 @@ class Capitalizer:
     def __call__(self, buffer):
         if not self.cmd.should_autocapitalize():
             return
-        last_word = buffer.document.get_word_before_cursor(WORD=True)
-        if not last_word.isupper() and last_word.lower() in SQLCompleter.keywords:
-            buffer.delete_before_cursor(len(last_word))
-            buffer.insert_text(last_word.upper(), fire_event=False)
-            self.last_changed = last_word
-        elif self.last_changed and last_word.startswith(self.last_changed.upper()):
-            buffer.delete_before_cursor(len(last_word))
-            buffer.insert_text(self.last_changed + last_word[-1:], fire_event=False)
 
+        current_line = buffer.document.text
+        cursor_position = buffer.document.cursor_position
+
+        if self.last_changed and self.is_prefix(current_line.lower(), self.last_changed.lower()):
+            diff = len(self.last_changed) - len(current_line)
+            current_line = self.last_changed + current_line[diff:]
+
+        new_line = re.sub(self.KEYWORD_RE, self.keyword_replacer, current_line)
+
+        if new_line != buffer.document.text:
+            buffer.delete_before_cursor(cursor_position)
+            buffer.delete(len(new_line) - cursor_position)
+            buffer.insert_text(new_line, fire_event=False)
+            self.last_changed = current_line
+
+    def keyword_replacer(self, match):
+        if match.group(0).lower() in SQLCompleter.keywords:
+            return match.group(0).upper()
+        else:
+            return match.group(0)
+
+    def is_prefix(self, string, prefix):
+        return string.startswith(prefix) and string != prefix
 
 def loop(cmd, history_file):
     key_binding_manager = KeyBindingManager(

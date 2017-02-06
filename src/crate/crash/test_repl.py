@@ -22,7 +22,7 @@ from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
 from .repl import SQLCompleter, Capitalizer
 from .command import CrateCmd
-
+import re
 
 class SQLCompleterTest(TestCase):
 
@@ -63,6 +63,27 @@ class AutoCapitalizeTest(TestCase):
         self.capitalizer(buffer)
         self.assertEqual(u'CREATE TABLE "select', buffer.text)
 
+        text = u'CREATE TABLE \'select\''
+        buffer.set_document(Document(text, len(text)))
+        self.capitalizer(buffer)
+        self.assertEqual(u'CREATE TABLE \'select\'', buffer.text)
+
+        text = u'create table test (x int)'
+        buffer.set_document(Document(text, len(text)))
+        self.capitalizer(buffer)
+        self.assertEqual(u'CREATE TABLE test (x INT)', buffer.text)
+
+        text = u'create table test (a boolean, b string, c integer)'
+        buffer.set_document(Document(text, len(text)))
+        self.capitalizer(buffer)
+        self.assertEqual(u'CREATE TABLE test (a BOOLEAN, b STRING, c INTEGER)', buffer.text)
+
+        text = u'create table test\n(a boolean, b string, c integer)'
+        buffer.set_document(Document(text, len(text)))
+        self.capitalizer(buffer)
+        self.assertEqual(u'CREATE TABLE test\n(a BOOLEAN, b STRING, c INTEGER)', buffer.text)
+
+
     def test_undo_capitalize(self):
         buffer = Buffer()
 
@@ -85,3 +106,21 @@ class AutoCapitalizeTest(TestCase):
         buffer.set_document(Document(text, len(text)))
         self.capitalizer(buffer)
         self.assertEqual(u'Selection', buffer.text)
+
+    def test_keyword_replacer(self):
+        KEYWORD_RE = r'\w+'
+        text = u'select'
+        match = re.match(KEYWORD_RE, text)
+        self.assertEqual(u'SELECT', self.capitalizer.keyword_replacer(match))
+
+        text = u'definitelyNotAnSQLKeyword'
+        match = re.match(KEYWORD_RE, text)
+        self.assertEqual(u'definitelyNotAnSQLKeyword', self.capitalizer.keyword_replacer(match))
+
+    def test_is_prefix(self):
+        string = u'SELECT * FROM test'
+        prefix = u'SELECT * FROM'
+        self.assertTrue(self.capitalizer.is_prefix(string, prefix))
+
+        prefix = u'SELECT testCol FROM'
+        self.assertFalse(self.capitalizer.is_prefix(string, prefix))

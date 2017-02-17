@@ -186,17 +186,17 @@ class Capitalizer:
         current_line = buffer.document.text
         cursor_position = buffer.document.cursor_position
 
-        if self.last_changed and self.is_prefix(current_line.lower(), self.last_changed.lower()):
+        if self.last_changed and self.is_prefix(current_line[:cursor_position].lower(), self.last_changed.lower()):
             diff = len(self.last_changed) - len(current_line)
             current_line = self.last_changed + current_line[diff:]
 
-        new_line = re.sub(self.KEYWORD_RE, self.keyword_replacer, current_line)
+        new_line = re.sub(self.KEYWORD_RE, self.keyword_replacer, current_line[:cursor_position])
 
         if new_line != buffer.document.text:
             buffer.delete_before_cursor(cursor_position)
             buffer.delete(len(new_line) - cursor_position)
-            buffer.insert_text(new_line, fire_event=False)
-            self.last_changed = current_line
+            buffer.insert_text(new_line, overwrite=False, move_cursor=True, fire_event=False)
+            self.last_changed = current_line[:cursor_position]
 
     def keyword_replacer(self, match):
         if match.group(0).lower() in SQLCompleter.keywords:

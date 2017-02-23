@@ -184,6 +184,10 @@ class Capitalizer:
             return
 
         current_line = buffer.document.text
+
+        if current_line.startswith('\\'):
+            return
+
         cursor_position = buffer.document.cursor_position
 
         if self.last_changed and self.is_prefix(current_line[:cursor_position].lower(), self.last_changed.lower()):

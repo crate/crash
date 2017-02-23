@@ -83,6 +83,10 @@ class AutoCapitalizeTest(TestCase):
         self.capitalizer(buffer)
         self.assertEqual(u'CREATE TABLE test\n(a BOOLEAN, b STRING, c INTEGER)', buffer.text)
 
+        text = u'\select dynamic'
+        buffer.set_document(Document(text, len(text)))
+        self.capitalizer(buffer)
+        self.assertEqual(u'\select dynamic', buffer.text)
 
     def test_undo_capitalize(self):
         buffer = Buffer()

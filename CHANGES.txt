@@ -5,11 +5,12 @@ Changes for crash
 Unreleased
 ==========
 
- - Expanded the list of keywords used by autocompletion and 
+ - Expanded the list of keywords used by autocompletion and
    autocapitlization.
 
- - Automatically capitalize keywords while typing,
-   e.g. ``select`` -> ``SELECT``
+ - Automatically capitalize keywords while typing, e.g. ``select`` -> ``SELECT``
+   **This feature is experimental and turned off by default. It may be removed
+   in future versions!**
 
  - Automatically suggest and complete to ``UPPERCASE`` keywords
    when using autocomplete.

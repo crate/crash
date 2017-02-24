@@ -134,10 +134,10 @@ def get_parser(output_formats=[], conf=None):
                         dest='autocomplete',
                         default=_conf_or_default('autocomplete', True),
                         help='use -A to disable SQL autocompletion')
-    parser.add_argument('-C', '--no-autocapitalize', action='store_false',
+    parser.add_argument('-a', '--autocapitalize', action='store_true',
                         dest='autocapitalize',
-                        default=_conf_or_default('autocapitalize', True),
-                        help='use -C to disable automatic capitalization of SQL keywords')
+                        default=False,
+                        help='use -a to enable experimental auto-capitalization of SQL keywords')
 
     parser.add_argument('--history', type=str,
                         help='the history file to use', default=HISTORY_PATH)

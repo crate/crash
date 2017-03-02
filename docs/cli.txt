@@ -40,7 +40,7 @@ The ``crash`` binary supports several command line arguments.
 |                                       | overlay for suggestions.                         |
 |                                       | Disabling autocomplete removes this limitation.  |
 +---------------------------------------+--------------------------------------------------+
-| ``-c`` , ``--autocapitalize``         | Enable automatic capitalization of SQL keywords  |
+| ``-a`` , ``--autocapitalize``         | Enable automatic capitalization of SQL keywords  |
 |                                       | while typing. This feature is experimental and   |
 |                                       | may be removed in future versions.               |
 +---------------------------------------+--------------------------------------------------+

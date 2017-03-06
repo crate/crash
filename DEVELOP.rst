@@ -1,113 +1,112 @@
-=================
-Crash Development
-=================
+===============
+Developer Guide
+===============
 
-Development Setup
-=================
+Setup
+=====
 
-To get a development environment crash uses `buildout
-<https://pypi.python.org/pypi/zc.buildout>`_.
+This project uses buildout_ to set up the development environment.
 
-Run `bootstrap.py`::
+To start things off, run::
 
-    python bootstrap.py
+    $ python bootstrap.py
 
-And afterwards run buildout::
+Then, run::
 
-    ./bin/buildout -N
+    $ ./bin/buildout -N
 
+Then to run your local crash, use::
 
-Start the ``crash`` shell with::
-
-   ./bin/crash
+   $ ./bin/crash
 
 Running Tests
 =============
 
-The tests are run using the `zope.testrunner
-<https://pypi.python.org/pypi/zope.testrunner/4.4.1>`_::
+The tests are run using the zope.testrunner_::
 
-    ./bin/test
+    $ ./bin/test
 
-This will run all tests using the python interpreter that was used to
-bootstrap buildout.
+This will run all tests using the Python interpreter that was used to bootstrap
+buildout.
 
-In addition to that it is also possible to run the test case against multiple
-python interpreter using `tox <http://testrun.org/tox/latest/>`_::
+You can run the tests against multiple Python interpreters with tox_::
 
-    ./bin/tox
+    $ ./bin/tox
 
-This required the interpreters `python2.7`, `python3.3` and `pypy` to be
-available in `$PATH`. To run against a single interpreter tox can also be
-invoked like this::
+To do this, you will need ``python2.7``, ``python3.3``, and ``pypy`` on your
+``$PATH``.
 
-    ./bin/tox -e py33
+To run against a single interpreter, you can also do::
 
-Bundling
-========
+    $ ./bin/tox -e py33
 
-It is possible to build an executable zip archive, which starts crash
-like this:
+Standalone Executable
+=====================
 
-    ./bin/py devtools/bundle.py crash_standalone
+To build the standalone executable, run::
 
-You can then start the generated file like this::
+    $ ./bin/py devtools/bundle.py crash_standalone
 
-    ./crash_standalone
+Run the executable like so::
 
-Preparing a new Release
-=======================
+    $ ./crash_standalone
 
-Before creating a new Crash distribution, a new version and tag need to be created:
+Preparing a Release
+===================
 
- - Update the ``__version__`` in ``src/crate/crash/__init__.py``.
+To create a new release, you must:
 
- - Add a note for the new version at the ``CHANGES.txt`` file.
+- Update ``__version__`` in ``src/crate/crash/__init__.py``
 
- - Commit e.g. using message 'prepare release x.x.x'.
+- Add a section for the new version in the ``CHANGES.txt`` file
 
- - Push to origin
+- Commit your changes with a message like "prepare release x.y.z"
 
- - Create a tag using the ``create_tag.sh`` script
-   (run ``./devtools/create_tag.sh``).
+- Push to origin
 
-Deployment to PyPi
-------------------
+- Create a tag by running ``./devtools/create_tag.sh``
+
+PyPI Deployment
+---------------
 
 To create the packages use::
 
-    bin/py setup.py sdist bdist_wheel
+    $ bin/py setup.py sdist bdist_wheel
 
-and then use `twine <https://pypi.python.org/pypi/twine>`_ to upload the
-packages::
+Then, use twine_ to upload the packages::
 
-    twine upload dist/*
+    $ bin/twine upload dist/*
 
-If twine is not installed locally the regular setup.py upload can also be used,
-but does only support plaintext authentication::
+If you want to check the PyPI description before uploading, run::
 
-    bin/py setup.py upload
+    $ bin/py setup.py check --strict --restructuredtext
 
-Release Crate Standalone
--------------------------
+Standalone Deployment
+---------------------
 
-Building and releasing the standalone version is done by a Jenkins_ job.
+The standalone executable is built and deployed by a Jenkins_ job.
 
 Writing Documentation
 =====================
 
-The documentation is maintained under the ``docs`` directory and
-written in ReStructuredText_ and processed with Sphinx_.
+The docs live under the ``docs`` directory.
 
-Normally the documentation is built by `Read the Docs`_.
-However if you work on the documentation you can run sphinx
-directly, which can be done by just running ``bin/sphinx``.
+The docs are written written with ReStructuredText_ and processed with Sphinx_.
+
+Build the docs by running::
+
+    $ bin/sphinx
+
 The output can then be found in the ``out/html`` directory.
 
+The docs are automatically built from Git by `Read the Docs`_ and there is
+nothing special you need to do to get the live docs to update.
+
+.. _Read the Docs: http://readthedocs.org
+.. _buildout: https://pypi.python.org/pypi/zc.buildout
 .. _Jenkins: http://jenkins-ci.org/
-
-.. _Sphinx: http://sphinx-doc.org/
-
 .. _ReStructuredText: http://docutils.sourceforge.net/rst.html
-
-.. _`Read the Docs`: http://readthedocs.org
+.. _Sphinx: http://sphinx-doc.org/
+.. _tox: http://testrun.org/tox/latest/
+.. _twine: https://pypi.python.org/pypi/twine
+.. _zope.testrunner: https://pypi.python.org/pypi/zope.testrunner/4.4.1

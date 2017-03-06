@@ -1,10 +1,6 @@
-.. image:: https://cdn.crate.io/web/2.0/img/crate-logo_330x72.png
-   :width: 165px
-   :height: 36px
-   :alt: Crate.IO
-   :target: https://crate.io
-
-|
+=====
+Crash
+=====
 
 .. image:: https://travis-ci.org/crate/crash.svg?branch=master
     :target: https://travis-ci.org/crate/crash
@@ -26,98 +22,93 @@
     :target: https://coveralls.io/r/crate/crash?branch=master
     :alt: Coverage
 
-========
-Overview
-========
+|
 
-This is the Crate shell called ``crash``.
+Crash is an interactive CrateDB *command line interface* (CLI) SQL shell with autocompletion.
+
+Screenshot
+==========
+
+.. image:: crash.png
+    :alt: A screenshot of Crash
+
+Prerequisites
+=============
+
+Recent versions of Crash require Python (>= 2.7) to run.
+
+Use Crash 0.16.0 if you're running Python 2.6.
 
 Installation
 ============
 
-Installing via pip
-------------------
+As a Python Package
+-------------------
 
-To install crash via `pip <https://pypi.python.org/pypi/pip>`_ use
-the following command::
+Crash is available as a pip_ package.
+
+To install, run::
 
     $ pip install crash
 
-To update use::
+Now, run it::
+
+    $ crash
+
+To update, run::
 
     $ pip install -U crash
 
 Standalone
 ----------
 
-There is also a single file executable that includes all dependencies and can
-be run as long as python (>= 2.7) is available on the system.
+Crash is also available as a standalone executable that includes all the
+necessary dependencies, and can be run as long as Python (>= 2.7) is available.
 
-`Download Crash bundle
-<https://cdn.crate.io/downloads/releases/crash_standalone_latest>`_
+First, download the executable::
 
-The bundle can then be executed using python::
+    $ curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_latest
 
-    python ./crash_standalone_latest
+Then, make it executable::
 
-Or::
+    $ chmod +x crash
 
-    chmod +x ./crash_standalone_latest
-    ./crash_standalone_latest
+Now, run it::
 
+    $ ./crash
 
-Crash supported Python 2.6 until 0.16. `Use Crash 0.16.0
-<https://cdn.crate.io/downloads/releases/crash_standalone_0.16.0>`_ if you're
-running Python 2.6
+If you would like to run ``crash`` from any directory and without using leading
+``./`` you will need to move it to somewhere on your ``$PATH``.
 
 Usage
------
+=====
 
-If the package was installed using `pip` the shell can be started by
-running the command `crash` in a terminal.
+For usage information and options, run::
 
-For usage information and command line options invoke::
+    $ crash --help
 
-    crash --help
+Contributing
+============
 
-Or consult the `crash documentation 📚 <https://crate.io/docs/reference/crash/>`_.
+Crash is primarily maintained by `Crate.io`_, but we welcome community contributions!
 
-Are you a Developer?
-====================
+See the `developer docs`_ and the `contribution docs`_ for more information.
 
-You can build Crash on your own with the latest version hosted on GitHub.
-To do so, please refer to ``DEVELOP.rst`` for further information.
+Help
+====
 
-Help & Contact
-==============
+Looking for more help?
 
-Do you have any questions? Or suggestions? We would be very happy
-to help you. So, feel free to swing by our Community on Slack_.
-Or for further information and official contact please
-visit `https://crate.io/ <https://crate.io/>`_.
+- Read `the Crash documentation`_
+- Check `StackOverflow`_ for common problems
+- Chat with us on `Slack`_
+- Get `paid support`_
 
+.. _contribution docs: CONTRIBUTING.rst
+.. _Crate.io: http://crate.io/
+.. _developer docs: DEVELOP.rst
+.. _paid support: https://crate.io/pricing/
+.. _pip: https://pypi.python.org/pypi/pip
 .. _Slack: https://crate.io/docs/support/slackin/
-
-License
-=======
-
-Copyright 2013-2014 CRATE Technology GmbH ("Crate")
-
-Licensed to CRATE Technology GmbH ("Crate") under one or more contributor
-license agreements.  See the NOTICE file distributed with this work for
-additional information regarding copyright ownership.  Crate licenses
-this file to you under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.  You may
-obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-License for the specific language governing permissions and limitations
-under the License.
-
-However, if you have executed another commercial license agreement
-with Crate these terms will supersede the license and you may use the
-software solely pursuant to the terms of the relevant commercial agreement.
+.. _StackOverflow: https://stackoverflow.com/tags/crate
+.. _the Crash documentation: https://crate.io/docs/reference/crash/

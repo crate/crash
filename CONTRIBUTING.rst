@@ -2,7 +2,7 @@
 Contributing
 ============
 
-Thank you for considering to make a contribution.
+Thank you for your interest in contributing.
 
 Please see the `contribution guide`_ for CrateDB for more information.
 Everything in the CrateDB contribution guide applies to this repository.

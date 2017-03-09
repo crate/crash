@@ -90,7 +90,8 @@ For usage information and options, run::
 Contributing
 ============
 
-Crash is primarily maintained by `Crate.io`_, but we welcome community contributions!
+This project is primarily maintained by `Crate.io`_, but we welcome community
+contributions!
 
 See the `developer docs`_ and the `contribution docs`_ for more information.
 
@@ -99,7 +100,7 @@ Help
 
 Looking for more help?
 
-- Read `the Crash documentation`_
+- Read `the project documentation`_
 - Check `StackOverflow`_ for common problems
 - Chat with us on `Slack`_
 - Get `paid support`_
@@ -111,4 +112,4 @@ Looking for more help?
 .. _pip: https://pypi.python.org/pypi/pip
 .. _Slack: https://crate.io/docs/support/slackin/
 .. _StackOverflow: https://stackoverflow.com/tags/crate
-.. _the Crash documentation: https://crate.io/docs/reference/crash/
+.. _the project documentation: https://crate.io/docs/reference/crash/

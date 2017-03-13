@@ -28,7 +28,8 @@ import zc.customdoctests
 from crate.testing.layer import CrateLayer
 from .command import CrateCmd
 from .printer import ColorPrinter, PrintWrapper
-from .test_command import CommandTest, OutputWriterTest, TestGetInformationSchemaQuery
+from .test_command import CommandTest, CommandLineArgumentsTest, \
+    OutputWriterTest, TestGetInformationSchemaQuery, CommandUtilsTest
 from .test_commands import ReadFileCommandTest, ToggleAutocompleteCommandTest, \
     ChecksCommandTest, ShowTablesCommandTest
 from .test_sysinfo import SysInfoTest
@@ -93,6 +94,8 @@ def test_suite():
     CommandTest.layer = crate_layer
     CommandTest.crate_host = crate_host
     suite.addTest(unittest.makeSuite(CommandTest))
+    suite.addTest(unittest.makeSuite(CommandLineArgumentsTest))
+    suite.addTest(unittest.makeSuite(CommandUtilsTest))
     suite.addTest(unittest.makeSuite(OutputWriterTest))
     suite.addTest(unittest.makeSuite(SysInfoTest))
     suite.addTest(unittest.makeSuite(ReadFileCommandTest))

@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fix: Single word statements (such as ``BEGIN;``) that return ``OK`` crashed
+   the application.
+
  - Expanded the list of keywords used by autocompletion and
    autocapitlization.
 

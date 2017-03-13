@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fix: Single word statements (such as ``BEGIN;``) that return ``OK`` crashed
+   the application.
+
  - Fixed issue that caused the `--sysinfo` command to fail after a connection.
 
 2016/12/02 0.20.0

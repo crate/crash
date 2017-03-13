@@ -11,7 +11,8 @@ from io import TextIOWrapper
 from mock import patch, Mock
 from crate.client.exceptions import ProgrammingError
 
-from .command import CrateCmd, main, get_stdin, noargs_command, Result, host_and_port, get_information_schema_query
+from .command import CrateCmd, main, get_stdin, noargs_command, Result, \
+    host_and_port, get_information_schema_query, stmt_type
 from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 from .commands import Command
@@ -89,6 +90,17 @@ class CommandLineArgumentsTest(TestCase):
         # default host and default port are used
         self.assertEqual(host_and_port(':'), 'localhost:4200')
 
+
+class CommandUtilsTest(TestCase):
+
+    def test_stmt_type(self):
+        # regular multi word statement
+        self.assertEquals(stmt_type('SELECT 1;'), 'SELECT')
+        # regular single word statement
+        self.assertEquals(stmt_type('BEGIN;'), 'BEGIN')
+        # statements with trailing or leading spaces/tabs/linebreaks
+        self.assertEquals(stmt_type(' SELECT 1 ;'), 'SELECT')
+        self.assertEquals(stmt_type('\nSELECT\n1\n;\n'), 'SELECT')
 
 class CommandTest(TestCase):
 

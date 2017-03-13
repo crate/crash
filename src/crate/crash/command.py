@@ -342,12 +342,11 @@ class CrateCmd(object):
         if not success:
             return False
         cur = self.cursor
-        command = statement[:re.search("\s", statement).start()].upper()
         duration = ''
         if cur.duration > -1:
             duration = ' ({0:.3f} sec)'.format(float(cur.duration) / 1000.0)
         print_vars = {
-            'command': command,
+            'command': stmt_type(statement),
             'rowcount': cur.rowcount,
             's': 's'[cur.rowcount == 1:],
             'duration': duration
@@ -359,6 +358,13 @@ class CrateCmd(object):
             tmpl = '{command} OK, {rowcount} row{s} affected {duration}'
         self.logger.info(tmpl.format(**print_vars))
         return True
+
+
+def stmt_type(statement):
+    """
+    Extract type of statement, e.g. SELECT, INSERT, UPDATE, DELETE, ...
+    """
+    return re.findall('[\w]+', statement)[0].upper()
 
 
 def get_stdin():

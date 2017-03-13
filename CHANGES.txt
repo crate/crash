@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Improved queries for ``sysinfo`` command
+
  - Fix: Single word statements (such as ``BEGIN;``) that return ``OK`` crashed
    the application.
 

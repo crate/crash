@@ -36,11 +36,18 @@ SYSINFO_MIN_VERSION = StrictVersion("0.54.0")
 
 
 class SysInfoCommand(object):
-    CLUSTER_INFO = { 'shards_query': """ select count(distinct(id)) as number_of_shards,
-                         cast(sum(num_docs) as integer) as number_of_records
-                         from sys.shards """,
-                     'nodes_query': """ select count(1) as number_of_nodes
-                           from sys.nodes """} 
+
+    CLUSTER_INFO = {
+        'shards_query': """
+select count(*) as number_of_shards, cast(sum(num_docs) as long) as number_of_records
+from sys.shards
+where "primary" = true
+        """,
+        'nodes_query': """
+select count(*) as number_of_nodes
+from sys.nodes
+        """,
+    }
 
     NODES_INFO = [ """ select name,
                           hostname,
@@ -94,7 +101,7 @@ class SysInfoCommand(object):
     def _cluster_info(self, result):
         rows = []
         cols = []
-        
+
         for query in SysInfoCommand.CLUSTER_INFO:
             success = self.cmd._execute(SysInfoCommand.CLUSTER_INFO[query])
             if success is False:

@@ -67,22 +67,37 @@ To create a new release, you must:
 - Create a tag by running ``./devtools/create_tag.sh``
 
 PyPI Deployment
----------------
+===============
 
-To create the packages use::
+To create the package use::
 
     $ bin/py setup.py sdist bdist_wheel
 
-Then, use twine_ to upload the packages::
+Then, use twine_ to upload the package to PyPI_::
 
     $ bin/twine upload dist/*
+
+For this to work, you will need a personal PyPI account that is set up as a project admin.
+
+You'll also need to create a ``~/.pypirc`` file, like so::
+
+    [distutils]
+    index-servers =
+      pypi
+
+    [pypi]
+    repository=https://pypi.python.org/pypi
+    username=<USERNAME>
+    password=<PASSWORD>
+
+Here, ``<USERNAME>`` and ``<PASSWORD>`` should be replaced with your username and password, respectively.
 
 If you want to check the PyPI description before uploading, run::
 
     $ bin/py setup.py check --strict --restructuredtext
 
 Standalone Deployment
----------------------
+=====================
 
 The standalone executable is built and deployed by a Jenkins_ job.
 
@@ -102,9 +117,10 @@ The output can then be found in the ``out/html`` directory.
 The docs are automatically built from Git by `Read the Docs`_ and there is
 nothing special you need to do to get the live docs to update.
 
-.. _Read the Docs: http://readthedocs.org
 .. _buildout: https://pypi.python.org/pypi/zc.buildout
 .. _Jenkins: http://jenkins-ci.org/
+.. _PyPI: https://pypi.python.org/pypi
+.. _Read the Docs: http://readthedocs.org
 .. _ReStructuredText: http://docutils.sourceforge.net/rst.html
 .. _Sphinx: http://sphinx-doc.org/
 .. _tox: http://testrun.org/tox/latest/

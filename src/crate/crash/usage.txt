@@ -84,8 +84,8 @@ them without any special arguments like this::
 When the Crate shell is started with the option ``-v`` debugging information will be printed::
 
     cr> select x from y;
-    SQLActionException[SchemaUnknownException: Schema 'doc' unknown]
-    SQLActionException: NOT_FOUND 4045 SchemaUnknownException: Schema 'doc' unknown
+    SQLActionException[TableUnknownException: Table 'doc.y' unknown]
+    SQLActionException: NOT_FOUND 4041 TableUnknownException: Table 'doc.y' unknown
     ...
 
 

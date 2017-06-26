@@ -13,6 +13,8 @@ The ``crash`` binary supports several command line arguments.
 +---------------------------------------+--------------------------------------------------+
 | ``-v``, ``--verbose``                 | Print debug information to stdout.               |
 +---------------------------------------+--------------------------------------------------+
+| ``-U``, ``--username``                | The username to authenticate in the database     |
++---------------------------------------+--------------------------------------------------+
 | ``-c COMMAND``, ``--command COMMAND`` | Execute the SQL statement and exit.              |
 +---------------------------------------+--------------------------------------------------+
 | ``--hosts HOSTS``                     | The Crate hosts to connect to.                   |
@@ -44,6 +46,16 @@ The ``crash`` binary supports several command line arguments.
 |                                       | while typing. This feature is experimental and   |
 |                                       | may be removed in future versions.               |
 +---------------------------------------+--------------------------------------------------+
+| ``--verify-ssl``                      | Force verification of the SSL certificate of the |
+|                                       | server.                                          |
++---------------------------------------+--------------------------------------------------+
+| ``--cert-file``                       | Path to the client certificate file.             |
++---------------------------------------+--------------------------------------------------+
+| ``--key-file``                        | Path to the key file of the client certificate.  |
++---------------------------------------+--------------------------------------------------+
+| ``--ca-cert-file``                    | Path to CA certificate file (used to verify      |
+|                                       | the certificate sent by the server.              |
++---------------------------------------+--------------------------------------------------+
 
 Example Usage
 =============
@@ -52,6 +64,18 @@ Example Usage
 
     $ crash --hosts st1.crate.io:4200 st2.crate.io st3.crate.io \
             --format json \
+            -c 'select * from sys.nodes' > output.json
+
+
+Example Usage with SSL
+======================
+
+::
+
+    $ crash --hosts st1.crate.io:4200 st2.crate.io st3.crate.io \
+            --format json \
+            --verify-ssl true --cert-file /home/.certs/crateClient.crt --key-file /home/.certs/crateClient.key \
+            --ca-cert-file /home/.certs/rootCA.crt -U sslUser
             -c 'select * from sys.nodes' > output.json
 
 

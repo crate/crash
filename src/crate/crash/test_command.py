@@ -4,6 +4,7 @@
 import sys
 import os
 import re
+import ssl
 from unittest import TestCase
 from six import PY2, StringIO
 import tempfile
@@ -12,7 +13,8 @@ from mock import patch, Mock
 from crate.client.exceptions import ProgrammingError
 
 from .command import CrateCmd, main, get_stdin, noargs_command, Result, \
-    host_and_port, get_information_schema_query, stmt_type
+    host_and_port, get_information_schema_query, stmt_type, _create_cmd, \
+    get_parser, parse_args
 from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 from .commands import Command
@@ -515,6 +517,46 @@ class CommandTest(TestCase):
         text = command.my_cmd('arg1')
         self.assertEqual(None, text)
         self.assertEqual('Command does not take any arguments.\n', output.getvalue())
+
+    def test_username_param(self):
+        sys.argv = ["testcrash",
+                    "--hosts", self.crate_host,
+                    "--username", "testUser"
+                    ]
+        parser = get_parser()
+        args = parse_args(parser)
+        crate_hosts = [host_and_port(h) for h in args.hosts]
+        crateCmd = _create_cmd(crate_hosts, False, None, False, args)
+
+        self.assertEqual(crateCmd.username, "testUser")
+        self.assertEqual(crateCmd.connection.client.username, "testUser")
+
+    def test_ssl_params(self):
+        sys.argv = ["testcrash",
+                    "--hosts", self.crate_host,
+                    "--verify-ssl", "false",
+                    "--cert-file", "cert_file",
+                    "--key-file", "key_file",
+                    "--ca-cert-file", "ca_cert_file"
+                    ]
+        parser = get_parser()
+        args = parse_args(parser)
+
+        crate_hosts = [host_and_port(h) for h in args.hosts]
+        crateCmd = _create_cmd(crate_hosts, False, None, False, args)
+
+        self.assertEqual(crateCmd.verify_ssl, False)
+        self.assertEqual(crateCmd.connection.client._pool_kw['cert_reqs'], ssl.CERT_NONE)
+
+        self.assertEqual(crateCmd.cert_file, 'cert_file')
+        self.assertEqual(crateCmd.connection.client._pool_kw['cert_file'], 'cert_file')
+
+        self.assertEqual(crateCmd.key_file, 'key_file')
+        self.assertEqual(crateCmd.connection.client._pool_kw['key_file'], 'key_file')
+
+        self.assertEqual(crateCmd.ca_cert_file, 'ca_cert_file')
+        self.assertEqual(crateCmd.connection.client._pool_kw['ca_certs'], 'ca_cert_file')
+
 
 class TestGetInformationSchemaQuery(TestCase):
 

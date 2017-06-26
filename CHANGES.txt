@@ -5,6 +5,10 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added support for SSL connection to CrateDB.
+
+ - Added new parameter ``username`` used to authenticate the user in CrateDB.
+
  - Improved queries for ``sysinfo`` command
 
  - Fix: Single word statements (such as ``BEGIN;``) that return ``OK`` crashed

@@ -24,30 +24,25 @@
 
 from __future__ import print_function
 
-import os
-import sys
-import re
 import logging
-
+import os
+import re
+import sys
+import urllib3
+from appdirs import user_data_dir, user_config_dir
 from argparse import ArgumentParser
 from collections import namedtuple
-
-from ..crash import __version__ as crash_version
 from crate.client import connect
 from crate.client.exceptions import ConnectionError, ProgrammingError
-
-
-from .config import Configuration, ConfigurationError
-from .printer import ColorPrinter, PrintWrapper
-from .outputs import OutputWriter
-from .sysinfo import SysInfoCommand
-from .commands import built_in_commands, Command
-
 from distutils.version import StrictVersion
 
-from appdirs import user_data_dir, user_config_dir
+from .commands import built_in_commands, Command
+from .config import Configuration, ConfigurationError
+from .outputs import OutputWriter
+from .printer import ColorPrinter, PrintWrapper
+from .sysinfo import SysInfoCommand
+from ..crash import __version__ as crash_version
 
-import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -138,7 +133,8 @@ def get_parser(output_formats=[], conf=None):
                         dest='autocapitalize',
                         default=False,
                         help='use -a to enable experimental auto-capitalization of SQL keywords')
-
+    parser.add_argument('-U', '--username', type=str,
+                        help='the username to authenticate in the database')
     parser.add_argument('--history', type=str,
                         help='the history file to use', default=HISTORY_PATH)
     parser.add_argument('--config', type=str,
@@ -153,11 +149,14 @@ def get_parser(output_formats=[], conf=None):
     parser.add_argument('--hosts', type=str, nargs='*',
                         default=_conf_or_default('hosts', ['localhost:4200']),
                         help='the crate hosts to connect to', metavar='HOST')
-    parser.add_argument('--verify-ssl', type=boolean, default=True)
+    parser.add_argument('--verify-ssl', type=boolean, default=True,
+                        help='force verification of the SSL certificate of the server')
     parser.add_argument('--cert-file', type=str,
-                        help='path to client certificate')
+                        help='path to the client certificate file')
     parser.add_argument('--key-file', type=str,
-                        help='path to the key file for the client certificate')
+                        help='path to the key file of the client certificate')
+    parser.add_argument('--ca-cert-file', type=str,
+                        help='path to the CA certificate file')
     parser.add_argument('--format', type=str,
                         default=_conf_or_default('format', 'tabular'),
                         choices=output_formats,
@@ -186,7 +185,12 @@ class CrateCmd(object):
                  error_trace=False,
                  is_tty=True,
                  autocomplete=True,
-                 autocapitalize=True):
+                 autocapitalize=True,
+                 verify_ssl=True,
+                 cert_file=None,
+                 key_file=None,
+                 ca_cert_file=None,
+                 username=None):
         self.error_trace = error_trace
         self.connection = connection or connect(error_trace=error_trace)
         self.cursor = self.connection.cursor()
@@ -207,6 +211,11 @@ class CrateCmd(object):
         self.logger = ColorPrinter(is_tty)
         self._autocomplete = autocomplete
         self._autocapitalize = autocapitalize
+        self.username = username
+        self.verify_ssl = verify_ssl
+        self.cert_file = cert_file
+        self.key_file = key_file
+        self.ca_cert_file = ca_cert_file
 
     def get_num_columns(self):
         return 80
@@ -275,7 +284,9 @@ class CrateCmd(object):
 
     def _connect(self, server):
         """ connect to the given server, e.g.: \connect localhost:4200 """
-        self.connection = connect(servers=server, error_trace=self.error_trace)
+        self.connection = connect(servers=server, error_trace=self.error_trace, verify_ssl_cert=self.verify_ssl,
+                                  cert_file=self.cert_file, key_file=self.key_file, ca_cert=self.ca_cert_file,
+                                  username=self.username)
         self.cursor = self.connection.cursor()
         results = []
         failed = 0
@@ -295,7 +306,7 @@ class CrateCmd(object):
         else:
             self.logger.info('CONNECT OK')
             SysInfoCommand.CLUSTER_INFO['information_schema_query'] = \
-            get_information_schema_query(self.connection.lowest_server_version)            
+            get_information_schema_query(self.connection.lowest_server_version)
             # check for failing node and cluster checks
             built_in_commands['check'](self, startup=True)
 
@@ -437,18 +448,11 @@ def main():
     if args.version:
         printer.info(crash_version)
         sys.exit(0)
-    error_trace = args.verbose > 0
+
     crate_hosts = [host_and_port(h) for h in args.hosts]
-    conn = connect(crate_hosts,
-                   verify_ssl_cert=args.verify_ssl,
-                   cert_file=args.cert_file,
-                   key_file=args.key_file)
-    cmd = CrateCmd(connection=conn,
-                   error_trace=error_trace,
-                   output_writer=output_writer,
-                   is_tty=is_tty,
-                   autocomplete=args.autocomplete,
-                   autocapitalize=args.autocapitalize)
+    error_trace = args.verbose > 0
+    cmd = _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args)
+
     if error_trace:
         # log CONNECT command only in verbose mode
         cmd._connect(crate_hosts)
@@ -472,6 +476,24 @@ def main():
     cmd.exit()
     sys.exit(cmd.exit_code)
 
+def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args):
+    conn = connect(crate_hosts,
+                   verify_ssl_cert=args.verify_ssl,
+                   cert_file=args.cert_file,
+                   key_file=args.key_file,
+                   ca_cert=args.ca_cert_file,
+                   username=args.username)
+    return CrateCmd(connection=conn,
+                    error_trace=error_trace,
+                    output_writer=output_writer,
+                    is_tty=is_tty,
+                    autocomplete=args.autocomplete,
+                    autocapitalize=args.autocapitalize,
+                    verify_ssl=args.verify_ssl,
+                    cert_file=args.cert_file,
+                    key_file=args.key_file,
+                    ca_cert_file=args.ca_cert_file,
+                    username=args.username)
 
 if __name__ == '__main__':
     main()

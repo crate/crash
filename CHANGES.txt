@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Print only error message instead of full stacktrack in case of connection
+   error.
+
  - Added support for SSL connection to CrateDB.
 
  - Added new parameter ``username`` used to authenticate the user in CrateDB.

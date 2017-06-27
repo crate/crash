@@ -451,7 +451,11 @@ def main():
 
     crate_hosts = [host_and_port(h) for h in args.hosts]
     error_trace = args.verbose > 0
-    cmd = _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args)
+    try:
+        cmd = _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args)
+    except ProgrammingError as e:
+        printer.warn(str(e))
+        sys.exit(1)
 
     if error_trace:
         # log CONNECT command only in verbose mode

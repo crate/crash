@@ -14,9 +14,6 @@ Unreleased
 
  - Improved queries for ``sysinfo`` command
 
- - Fix: Single word statements (such as ``BEGIN;``) that return ``OK`` crashed
-   the application.
-
  - Expanded the list of keywords used by autocompletion and
    autocapitlization.
 
@@ -27,12 +24,18 @@ Unreleased
  - Automatically suggest and complete to ``UPPERCASE`` keywords
    when using autocomplete.
 
- - Fixed issue that caused the `--sysinfo` command to fail after a connection.
-
  - Added support for opening an editor to edit the current command.
    This behaves similar as the same functionality in bash or zsh.
 
  - Added support for suspend (``Ctrl-z``)
+
+2017/06/27 0.20.1
+=================
+
+ - Fix: Single word statements (such as ``BEGIN;``) that return ``OK`` crashed
+   the application.
+
+ - Fixed issue that caused the `--sysinfo` command to fail after a connection.
 
 2016/12/02 0.20.0
 =================

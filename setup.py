@@ -26,7 +26,6 @@ import re
 
 
 requirements = [
-    'setuptools',
     'colorama',
     'Pygments>=2.0',
     'crate>=0.11.2',

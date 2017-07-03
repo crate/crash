@@ -532,12 +532,21 @@ class CommandTest(TestCase):
         self.assertEqual(crateCmd.connection.client.username, "testUser")
 
     def test_ssl_params(self):
+        tmpdirname = tempfile.mkdtemp()
+        cert_filename = os.path.join(tmpdirname, "cert_file")
+        key_filename = os.path.join(tmpdirname, "key_file")
+        ca_cert_filename = os.path.join(tmpdirname, "ca_cert_file")
+
+        open(cert_filename, 'a').close()
+        open(key_filename, 'a').close()
+        open(ca_cert_filename, 'a').close()
+
         sys.argv = ["testcrash",
                     "--hosts", self.crate_host,
                     "--verify-ssl", "false",
-                    "--cert-file", "cert_file",
-                    "--key-file", "key_file",
-                    "--ca-cert-file", "ca_cert_file"
+                    "--cert-file", cert_filename,
+                    "--key-file", key_filename,
+                    "--ca-cert-file", ca_cert_filename
                     ]
         parser = get_parser()
         args = parse_args(parser)
@@ -548,14 +557,55 @@ class CommandTest(TestCase):
         self.assertEqual(crateCmd.verify_ssl, False)
         self.assertEqual(crateCmd.connection.client._pool_kw['cert_reqs'], ssl.CERT_NONE)
 
-        self.assertEqual(crateCmd.cert_file, 'cert_file')
-        self.assertEqual(crateCmd.connection.client._pool_kw['cert_file'], 'cert_file')
+        self.assertEqual(crateCmd.cert_file, cert_filename)
+        self.assertEqual(crateCmd.connection.client._pool_kw['cert_file'], cert_filename)
 
-        self.assertEqual(crateCmd.key_file, 'key_file')
-        self.assertEqual(crateCmd.connection.client._pool_kw['key_file'], 'key_file')
+        self.assertEqual(crateCmd.key_file, key_filename)
+        self.assertEqual(crateCmd.connection.client._pool_kw['key_file'], key_filename)
 
-        self.assertEqual(crateCmd.ca_cert_file, 'ca_cert_file')
-        self.assertEqual(crateCmd.connection.client._pool_kw['ca_certs'], 'ca_cert_file')
+        self.assertEqual(crateCmd.ca_cert_file, ca_cert_filename)
+        self.assertEqual(crateCmd.connection.client._pool_kw['ca_certs'], ca_cert_filename)
+
+
+    def test_ssl_params_missing_file(self):
+        sys.argv = ["testcrash",
+                    "--hosts", self.crate_host,
+                    "--verify-ssl", "false",
+                    "--key-file", "wrong_file",
+                    "--ca-cert-file", "ca_cert_file"
+                    ]
+        parser = get_parser()
+
+        # Python 2
+        try:
+            FileNotFoundError
+        except NameError:
+            FileNotFoundError = IOError
+
+        with self.assertRaises(FileNotFoundError):
+            parse_args(parser)
+
+    def test_ssl_params_wrong_permision_file(self):
+        tmpdirname = tempfile.mkdtemp()
+        ca_cert_filename = os.path.join(tmpdirname, "ca_cert_file")
+        open(ca_cert_filename, 'a').close()
+        os.chmod(ca_cert_filename, 0000)
+
+        sys.argv = ["testcrash",
+                    "--hosts", self.crate_host,
+                    "--verify-ssl", "false",
+                    "--ca-cert-file", ca_cert_filename
+                    ]
+        parser = get_parser()
+
+        # Python 2
+        try:
+            PermissionError
+        except NameError:
+            PermissionError = IOError
+
+        with self.assertRaises(PermissionError):
+            parse_args(parser)
 
 
 class TestGetInformationSchemaQuery(TestCase):

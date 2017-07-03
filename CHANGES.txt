@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Check if certificate related files exist and have read permissions before
+   entering Crash prompt.
+
 2017/06/27 0.21.0
 =================
 

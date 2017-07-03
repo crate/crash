@@ -99,8 +99,8 @@ def parse_args(parser):
         argcomplete.autocomplete(parser)
     except ImportError:
         pass
-    args = parser.parse_args()
-    return args
+
+    return parser.parse_args()
 
 
 def boolean(v):
@@ -151,11 +151,11 @@ def get_parser(output_formats=[], conf=None):
                         help='the crate hosts to connect to', metavar='HOST')
     parser.add_argument('--verify-ssl', type=boolean, default=True,
                         help='force verification of the SSL certificate of the server')
-    parser.add_argument('--cert-file', type=str,
+    parser.add_argument('--cert-file', type=file_with_permissions,
                         help='path to the client certificate file')
-    parser.add_argument('--key-file', type=str,
+    parser.add_argument('--key-file', type=file_with_permissions,
                         help='path to the key file of the client certificate')
-    parser.add_argument('--ca-cert-file', type=str,
+    parser.add_argument('--ca-cert-file', type=file_with_permissions,
                         help='path to the CA certificate file')
     parser.add_argument('--format', type=str,
                         default=_conf_or_default('format', 'tabular'),
@@ -442,7 +442,11 @@ def main():
         parser.print_usage()
         sys.exit(1)
     parser = get_parser(output_writer.formats, conf=conf)
-    args = parse_args(parser)
+    try:
+        args = parse_args(parser)
+    except Exception as e:
+        printer.warn(str(e))
+        sys.exit(1)
     output_writer.output_format = args.format
 
     if args.version:
@@ -498,6 +502,10 @@ def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args):
                     key_file=args.key_file,
                     ca_cert_file=args.ca_cert_file,
                     username=args.username)
+
+def file_with_permissions(path):
+    open(path, 'r').close()
+    return path
 
 if __name__ == '__main__':
     main()

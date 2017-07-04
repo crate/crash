@@ -532,6 +532,27 @@ class CommandTest(TestCase):
         with self.assertRaises(LocationParseError):
             _create_cmd(crate_hosts, False, None, False, args)
 
+    def test_command_timeout(self):
+        sys.argv = ["testcrash",
+                    "--hosts", self.crate_host
+                    ]
+        parser = get_parser()
+        args = parse_args(parser)
+
+        crate_hosts = [host_and_port(h) for h in args.hosts]
+        crateCmd = _create_cmd(crate_hosts, False, None, False, args, 0.00001)
+        crateCmd.logger = Mock()
+
+        # without verbose
+        crateCmd.execute("select count(*) from sys.nodes")
+        crateCmd.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
+
+        # with verbose
+        crateCmd.error_trace = True
+        crateCmd.execute("select count(*) from sys.nodes")
+        crateCmd.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=1e-05)")
+        crateCmd.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
+
     def test_username_param(self):
         sys.argv = ["testcrash",
                     "--hosts", self.crate_host,

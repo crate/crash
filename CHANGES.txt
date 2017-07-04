@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Show error message before prompting the user to reconnect with ``\connect``
+   if the ``verbose`` is set.
+
  - Added new command ``verbose`` to be able to toggle verbosity ON & OFF from
    within Crash without the need to exit and reconnect.
 

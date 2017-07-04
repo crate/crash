@@ -484,6 +484,7 @@ class CommandTest(TestCase):
             '\\q                              quit crash',
             '\\r                              read and execute statements from a file',
             '\\sysinfo                        print system and cluster info',
+            '\\verbose                        toggle verbose mode',
         ])
 
         help_ = command.commands['?']

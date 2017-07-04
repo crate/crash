@@ -30,7 +30,8 @@ from .command import CrateCmd
 from .printer import ColorPrinter, PrintWrapper
 from .test_command import CommandTest, CommandLineArgumentsTest, \
     OutputWriterTest, TestGetInformationSchemaQuery, CommandUtilsTest
-from .test_commands import ReadFileCommandTest, ToggleAutocompleteCommandTest, \
+from .test_commands import ReadFileCommandTest, \
+    ToggleAutocompleteCommandTest, ToggleAutoCapitalizeCommandTest, ToggleVerboseCommandTest, \
     ChecksCommandTest, ShowTablesCommandTest
 from .test_sysinfo import SysInfoTest
 from .test_repl import SQLCompleterTest, AutoCapitalizeTest
@@ -100,6 +101,8 @@ def test_suite():
     suite.addTest(unittest.makeSuite(SysInfoTest))
     suite.addTest(unittest.makeSuite(ReadFileCommandTest))
     suite.addTest(unittest.makeSuite(ToggleAutocompleteCommandTest))
+    suite.addTest(unittest.makeSuite(ToggleAutoCapitalizeCommandTest))
+    suite.addTest(unittest.makeSuite(ToggleVerboseCommandTest))
     suite.addTest(unittest.makeSuite(ChecksCommandTest))
     suite.addTest(unittest.makeSuite(ShowTablesCommandTest))
     suite.addTest(unittest.makeSuite(SQLCompleterTest))

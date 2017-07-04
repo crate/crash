@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added new command ``verbose`` to be able to toggle verbosity ON & OFF from
+   within Crash without the need to exit and reconnect.
+
  - Print only error message instead of full stacktrace in case of wrongly
    formatted hosts parameter.
 

@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Print only error message instead of full stacktrace in case of wrongly
+   formatted hosts parameter.
+
  - Try to connect to the CrateDB hosts before entering the Crash prompt also
    if the ``--verbose`` flag is not set.
 
@@ -14,7 +17,7 @@ Unreleased
 2017/06/27 0.21.0
 =================
 
- - Print only error message instead of full stacktrack in case of connection
+ - Print only error message instead of full stacktrace in case of connection
    error.
 
  - Added support for SSL connection to CrateDB.

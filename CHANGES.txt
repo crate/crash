@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Expanded the list of keywords used by autocompletion and
+   autocapitalization.
+
  - Show error message before prompting the user to reconnect with ``\connect``
    if the ``verbose`` is set.
 
@@ -33,7 +36,7 @@ Unreleased
  - Improved queries for ``sysinfo`` command
 
  - Expanded the list of keywords used by autocompletion and
-   autocapitlization.
+   autocapitalization.
 
  - Automatically capitalize keywords while typing, e.g. ``select`` -> ``SELECT``
    **This feature is experimental and turned off by default. It may be removed

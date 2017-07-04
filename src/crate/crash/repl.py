@@ -152,7 +152,7 @@ class SQLCompleter(Completer):
         "rank", "read", "reads", "real", "recursive", "ref", "references",
         "referencing", "refresh", "regr_avgx", "regr_avgy", "regr_count",
         "regr_intercept", "regr_r2", "regr_slope", "regr_sxx",
-        "regr_sxyregr_syy", "relative", "release", "repeat", "repository",
+        "regr_sxyregr_syy", "relative", "release", "rename", "repeat", "repository",
         "reset", "resignal", "restore", "restrict", "result", "return",
         "returns", "revoke", "right", "role", "rollback", "rollup", "routine",
         "row", "row_number", "rows", "savepoint", "schema", "schemas", "scope",

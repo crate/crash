@@ -304,11 +304,13 @@ class CrateCmd(object):
         if failed == len(results):
             self.logger.critical('CONNECT ERROR')
         else:
-            self.logger.info('CONNECT OK')
-            SysInfoCommand.CLUSTER_INFO['information_schema_query'] = \
-            get_information_schema_query(self.connection.lowest_server_version)
-            # check for failing node and cluster checks
-            built_in_commands['check'](self, startup=True)
+            # Execute cluster/node checks only in verbose mode
+            if self.error_trace:
+                self.logger.info('CONNECT OK')
+                SysInfoCommand.CLUSTER_INFO['information_schema_query'] = \
+                get_information_schema_query(self.connection.lowest_server_version)
+                # check for failing node and cluster checks
+                built_in_commands['check'](self, startup=True)
 
     def _try_exec_cmd(self, line):
         words = line.split(' ', 1)
@@ -461,9 +463,7 @@ def main():
         printer.warn(str(e))
         sys.exit(1)
 
-    if error_trace:
-        # log CONNECT command only in verbose mode
-        cmd._connect(crate_hosts)
+    cmd._connect(crate_hosts)
     done = False
     stdin_data = get_stdin()
     if args.sysinfo:

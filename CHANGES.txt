@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Try to connect to the CrateDB hosts before entering the Crash prompt also
+   if the ``--verbose`` flag is not set.
+
  - Check if certificate related files exist and have read permissions before
    entering Crash prompt.
 

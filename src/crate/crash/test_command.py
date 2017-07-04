@@ -11,6 +11,7 @@ import tempfile
 from io import TextIOWrapper
 from mock import patch, Mock
 from crate.client.exceptions import ProgrammingError
+from urllib3.exceptions import LocationParseError
 
 from .command import CrateCmd, main, get_stdin, noargs_command, Result, \
     host_and_port, get_information_schema_query, stmt_type, _create_cmd, \
@@ -517,6 +518,18 @@ class CommandTest(TestCase):
         text = command.my_cmd('arg1')
         self.assertEqual(None, text)
         self.assertEqual('Command does not take any arguments.\n', output.getvalue())
+
+    def test_wrong_host_format(self):
+        sys.argv = ["testcrash",
+                    "--hosts", 'localhost:12AB'
+                    ]
+        parser = get_parser()
+        args = parse_args(parser)
+
+        crate_hosts = [host_and_port(h) for h in args.hosts]
+
+        with self.assertRaises(LocationParseError):
+            _create_cmd(crate_hosts, False, None, False, args)
 
     def test_username_param(self):
         sys.argv = ["testcrash",

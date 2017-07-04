@@ -35,6 +35,7 @@ from collections import namedtuple
 from crate.client import connect
 from crate.client.exceptions import ConnectionError, ProgrammingError
 from distutils.version import StrictVersion
+from urllib3.exceptions import LocationParseError
 
 from .commands import built_in_commands, Command
 from .config import Configuration, ConfigurationError
@@ -459,7 +460,7 @@ def main():
     error_trace = args.verbose > 0
     try:
         cmd = _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args)
-    except ProgrammingError as e:
+    except (ProgrammingError, LocationParseError) as e:
         printer.warn(str(e))
         sys.exit(1)
 

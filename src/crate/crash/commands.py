@@ -103,6 +103,15 @@ class ToggleAutoCapitalizeCommand(Command):
             cmd._autocapitalize and 'ON' or 'OFF'
         )
 
+class ToggleVerboseCommand(Command):
+    """ toggle verbose mode """
+
+    @noargs_command
+    def __call__(self, cmd, *args, **kwargs):
+        cmd.error_trace = not cmd.error_trace
+        return 'Verbose {0}'.format(
+            cmd.error_trace and 'ON' or 'OFF'
+        )
 
 class CheckBaseCommand(Command):
 
@@ -210,5 +219,6 @@ built_in_commands = {
     'format': SwitchFormatCommand(),
     'autocomplete': ToggleAutocompleteCommand(),
     'autocapitalize': ToggleAutoCapitalizeCommand(),
+    'verbose': ToggleVerboseCommand(),
     'check': CheckCommand(),
 }

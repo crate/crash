@@ -27,7 +27,7 @@ from six import StringIO
 from unittest import TestCase
 from mock import patch, MagicMock
 from .commands import ReadFileCommand, \
-    ToggleAutocompleteCommand, ToggleAutoCapitalizeCommand , \
+    ToggleAutocompleteCommand, ToggleAutoCapitalizeCommand, ToggleVerboseCommand, \
     NodeCheckCommand, ClusterCheckCommand, CheckCommand
 
 from .command import CrateCmd
@@ -87,6 +87,17 @@ class ToggleAutoCapitalizeCommandTest(TestCase):
         self.assertEqual(output, 'Auto-capitalization OFF')
         output = command(fake_cmd)
         self.assertEqual(output, 'Auto-capitalization ON')
+
+class ToggleVerboseCommandTest(TestCase):
+
+    @patch('crate.crash.command.CrateCmd')
+    def test_toggle_output(self, fake_cmd):
+        fake_cmd.error_trace = True
+        command = ToggleVerboseCommand()
+        output = command(fake_cmd)
+        self.assertEqual(output, 'Verbose OFF')
+        output = command(fake_cmd)
+        self.assertEqual(output, 'Verbose ON')
 
 
 class ShowTablesCommandTest(TestCase):

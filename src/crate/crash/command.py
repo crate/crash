@@ -351,7 +351,9 @@ class CrateCmd(object):
         try:
             self.cursor.execute(statement)
             return True
-        except ConnectionError:
+        except ConnectionError as e:
+            if self.error_trace:
+                self.logger.warn(str(e))
             self.logger.warn(
                 'Use \connect <server> to connect to one or more servers first.')
         except ProgrammingError as e:
@@ -485,13 +487,14 @@ def main():
     cmd.exit()
     sys.exit(cmd.exit_code)
 
-def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args):
+def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args, timeout=None):
     conn = connect(crate_hosts,
                    verify_ssl_cert=args.verify_ssl,
                    cert_file=args.cert_file,
                    key_file=args.key_file,
                    ca_cert=args.ca_cert_file,
-                   username=args.username)
+                   username=args.username,
+                   timeout=timeout)
     return CrateCmd(connection=conn,
                     error_trace=error_trace,
                     output_writer=output_writer,

@@ -228,7 +228,7 @@ class Capitalizer:
         self.cmd = cmd
         self.last_changed = None
 
-    def __call__(self, buffer):
+    def apply_capitalization(self, buffer):
         if not self.cmd.should_autocapitalize():
             return
 
@@ -260,6 +260,18 @@ class Capitalizer:
     def is_prefix(self, string, prefix):
         return string.startswith(prefix) and string != prefix
 
+
+def create_buffer(cmd, history_file):
+    buffer = CrashBuffer(
+        history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
+        accept_action=AcceptAction.RETURN_DOCUMENT,
+        completer=SQLCompleter(cmd),
+        on_text_insert=Capitalizer(cmd).apply_capitalization
+    )
+    buffer.complete_while_typing = lambda cli=None: cmd.should_autocomplete()
+    return buffer
+
+
 def loop(cmd, history_file):
     key_binding_manager = KeyBindingManager(
         enable_search=True,
@@ -277,16 +289,9 @@ def loop(cmd, history_file):
                 filter=HasFocus(DEFAULT_BUFFER) & ~IsDone())
         ]
     )
-    buffer = CrashBuffer(
-        history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
-        accept_action=AcceptAction.RETURN_DOCUMENT,
-        completer=SQLCompleter(cmd),
-        on_text_insert=Capitalizer(cmd)
-    )
-    buffer.complete_while_typing = lambda cli=None: cmd.should_autocomplete()
     application = Application(
         layout=layout,
-        buffer=buffer,
+        buffer=create_buffer(cmd, history_file),
         style=PygmentsStyle.from_defaults(pygments_style_cls=CrateStyle),
         key_bindings_registry=key_binding_manager.registry,
         editing_mode=_get_editing_mode(),

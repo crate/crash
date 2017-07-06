@@ -30,7 +30,7 @@ def zipdir(path, zip):
 def main(out_path, libdir):
 
     with open(out_path, 'w') as out_file:
-        out_file.write('#!/usr/bin/env python\n')
+        out_file.write('#!/usr/bin/env python3.6\n')
         out_file.write('# -*- coding: utf-8 -*-\n')
         out_file.write('# vim: fileencoding=utf-8\n')
 

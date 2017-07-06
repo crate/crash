@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed bug that caused ``crash`` to crash on startup when using Python 2.7.
+
 2017/07/04 0.21.1
 =================
 

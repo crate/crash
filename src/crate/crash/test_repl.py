@@ -17,12 +17,12 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
+import re
 from unittest import TestCase
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
-from .repl import SQLCompleter, Capitalizer
+from .repl import SQLCompleter, Capitalizer, create_buffer
 from .command import CrateCmd
-import re
 
 class SQLCompleterTest(TestCase):
 
@@ -39,6 +39,14 @@ class SQLCompleterTest(TestCase):
         self.assertEqual(result, ['dynamic'])
 
 
+class CrashBufferTest(TestCase):
+
+    def test_create_buffer(self):
+        cmd = CrateCmd()
+        buffer = create_buffer(cmd, '/tmp/history')
+        self.assertEquals(buffer.on_text_insert.fire(), None)
+
+
 class AutoCapitalizeTest(TestCase):
 
     def setUp(self):
@@ -50,42 +58,42 @@ class AutoCapitalizeTest(TestCase):
 
         text = u'selec'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'selec', buffer.text)
 
         text = u'select'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'SELECT', buffer.text)
 
         text = u'CREATE TABLE "select'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'CREATE TABLE "select', buffer.text)
 
         text = u'CREATE TABLE \'select\''
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'CREATE TABLE \'select\'', buffer.text)
 
         text = u'create table test (x int)'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'CREATE TABLE test (x INT)', buffer.text)
 
         text = u'create table test (a boolean, b string, c integer)'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'CREATE TABLE test (a BOOLEAN, b STRING, c INTEGER)', buffer.text)
 
         text = u'create table test\n(a boolean, b string, c integer)'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'CREATE TABLE test\n(a BOOLEAN, b STRING, c INTEGER)', buffer.text)
 
         text = u'\select dynamic'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'\select dynamic', buffer.text)
 
     def test_undo_capitalize(self):
@@ -93,22 +101,22 @@ class AutoCapitalizeTest(TestCase):
 
         text = u'Selec'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'Selec', buffer.text)
 
         text = buffer.text + 't'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'SELECT', buffer.text)
 
         text = buffer.text + 'i'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'Selecti', buffer.text)
 
         text = buffer.text + 'on'
         buffer.set_document(Document(text, len(text)))
-        self.capitalizer(buffer)
+        self.capitalizer.apply_capitalization(buffer)
         self.assertEqual(u'Selection', buffer.text)
 
     def test_keyword_replacer(self):

@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Expanded the list of keywords used by autocompletion and
+   autocapitalization.
+
 2017/07/06 0.21.2
 =================
 

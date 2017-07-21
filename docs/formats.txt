@@ -51,13 +51,13 @@ Example::
 json_row
 ========
 
-This format is related to `format_json`_. However it prints each dataset 
-row-by-row in separate lines. This output is compatible with ``COPY FROM`` 
-statement. Therefore it is useful if you want to export specific datasets in 
+This format is related to `format_json`_. However it prints each dataset
+row-by-row in separate lines. This output is compatible with ``COPY FROM``
+statement. Therefore it is useful if you want to export specific datasets in
 order to import them later via ``COPY FROM``.
 
 Example::
-  
+
   {"name": "crate1", "version": "0.46.3"}
   {"name": "crate2", "version": "0.46.3"}
 
@@ -93,7 +93,7 @@ Example::
 raw
 ===
 
-The ``raw`` format prints the results as it is retured by the Crate Python library.
+The ``raw`` format prints the results as it is retured by the CrateDB Python library.
 It contains a JSON object with 4 keys: ``cols``, ``rows``, ``rowcount``, and ``duration``.
 
 Example::

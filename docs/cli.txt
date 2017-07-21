@@ -17,9 +17,9 @@ The ``crash`` binary supports several command line arguments.
 +---------------------------------------+--------------------------------------------------+
 | ``-c COMMAND``, ``--command COMMAND`` | Execute the SQL statement and exit.              |
 +---------------------------------------+--------------------------------------------------+
-| ``--hosts HOSTS``                     | The Crate hosts to connect to.                   |
+| ``--hosts HOSTS``                     | The CrateDB hosts to connect to.                 |
 +---------------------------------------+--------------------------------------------------+
-| ``--history HISTORY``                 | The history file the Crate shell uses.           |
+| ``--history HISTORY``                 | The history file the CrateDB shell uses.         |
 +---------------------------------------+--------------------------------------------------+
 | ``--config CONFIG``                   | Path to the configuration file which contains    |
 |                                       | default values for Crash.                        |
@@ -111,7 +111,7 @@ You can get a list of commands by typing ``\?``:
 |                      |                                                                                    |
 |                      | see :ref:`formats` for details                                                     |
 +----------------------+------------------------------------------------------------------------------------+
-| ``\q``               | Quit Crate shell                                                                   |
+| ``\q``               | Quit the CrateDB shell                                                             |
 +----------------------+------------------------------------------------------------------------------------+
 | ``\check``           | Query the ``sys`` tables for failing cluster and node checks if no arguments are   |
 |                      | provided.                                                                          |

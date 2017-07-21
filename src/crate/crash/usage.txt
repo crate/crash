@@ -81,7 +81,7 @@ them without any special arguments like this::
     +------------+
     SELECT 1 row in set (... sec)
 
-When the Crate shell is started with the option ``-v`` debugging information will be printed::
+When the CrateDB shell is started with the option ``-v`` debugging information will be printed::
 
     cr> select x from y;
     SQLActionException[TableUnknownException: Table 'doc.y' unknown]
@@ -106,11 +106,11 @@ Nested Objects and Arrays
     limitation does not apply when connecting to a CrateDB instance running > 0.39.0.
 
 While it is possible to select or filter by nested objects it is currently not
-possible to insert them using Crash. In order to do that the `Crate REST
+possible to insert them using Crash. In order to do that the `CrateDB REST
 endpoint`_ or a client library like `crate-python`_ has to be used.
 
 The same also applies for arrays.
 
-.. _`Crate REST Endpoint`: https://crate.io/docs/current/sql/rest.html
+.. _`CrateDB REST Endpoint`: https://crate.io/docs/current/sql/rest.html
 .. _`Command Line Arguments`: https://crate.io/docs/projects/crash/en/stable/cli.html
 .. _`crate-python`: https://pypi.python.org/pypi/crate/

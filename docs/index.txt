@@ -1,8 +1,8 @@
-===========
-Crate Shell
-===========
+=================
+The CrateDB Shell
+=================
 
-The Crash Shell (``crash``) provides a CLI for the Crate Server.
+The CrashDB Shell (aka ``crash``) provides a CLI for the CrateDB Server.
 
 .. toctree::
    :maxdepth: 2

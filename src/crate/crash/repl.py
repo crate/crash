@@ -46,6 +46,7 @@ from prompt_toolkit.layout.processors import (
     ConditionalProcessor
 )
 from prompt_toolkit.key_binding.manager import KeyBindingManager
+from prompt_toolkit.keys import Keys
 from prompt_toolkit.shortcuts import (create_prompt_layout,
                                       create_output,
                                       create_eventloop)
@@ -273,6 +274,31 @@ def create_buffer(cmd, history_file):
     return buffer
 
 
+def _bind_keys(registry):
+
+    def _is_start_of_multiline(cli):
+        doc = cli.current_buffer.document
+        word = doc.get_word_before_cursor()
+        return doc.text and not word
+
+    @registry.add_binding(Keys.Tab, filter=Condition(_is_start_of_multiline))
+    def _(event):
+        event.cli.current_buffer.insert_text('    ')
+
+    def _bs_should_deindent(cli):
+        doc = cli.current_buffer.document
+        start_of_line_pos = doc.get_start_of_line_position()
+        return (
+            not doc.get_word_before_cursor() and
+            start_of_line_pos != 0 and
+            start_of_line_pos % 4 == 0
+        )
+
+    @registry.add_binding(Keys.Backspace, filter=Condition(_bs_should_deindent))
+    def _(event):
+        event.cli.current_buffer.delete_before_cursor(4)
+
+
 def loop(cmd, history_file):
     key_binding_manager = KeyBindingManager(
         enable_search=True,
@@ -280,6 +306,7 @@ def loop(cmd, history_file):
         enable_system_bindings=True,
         enable_open_in_editor=True
     )
+    _bind_keys(key_binding_manager.registry)
     layout = create_prompt_layout(
         message=u'cr> ',
         multiline=True,

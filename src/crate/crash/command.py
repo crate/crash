@@ -283,12 +283,16 @@ class CrateCmd(object):
         else:
             return True
 
+    def _do_connect(self):
+        self.connection = connect(servers=self.last_connected_servers, error_trace=self.error_trace,
+                                  verify_ssl_cert=self.verify_ssl, cert_file=self.cert_file, key_file=self.key_file,
+                                  ca_cert=self.ca_cert_file, username=self.username)
+        self.cursor = self.connection.cursor()
+
     def _connect(self, server):
         """ connect to the given server, e.g.: \connect localhost:4200 """
-        self.connection = connect(servers=server, error_trace=self.error_trace, verify_ssl_cert=self.verify_ssl,
-                                  cert_file=self.cert_file, key_file=self.key_file, ca_cert=self.ca_cert_file,
-                                  username=self.username)
-        self.cursor = self.connection.cursor()
+        self.last_connected_servers = server
+        self._do_connect()
         results = []
         failed = 0
         client = self.connection.client

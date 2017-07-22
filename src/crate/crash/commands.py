@@ -109,6 +109,7 @@ class ToggleVerboseCommand(Command):
     @noargs_command
     def __call__(self, cmd, *args, **kwargs):
         cmd.error_trace = not cmd.error_trace
+        cmd._do_connect()
         return 'Verbose {0}'.format(
             cmd.error_trace and 'ON' or 'OFF'
         )

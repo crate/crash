@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2017/07/24 0.21.4
+=================
+
  - Fixed: ``\verbose`` command didn't not switch on verbosity if ``crash`` was
    launched without the ```--verbose` flag.
 

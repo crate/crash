@@ -198,10 +198,11 @@ class SQLCompleter(Completer):
             for w in self.get_command_completions(line):
                 yield Completion(w, -len(word_before_cursor))
             return
-        for keyword in self.keywords:
-            if keyword.startswith(word_before_cursor.lower()):
-                yield Completion(keyword.upper(), -len(word_before_cursor))
-
+        # start autocomplete on 3rd character for non-command keys
+        if len(word_before_cursor) >= 3:
+            for keyword in self.keywords:
+                if keyword.startswith(word_before_cursor.lower()):
+                    yield Completion(keyword.upper(), -len(word_before_cursor))
 
 class CrashBuffer(Buffer):
 

@@ -34,7 +34,7 @@ from .test_commands import ReadFileCommandTest, \
     ToggleAutocompleteCommandTest, ToggleAutoCapitalizeCommandTest, ToggleVerboseCommandTest, \
     ChecksCommandTest, ShowTablesCommandTest
 from .test_sysinfo import SysInfoTest
-from .test_repl import SQLCompleterTest, AutoCapitalizeTest, CrashBufferTest
+from .test_repl import SQLCompleterTest, AutoCapitalizeTest, CrashBufferTest, ToolbarTest
 from .test_config import ConfigurationTest
 
 
@@ -107,6 +107,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(ShowTablesCommandTest))
     suite.addTest(unittest.makeSuite(SQLCompleterTest))
     suite.addTest(unittest.makeSuite(AutoCapitalizeTest))
+    suite.addTest(unittest.makeSuite(ToolbarTest))
     suite.addTest(unittest.makeSuite(CrashBufferTest))
     suite.addTest(unittest.makeSuite(ConfigurationTest))
     suite.addTest(unittest.makeSuite(TestGetInformationSchemaQuery))

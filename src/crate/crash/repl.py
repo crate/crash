@@ -31,7 +31,8 @@ from pygments.token import (Keyword,
                             Number,
                             Literal,
                             String,
-                            Error)
+                            Error,
+                            Token)
 
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import FileHistory
@@ -47,12 +48,11 @@ from prompt_toolkit.layout.processors import (
 )
 from prompt_toolkit.key_binding.manager import KeyBindingManager
 from prompt_toolkit.keys import Keys
-from prompt_toolkit.shortcuts import (create_prompt_layout,
-                                      create_output,
+from prompt_toolkit.shortcuts import (create_output,
                                       create_eventloop)
 
 from .commands import Command
-
+from .layout import create_layout
 
 MAX_HISTORY_LENGTH = 10000
 
@@ -80,6 +80,7 @@ class CrateStyle(Style):
         Literal: '#ae81ff',
         String: '#f4a33d',
         Error: '#ff3300',
+        Token.Toolbar.Status.Key: '#ffffaa',
     }
 
 
@@ -299,7 +300,27 @@ def _bind_keys(registry):
         event.cli.current_buffer.delete_before_cursor(4)
 
 
+def _get_toolbar_tokens(is_conn_available, username, active_servers):
+        tokens = []
+        if is_conn_available():
+            active_servers = active_servers
+            hosts = ', '.join(
+                (n.replace('http://', '').replace('https://', '') for n in active_servers))
+            tokens.extend([(Token.Toolbar.Status.Key, 'USER: '),
+                           (Token.Toolbar.Status, '{}'.format(username)),
+                           (Token.Toolbar.Status, ' | '),
+                           (Token.Toolbar.Status.Key, 'HOSTS: '),
+                           (Token.Toolbar.Status, hosts)])
+        else:
+            tokens.extend([(Token.Toolbar.Status, 'not connected')])
+        return tokens
+
+
 def loop(cmd, history_file):
+
+    def session_toolbar(cli):
+        return _get_toolbar_tokens(cmd.is_conn_avaliable, cmd.username, cmd.connection.client.active_servers)
+
     key_binding_manager = KeyBindingManager(
         enable_search=True,
         enable_abort_and_exit_bindings=True,
@@ -307,7 +328,7 @@ def loop(cmd, history_file):
         enable_open_in_editor=True
     )
     _bind_keys(key_binding_manager.registry)
-    layout = create_prompt_layout(
+    layout = create_layout(
         message=u'cr> ',
         multiline=True,
         lexer=SqlLexer,
@@ -315,7 +336,8 @@ def loop(cmd, history_file):
             ConditionalProcessor(
                 processor=HighlightMatchingBracketProcessor(chars='[](){}'),
                 filter=HasFocus(DEFAULT_BUFFER) & ~IsDone())
-        ]
+        ],
+        get_bottom_toolbar_tokens=session_toolbar
     )
     application = Application(
         layout=layout,

@@ -4,6 +4,8 @@ Changes for crash
 
 Unreleased
 ==========
+ 
+ - Added a status toolbar that prints the current session info.
 
  - added support for multiline table headers in the tabular output format
  

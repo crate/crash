@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - added support for multiline table headers in the tabular output format
+ 
  - Start autocompletion for non-command keys at the 3rd character.
 
 2017/07/24 0.21.4

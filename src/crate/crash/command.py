@@ -278,7 +278,6 @@ class CrateCmd(object):
 
     def is_conn_avaliable(self):
         if self.connection.lowest_server_version == StrictVersion("0.0.0"):
-            self.logger.critical(u'CONNECT ERROR')
             return False
         else:
             return True

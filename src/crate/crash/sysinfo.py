@@ -75,7 +75,7 @@ from sys.nodes
 
     def execute(self):
         """ print system and cluster info """
-        if not self.cmd.is_conn_avaliable():
+        if not self.cmd.is_conn_available():
             return
         if self.cmd.connection.lowest_server_version >= SYSINFO_MIN_VERSION:
             success, rows = self._sys_info()

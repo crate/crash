@@ -319,7 +319,7 @@ def _get_toolbar_tokens(is_conn_available, username, active_servers):
 def loop(cmd, history_file):
 
     def session_toolbar(cli):
-        return _get_toolbar_tokens(cmd.is_conn_avaliable, cmd.username, cmd.connection.client.active_servers)
+        return _get_toolbar_tokens(cmd.is_conn_available, cmd.username, cmd.connection.client.active_servers)
 
     key_binding_manager = KeyBindingManager(
         enable_search=True,

@@ -276,7 +276,7 @@ class CrateCmd(object):
         self.logger.warn(u'Bye!')
         sys.exit(self.exit_code)
 
-    def is_conn_avaliable(self):
+    def is_conn_available(self):
         if self.connection.lowest_server_version == StrictVersion("0.0.0"):
             return False
         else:

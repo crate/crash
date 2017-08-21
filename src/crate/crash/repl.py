@@ -80,7 +80,7 @@ class CrateStyle(Style):
         Literal: '#ae81ff',
         String: '#f4a33d',
         Error: '#ff3300',
-        Token.Toolbar.Status.Key: '#ffffaa',
+        Token.Toolbar.Status.Key: '#4b95a3',
     }
 
 

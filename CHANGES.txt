@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2017/08/21 0.21.5
+=================
+
  - Updated crate-python to 0.20.1 which includes the following change:
 
    - Fixed deprecation warnings logged in CrateDB server on every REST request. 

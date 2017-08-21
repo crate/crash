@@ -5,13 +5,15 @@ Changes for crash
 Unreleased
 ==========
 
+ - Remove support for multiline table headers
+
 2017/08/21 0.22.0
 =================
 
  - Added a status toolbar that prints the current session info.
 
  - added support for multiline table headers in the tabular output format
- 
+
  - Start autocompletion for non-command keys at the 3rd character.
 
 2017/08/21 0.21.5

@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added back support for multiline table headers
+
 2017/08/21 0.22.1
 =================
 

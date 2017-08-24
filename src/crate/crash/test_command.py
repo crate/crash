@@ -383,6 +383,23 @@ class CommandTest(TestCase):
             cmd.pprint(rows, cols=['x'])
             self.assertEqual(expected, output.getvalue())
 
+    def test_multiline_header(self):
+        """
+        Create another column with a non-string value and FALSE.
+        """
+        rows = [[u'FALSE'], [1]]
+        expected = "\n".join(['+-------+',
+                              '| x     |',
+                              '| y     |',
+                              '+-------+',
+                              '| FALSE |',
+                              '| 1     |',
+                              '+-------+\n'])
+        cmd = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            cmd.pprint(rows, cols=['x\ny'])
+            self.assertEqual(expected, output.getvalue())
+
     def test_multiline_row(self):
         """
         Create ta column that holds rows with multiline text.
@@ -400,6 +417,105 @@ class CommandTest(TestCase):
         with patch('sys.stdout', new_callable=StringIO) as output:
             cmd.pprint(rows, cols=['show create table foo', 'a', 'b'])
             self.assertEqual(expected, output.getvalue())
+
+    def test_tabulate_empty_line(self):
+        
+        self.maxDiff=None
+        rows = [u'Aldebaran', u'Star System'], [u'Berlin', u'City'], [u'Galactic Sector QQ7 Active J Gamma', u'Galaxy'], [u'', u'Planet']
+        expected = "\n".join(['+------------------------------------+-------------+',
+                              '| min(name)                          | kind        |',
+                              '+------------------------------------+-------------+',
+                              '| Aldebaran                          | Star System |',
+                              '| Berlin                             | City        |',
+                              '| Galactic Sector QQ7 Active J Gamma | Galaxy      |',
+                              '|                                    | Planet      |',
+                              '+------------------------------------+-------------+\n'])
+        
+        cmd = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            cmd.pprint(rows, cols=['min(name)', 'kind'])
+            #assert 0
+            self.assertEqual(expected, output.getvalue())
+
+    def test_empty_line_first_row_first_column(self):
+        
+        self.maxDiff=None
+        rows = [u'', u'Planet'], [u'Aldebaran', u'Star System'], [u'Berlin', u'City'], [u'Galactic Sector QQ7 Active J Gamma', u'Galaxy']
+        expected = "\n".join(['+------------------------------------+-------------+',
+                              '| min(name)                          | kind        |',
+                              '+------------------------------------+-------------+',
+                              '|                                    | Planet      |',
+                              '| Aldebaran                          | Star System |',
+                              '| Berlin                             | City        |',
+                              '| Galactic Sector QQ7 Active J Gamma | Galaxy      |',
+                              '+------------------------------------+-------------+\n'])
+        
+        cmd = CrateCmd()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            cmd.pprint(rows, cols=['min(name)', 'kind'])
+            self.assertEqual(expected, output.getvalue())
+
+    def test_empty_first_row(self):
+            
+            self.maxDiff=None
+            rows = [u'', u''], [u'Aldebaran', u'Aldebaran'], [u'Algol', u'Algol'], [u'Allosimanius Syneca', u'Allosimanius - Syneca'], [u'Alpha Centauri', u'Alpha - Centauri']
+            expected = "\n".join(['+---------------------+-----------------------+',
+                                  '| name                | replaced              |',
+                                  '+---------------------+-----------------------+',
+                                  '|                     |                       |',
+                                  '| Aldebaran           | Aldebaran             |',
+                                  '| Algol               | Algol                 |',
+                                  '| Allosimanius Syneca | Allosimanius - Syneca |',
+                                  '| Alpha Centauri      | Alpha - Centauri      |',
+                                  '+---------------------+-----------------------+\n'])
+ 
+            cmd = CrateCmd()
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['name', 'replaced'])
+                self.assertEqual(expected, output.getvalue())
+
+    def test_any_empty(self):
+            
+            self.maxDiff=None
+            rows = [u'Features and conformance views', u'FALSE', u'', u''], [u'Features and conformance views', u'TRUE', 1, u'SQL_FEATURES view'], [u'Features and conformance views', u'FALSE', 2, u'SQL_SIZING view'], [u'Features and conformance views', u'FALSE', 3, u'SQL_LANGUAGES view']
+            expected = "\n".join(['+--------------------------------+--------------+----------------+--------------------+',
+                                  '| feature_name                   | is_supported | sub_feature_id | sub_feature_name   |',
+                                  '+--------------------------------+--------------+----------------+--------------------+',
+                                  '| Features and conformance views | FALSE        |                |                    |',
+                                  '| Features and conformance views | TRUE         | 1              | SQL_FEATURES view  |',
+                                  '| Features and conformance views | FALSE        | 2              | SQL_SIZING view    |',
+                                  '| Features and conformance views | FALSE        | 3              | SQL_LANGUAGES view |',
+                                  '+--------------------------------+--------------+----------------+--------------------+\n'])
+
+            cmd = CrateCmd()
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['feature_name', 'is_supported', 'sub_feature_id', 'sub_feature_name'])
+                self.assertEqual(expected, output.getvalue())
+
+    def test_first_column_first_row_empty(self):
+            
+            self.maxDiff=None
+            rows = [u'', 1.0], [u'Aldebaran', 1.0], [u'Algol', 1.0], [u'Allosimanius Syneca', 1.0], [u'Alpha Centauri', 1.0], [u'Argabuthon', 1.0], [u'Arkintoofle Minor', 1.0], [u'Galactic Sector QQ7 Active J Gamma', 1.0], [u'North West Ripple', 1.0], [u'Outer Eastern Rim', 1.0], [u'NULL', 1.0]
+            expected = "\n".join(['+------------------------------------+--------+',
+                                  '| name                               | _score |',
+                                  '+------------------------------------+--------+',
+                                  '|                                    |    1.0 |',
+                                  '| Aldebaran                          |    1.0 |',
+                                  '| Algol                              |    1.0 |',
+                                  '| Allosimanius Syneca                |    1.0 |',
+                                  '| Alpha Centauri                     |    1.0 |',
+                                  '| Argabuthon                         |    1.0 |',
+                                  '| Arkintoofle Minor                  |    1.0 |',
+                                  '| Galactic Sector QQ7 Active J Gamma |    1.0 |',
+                                  '| North West Ripple                  |    1.0 |',
+                                  '| Outer Eastern Rim                  |    1.0 |',
+                                  '| NULL                               |    1.0 |',
+                                  '+------------------------------------+--------+\n'])
+ 
+            cmd = CrateCmd()
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['name', '_score'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_error_exit_code(self):
         """Test returns an error exit code"""

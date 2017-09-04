@@ -178,6 +178,28 @@ def noargs_command(fn):
     return inner_fn
 
 
+def _parse_statements(lines):
+    """Return a generator of statements
+
+    Args: A list of strings that can contain one or more statements.
+          Statements are separated using ';' at the end of a line
+          Everything after the last ';' will be treated as the last statement.
+
+    >>> list(_parse_statements(['select * from ', 't1;', 'select name']))
+    ['select * from t1', 'select name']
+    """
+    lines = (l.strip() for l in lines if l)
+    lines = (l for l in lines if not l.startswith('--'))
+    parts = []
+    for line in lines:
+        parts.append(line.rstrip(';'))
+        if line.endswith(';'):
+            yield ' '.join(parts)
+            parts[:] = []
+    if parts:
+        yield ' '.join(parts)
+
+
 class CrateCmd(object):
 
     def __init__(self,
@@ -236,22 +258,12 @@ class CrateCmd(object):
         self.output_writer.write(result)
 
     def process(self, text):
-        if text.lstrip().startswith('--'):
-            return
-        text = text.rstrip()
         if text.startswith('\\') and not self.lines:
             self._try_exec_cmd(text.lstrip('\\'))
-        elif text.endswith(';'):
-            line = text.rstrip(';')
-            if self.lines:
-                self.lines.append(line)
-                line = ' '.join(self.lines)
-                self._exec(line)
-                self.lines[:] = []
-            else:
-                self._exec(line)
-        elif text:
-            self.lines.append(text)
+        else:
+            for statement in _parse_statements(text.split('\n')):
+                self._exec(statement)
+            self.lines = []
 
     def exit(self):
         if self.lines:

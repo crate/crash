@@ -25,6 +25,7 @@ import os
 import unittest
 import doctest
 import zc.customdoctests
+from . import command
 from crate.testing.layer import CrateLayer
 from .command import CrateCmd
 from .printer import ColorPrinter, PrintWrapper
@@ -94,6 +95,7 @@ def test_suite():
     suite.addTest(s)
     CommandTest.layer = crate_layer
     CommandTest.crate_host = crate_host
+    suite.addTest(doctest.DocTestSuite(command))
     suite.addTest(unittest.makeSuite(CommandTest))
     suite.addTest(unittest.makeSuite(CommandLineArgumentsTest))
     suite.addTest(unittest.makeSuite(CommandUtilsTest))

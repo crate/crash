@@ -175,7 +175,7 @@ class CommandTest(TestCase):
         self._output_format('csv', assert_func, query)
 
     def test_csv_array_output(self):
-        query = "select fs['disks']['dev'] from sys.nodes"
+        query = "select ['/dev/', 'foo'] as arr"
 
         def assert_func(self, e, output, err):
             exception_code = e.code

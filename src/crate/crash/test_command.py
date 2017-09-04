@@ -289,7 +289,8 @@ class CommandTest(TestCase):
                         "-c", "select * from sys.cluster",
                         "--hosts", self.crate_host, "300.300.300.300:123",
                         '--history', tmphistory,
-                        '-vv',
+                        '--format', 'tabular',
+                        '-v',
                         ]
             with patch('sys.stdout', new_callable=StringIO) as output:
                 try:

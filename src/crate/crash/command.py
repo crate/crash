@@ -257,8 +257,11 @@ class CrateCmd(object):
         self.output_writer.write(result)
 
     def process_iterable(self, stdin):
+        any_statement = False
         for statement in _parse_statements(stdin):
             self._exec(statement)
+            any_statement = True
+        return any_statement
 
     def process(self, text):
         if text.startswith('\\'):
@@ -492,8 +495,8 @@ def main():
         cmd.process(args.command)
         done = True
     elif stdin_data:
-        cmd.process_iterable(stdin_data)
-        done = True
+        if cmd.process_iterable(stdin_data):
+            done = True
     if not done:
         from .repl import loop
         loop(cmd, args.history)

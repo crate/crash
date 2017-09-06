@@ -219,7 +219,6 @@ class CrateCmd(object):
         self.cursor = self.connection.cursor()
         self.output_writer = output_writer or OutputWriter(
             PrintWrapper(), is_tty)
-        self.lines = []
         self.exit_code = 0
         self.expanded_mode = False
         self.sys_info_cmd = SysInfoCommand(self)
@@ -257,18 +256,19 @@ class CrateCmd(object):
                         self.get_num_columns())
         self.output_writer.write(result)
 
+    def process_iterable(self, stdin):
+        for statement in _parse_statements(stdin):
+            self._exec(statement)
+
     def process(self, text):
-        if text.startswith('\\') and not self.lines:
+        if text.startswith('\\'):
             self._try_exec_cmd(text.lstrip('\\'))
         else:
             for statement in _parse_statements(text.split('\n')):
                 self._exec(statement)
-            self.lines = []
 
     def exit(self):
-        if self.lines:
-            self._exec(' '.join(self.lines))
-            self.lines[:] = []
+        pass
 
     @noargs_command
     def _show_tables(self, *args):
@@ -492,9 +492,8 @@ def main():
         cmd.process(args.command)
         done = True
     elif stdin_data:
-        for data in stdin_data:
-            cmd.process(data)
-            done = True
+        cmd.process_iterable(stdin_data)
+        done = True
     if not done:
         from .repl import loop
         loop(cmd, args.history)

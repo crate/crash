@@ -4,6 +4,8 @@ The CrateDB Shell
 
 The CrashDB Shell (aka ``crash``) provides a CLI for the CrateDB Server.
 
+.. rubric:: Table of Contents
+
 .. toctree::
    :maxdepth: 2
 

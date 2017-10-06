@@ -37,6 +37,7 @@ from .test_commands import ReadFileCommandTest, \
 from .test_sysinfo import SysInfoTest
 from .test_repl import SQLCompleterTest, AutoCapitalizeTest, CrashBufferTest, ToolbarTest
 from .test_config import ConfigurationTest
+from .test_keybinding import TabIndentTest
 
 
 class CrateTestCmd(CrateCmd):
@@ -124,5 +125,6 @@ def test_suite():
     suite.addTest(unittest.makeSuite(CrashBufferTest))
     suite.addTest(unittest.makeSuite(ConfigurationTest))
     suite.addTest(unittest.makeSuite(TestGetInformationSchemaQuery))
+    suite.addTest(unittest.makeSuite(TabIndentTest))
 
     return suite

@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed an issue where BACKSPACE would delete more characters before the
+   cursor than expected.
+
  - Added back support for multiline table headers
 
 2017/08/21 0.22.1

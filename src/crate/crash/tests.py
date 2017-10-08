@@ -64,16 +64,22 @@ crash_parser = zc.customdoctests.DocTestParser(
     ps1='cr>', comment_prefix='#', transform=crash_transform)
 
 
-crate_port = 44209
+crate_http_port = 44209
 crate_transport_port = 44309
+crate_settings = {
+    'psql.port': 45441,
+    'lang.js.enabled': True,
+}
+
 crate_layer = CrateLayer('crate',
                          crate_home=crate_path(),
                          crate_exec=crate_path('bin', 'crate'),
-                         port=crate_port,
+                         port=crate_http_port,
+                         settings=crate_settings,
                          transport_port=crate_transport_port)
 
-crate_host = "127.0.0.1:{port}".format(port=crate_port)
-crate_uri = "http://%s" % crate_host
+crate_host = "127.0.0.1:" + str(crate_http_port)
+crate_uri = "http://" + crate_host
 
 
 def setUp(test):

@@ -161,16 +161,13 @@ class CommandTest(TestCase):
         self._output_format('json_row', assert_func, query)
 
     def test_csv_obj_output(self):
-        query = "select name, settings['udc'] from sys.cluster"
+        query = "select name, port from sys.nodes limit 1"
 
         def assert_func(self, e, output, err):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertTrue('Testing44209,\'{' in output)
-            self.assertTrue('"url": "https://udc.crate.io"' in output)
-            self.assertTrue('"interval": "1d"' in output)
-            self.assertTrue('"enabled": true' in output)
+            self.assertTrue("""crate,'{"http": 44209, "psql": 45441, "transport": 44309}'""" in output)
 
         self._output_format('csv', assert_func, query)
 
@@ -420,7 +417,7 @@ class CommandTest(TestCase):
             self.assertEqual(expected, output.getvalue())
 
     def test_tabulate_empty_line(self):
-        
+
         self.maxDiff=None
         rows = [u'Aldebaran', u'Star System'], [u'Berlin', u'City'], [u'Galactic Sector QQ7 Active J Gamma', u'Galaxy'], [u'', u'Planet']
         expected = "\n".join(['+------------------------------------+-------------+',
@@ -431,7 +428,7 @@ class CommandTest(TestCase):
                               '| Galactic Sector QQ7 Active J Gamma | Galaxy      |',
                               '|                                    | Planet      |',
                               '+------------------------------------+-------------+\n'])
-        
+
         cmd = CrateCmd()
         with patch('sys.stdout', new_callable=StringIO) as output:
             cmd.pprint(rows, cols=['min(name)', 'kind'])
@@ -439,7 +436,7 @@ class CommandTest(TestCase):
             self.assertEqual(expected, output.getvalue())
 
     def test_empty_line_first_row_first_column(self):
-        
+
         self.maxDiff=None
         rows = [u'', u'Planet'], [u'Aldebaran', u'Star System'], [u'Berlin', u'City'], [u'Galactic Sector QQ7 Active J Gamma', u'Galaxy']
         expected = "\n".join(['+------------------------------------+-------------+',
@@ -450,14 +447,14 @@ class CommandTest(TestCase):
                               '| Berlin                             | City        |',
                               '| Galactic Sector QQ7 Active J Gamma | Galaxy      |',
                               '+------------------------------------+-------------+\n'])
-        
+
         cmd = CrateCmd()
         with patch('sys.stdout', new_callable=StringIO) as output:
             cmd.pprint(rows, cols=['min(name)', 'kind'])
             self.assertEqual(expected, output.getvalue())
 
     def test_empty_first_row(self):
-            
+
             self.maxDiff=None
             rows = [u'', u''], [u'Aldebaran', u'Aldebaran'], [u'Algol', u'Algol'], [u'Allosimanius Syneca', u'Allosimanius - Syneca'], [u'Alpha Centauri', u'Alpha - Centauri']
             expected = "\n".join(['+---------------------+-----------------------+',
@@ -469,14 +466,14 @@ class CommandTest(TestCase):
                                   '| Allosimanius Syneca | Allosimanius - Syneca |',
                                   '| Alpha Centauri      | Alpha - Centauri      |',
                                   '+---------------------+-----------------------+\n'])
- 
+
             cmd = CrateCmd()
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['name', 'replaced'])
                 self.assertEqual(expected, output.getvalue())
 
     def test_any_empty(self):
-            
+
             self.maxDiff=None
             rows = [u'Features and conformance views', u'FALSE', u'', u''], [u'Features and conformance views', u'TRUE', 1, u'SQL_FEATURES view'], [u'Features and conformance views', u'FALSE', 2, u'SQL_SIZING view'], [u'Features and conformance views', u'FALSE', 3, u'SQL_LANGUAGES view']
             expected = "\n".join(['+--------------------------------+--------------+----------------+--------------------+',
@@ -494,7 +491,7 @@ class CommandTest(TestCase):
                 self.assertEqual(expected, output.getvalue())
 
     def test_first_column_first_row_empty(self):
-            
+
             self.maxDiff=None
             rows = [u'', 1.0], [u'Aldebaran', 1.0], [u'Algol', 1.0], [u'Allosimanius Syneca', 1.0], [u'Alpha Centauri', 1.0], [u'Argabuthon', 1.0], [u'Arkintoofle Minor', 1.0], [u'Galactic Sector QQ7 Active J Gamma', 1.0], [u'North West Ripple', 1.0], [u'Outer Eastern Rim', 1.0], [u'NULL', 1.0]
             expected = "\n".join(['+------------------------------------+--------+',
@@ -512,7 +509,7 @@ class CommandTest(TestCase):
                                   '| Outer Eastern Rim                  |    1.0 |',
                                   '| NULL                               |    1.0 |',
                                   '+------------------------------------+--------+\n'])
- 
+
             cmd = CrateCmd()
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['name', '_score'])
@@ -650,24 +647,36 @@ class CommandTest(TestCase):
             _create_cmd(crate_hosts, False, None, False, args)
 
     def test_command_timeout(self):
-        sys.argv = ["testcrash",
-                    "--hosts", self.crate_host
-                    ]
+        sys.argv = ["testcrash", "--hosts", self.crate_host]
         parser = get_parser()
         args = parse_args(parser)
 
         crate_hosts = [host_and_port(h) for h in args.hosts]
-        crateCmd = _create_cmd(crate_hosts, False, None, False, args, 0.00001)
-        crateCmd.logger = Mock()
+        crateCmd = _create_cmd(crate_hosts, False, None, False, args, None)
+        crateCmd.execute("""
+CREATE FUNCTION fib(long)
+RETURNS LONG
+LANGUAGE javascript AS '
+    function fib(n) {
+      if (n < 2) return 1;
+      return fib(n - 1) + fib(n - 2);
+    }'
+        """)
+
+        timeout = 0.01
+        slow_query = "SELECT fib(35)"
 
         # without verbose
-        crateCmd.execute("select count(*) from sys.nodes")
+        crateCmd = _create_cmd(crate_hosts, False, None, False, args, timeout)
+        crateCmd.logger = Mock()
+        crateCmd.execute(slow_query)
         crateCmd.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
 
         # with verbose
-        crateCmd.error_trace = True
-        crateCmd.execute("select count(*) from sys.nodes")
-        crateCmd.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=1e-05)")
+        crateCmd = _create_cmd(crate_hosts, True, None, False, args, timeout)
+        crateCmd.logger = Mock()
+        crateCmd.execute(slow_query)
+        crateCmd.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.01)")
         crateCmd.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):

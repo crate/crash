@@ -11,6 +11,7 @@ python:
 
 before_install:
     - pip install --upgrade setuptools
+    - pip uninstall -y six
 
 install:
     - python bootstrap.py

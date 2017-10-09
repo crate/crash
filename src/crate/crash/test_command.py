@@ -673,15 +673,15 @@ class CommandTest(TestCase):
     def test_username_param(self):
         sys.argv = ["testcrash",
                     "--hosts", self.crate_host,
-                    "--username", "testUser"
+                    "--username", "crate"
                     ]
         parser = get_parser()
         args = parse_args(parser)
         crate_hosts = [host_and_port(h) for h in args.hosts]
         crateCmd = _create_cmd(crate_hosts, False, None, False, args)
 
-        self.assertEqual(crateCmd.username, "testUser")
-        self.assertEqual(crateCmd.connection.client.username, "testUser")
+        self.assertEqual(crateCmd.username, "crate")
+        self.assertEqual(crateCmd.connection.client.username, "crate")
 
     def test_ssl_params(self):
         tmpdirname = tempfile.mkdtemp()

@@ -257,6 +257,9 @@ class CrateCmd(object):
         if self.lines:
             self._exec(' '.join(self.lines))
             self.lines[:] = []
+        self.cursor.close()
+        self.connection.close()
+        return self.exit_code
 
     @noargs_command
     def _show_tables(self, *args):
@@ -274,7 +277,7 @@ class CrateCmd(object):
     def _quit(self, *args):
         """ quit crash """
         self.logger.warn(u'Bye!')
-        sys.exit(self.exit_code)
+        sys.exit(self.exit())
 
     def is_conn_available(self):
         if self.connection.lowest_server_version == StrictVersion("0.0.0"):
@@ -283,9 +286,13 @@ class CrateCmd(object):
             return True
 
     def _do_connect(self):
-        self.connection = connect(servers=self.last_connected_servers, error_trace=self.error_trace,
-                                  verify_ssl_cert=self.verify_ssl, cert_file=self.cert_file, key_file=self.key_file,
-                                  ca_cert=self.ca_cert_file, username=self.username)
+        self.connection = connect(servers=self.last_connected_servers,
+                                  error_trace=self.error_trace,
+                                  verify_ssl_cert=self.verify_ssl,
+                                  cert_file=self.cert_file,
+                                  key_file=self.key_file,
+                                  ca_cert=self.ca_cert_file,
+                                  username=self.username)
         self.cursor = self.connection.cursor()
 
     def _connect(self, server):
@@ -487,8 +494,7 @@ def main():
         from .repl import loop
         loop(cmd, args.history)
     conf.save()
-    cmd.exit()
-    sys.exit(cmd.exit_code)
+    sys.exit(cmd.exit())
 
 def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args, timeout=None):
     conn = connect(crate_hosts,

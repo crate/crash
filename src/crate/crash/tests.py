@@ -80,12 +80,17 @@ def setUp(test):
     test.globs['cmd'] = CrateTestCmd(error_trace=True, is_tty=False)
 
 
+def tearDown(test):
+    test.globs['cmd'].exit()
+
+
 def test_suite():
     suite = unittest.TestSuite()
     flags = (doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS)
     s = doctest.DocFileSuite(
         'usage.txt', 'output.txt',
         setUp=setUp,
+        tearDown=tearDown,
         optionflags=flags,
         parser=crash_parser,
         encoding='utf-8'

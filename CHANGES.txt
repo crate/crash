@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2017/10/11 0.22.2
+=================
+
  - Fixed an issue where BACKSPACE would delete more characters before the
    cursor than expected.
 

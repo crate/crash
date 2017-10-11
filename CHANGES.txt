@@ -5,10 +5,13 @@ Changes for crash
 Unreleased
 ==========
 
+ - Added support for pasting and executing multiple statements at once.
+
+2017/10/11 0.22.2
+=================
+
  - Fixed an issue where BACKSPACE would delete more characters before the
    cursor than expected.
-
- - Added support for pasting and executing multiple statements at once.
 
  - Added back support for multiline table headers
 

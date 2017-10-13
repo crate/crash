@@ -313,6 +313,9 @@ class CrateCmd(object):
         """ connect to the given server, e.g.: \connect localhost:4200 """
         self.last_connected_servers = server
         self._do_connect()
+        self._verify_connection(verbose=True)
+
+    def _verify_connection(self, verbose=False):
         results = []
         failed = 0
         client = self.connection.client
@@ -324,14 +327,17 @@ class CrateCmd(object):
                 results.append([server, None, '0.0.0', False, e.message])
             else:
                 results.append(infos + (True, 'OK', ))
-        self.pprint(results,
-                    ['server_url', 'node_name', 'version', 'connected', 'message'])
+
+        if verbose:
+            cols = ['server_url', 'node_name', 'version', 'connected', 'message']
+            self.pprint(results, cols)
+
         if failed == len(results):
             self.logger.critical('CONNECT ERROR')
         else:
+            self.logger.info('CONNECT OK')
             # Execute cluster/node checks only in verbose mode
-            if self.error_trace:
-                self.logger.info('CONNECT OK')
+            if verbose:
                 SysInfoCommand.CLUSTER_INFO['information_schema_query'] = \
                 get_information_schema_query(self.connection.lowest_server_version)
                 # check for failing node and cluster checks
@@ -488,9 +494,12 @@ def main():
         cmd = _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args)
     except (ProgrammingError, LocationParseError) as e:
         printer.warn(str(e))
+
+    cmd._verify_connection(verbose=error_trace)
+
+    if not cmd.is_conn_available():
         sys.exit(1)
 
-    cmd._connect(crate_hosts)
     done = False
     stdin_data = get_stdin()
     if args.sysinfo:

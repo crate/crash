@@ -116,8 +116,8 @@ For example:
 - ``0.21``
 - ``0.20``
 
-Because Crash has not yet had a major release, as of yet, there are no last
-major releases to include in this list.
+Because this project has not yet had a major release, as of yet, there are no
+major releases before `0` to include in this list.
 
 Sometimes you might find that there are multiple older releases that need to be
 archived.

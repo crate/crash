@@ -18,7 +18,7 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 import functools
-import glob
+import os
 
 from distutils.version import StrictVersion
 from collections import OrderedDict
@@ -59,13 +59,24 @@ class ReadFileCommand(Command):
 
     def complete(self, cmd, text):
         if text.endswith('.sql'):
-            return []
-        return glob.glob(text + '*.sql')
+            return
+        dirname = os.path.dirname(text) or '.'
+        dirname = os.path.expanduser(dirname)
+        filename = os.path.basename(text)
+        try:
+            for fn in os.listdir(dirname):
+                name = os.path.basename(fn)
+                if name.startswith(filename):
+                    if os.path.isdir(os.path.join(dirname, fn)):
+                        yield name + '/'
+                    elif name.endswith('.sql'):
+                        yield name
+        except FileNotFoundError:
+            return
 
     def __call__(self, cmd, filename, *args, **kwargs):
-        with open(filename, 'rb') as f:
-            for line in f:
-                cmd.process(line.decode('utf-8'))
+        with open(os.path.expanduser(filename), 'rb') as f:
+            cmd.process_iterable(l.decode('utf-8') for l in f)
 
 
 class SwitchFormatCommand(Command):

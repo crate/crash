@@ -40,20 +40,39 @@ class ReadFileCommandTest(TestCase):
 
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp()
+        self.cmd = ReadFileCommand()
+        self.dummy_file = os.path.join(self.tmp_dir, 'dummy.sql')
+        self.dummy_dir = os.path.join(self.tmp_dir, 'dummy_folder')
+        self.dummy_file_in_dir = os.path.join(self.dummy_dir, 'dummy2.sql')
+        os.mkdir(self.dummy_dir)
+        with open(self.dummy_file, 'w') as f:
+            f.write('')
+        with open(self.dummy_file_in_dir, 'w') as f:
+            f.write('')
 
     def tearDown(self):
         if os.path.exists(self.tmp_dir):
             shutil.rmtree(self.tmp_dir)
 
-    @patch('glob.glob')
-    def test_complete(self, fake_glob):
-        fake_glob.return_value = ['foo', 'foobar']
+    def test_complete_correct_filename(self):
+        results = sorted(list(
+            self.cmd.complete(None, os.path.join(self.tmp_dir, 'dummy.sql'))))
+        self.assertEqual(results, [])
 
-        cmd = ReadFileCommand()
-        results = cmd.complete(None, 'fo')
+    def test_complete_shows_folder_and_sql_files(self):
+        results = sorted(list(
+            self.cmd.complete(None, os.path.join(self.tmp_dir, 'dum'))))
+        self.assertEqual(results, ['dummy.sql', 'dummy_folder/'])
 
-        self.assertEqual(results, ['foo', 'foobar'])
-        fake_glob.assert_called_with('fo*.sql')
+    def test_complete_shows_only_folder(self):
+        results = sorted(list(
+            self.cmd.complete(None, os.path.join(self.tmp_dir, 'dummy_'))))
+        self.assertEqual(results, ['dummy_folder/'])
+
+    def test_complete_shows_only_file_within_folder(self):
+        results = sorted(list(self.cmd.complete(
+            None, os.path.join(self.tmp_dir, 'dummy_folder/'))))
+        self.assertEqual(results, ['dummy2.sql'])
 
     @patch('crate.crash.command.CrateCmd')
     def test_call(self, fake_cmd):
@@ -62,7 +81,7 @@ class ReadFileCommandTest(TestCase):
             fp.write('SELECT * FROM sys.nodes')
         command = ReadFileCommand()
         command(fake_cmd, path)
-        fake_cmd.process.assert_called_with('SELECT * FROM sys.nodes')
+        fake_cmd.process_iterable.assert_called_once()
 
 
 class ToggleAutocompleteCommandTest(TestCase):

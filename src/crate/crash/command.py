@@ -480,9 +480,9 @@ def main():
         cmd = _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args)
     except (ProgrammingError, LocationParseError) as e:
         printer.warn(str(e))
+        sys.exit(1)
 
     cmd._verify_connection(verbose=error_trace)
-
     if not cmd.is_conn_available():
         sys.exit(1)
 

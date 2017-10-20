@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Exit Crash correctly if an error occurs on startup, such as invalid host
+   format or unauthorized access to CrateDB.
+
  - Do not show connect message on startup by default but only when starting
    crash in verbose mode. This prevents the programme from printing the message
    to stdout when using the command mode or executing ``--sysinfo``.

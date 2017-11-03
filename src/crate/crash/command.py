@@ -187,9 +187,12 @@ def _parse_statements(lines):
 
     >>> list(_parse_statements(['select * from ', 't1;', 'select name']))
     ['select * from t1', 'select name']
+
+    >>> list(_parse_statements(['select * from t1;', '  ']))
+    ['select * from t1']
     """
     lines = (l.strip() for l in lines if l)
-    lines = (l for l in lines if not l.startswith('--'))
+    lines = (l for l in lines if l and not l.startswith('--'))
     parts = []
     for line in lines:
         parts.append(line.rstrip(';'))

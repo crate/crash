@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+ - Fixed an error caused by using the ``\verbose`` command before using
+   ``\connect`` to connect to a host.
+
  - Exit Crash correctly if an error occurs on startup, such as invalid host
    format or unauthorized access to CrateDB.
 

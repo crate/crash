@@ -241,6 +241,7 @@ class CrateCmd(object):
         self.cert_file = cert_file
         self.key_file = key_file
         self.ca_cert_file = ca_cert_file
+        self.last_connected_servers = None
 
     def get_num_columns(self):
         return 80

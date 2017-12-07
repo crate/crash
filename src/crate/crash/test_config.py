@@ -104,6 +104,7 @@ class ConfigurationTest(TestCase):
         conf.get_or_set('verbosity', 3)
         conf.get_or_set('autocomplete', False)
         conf.get_or_set('hosts', ['c1', 'c2'])
+        conf.get_or_set('force_passwd_prompt', 0)
         conf.save()
 
         # Reading raw values
@@ -113,6 +114,7 @@ class ConfigurationTest(TestCase):
         self.assertEqual(config.get('crash', 'verbosity'), '3')
         self.assertEqual(config.get('crash', 'autocomplete'), '0')
         self.assertEqual(config.get('crash', 'hosts'), 'c1\nc2')
+        self.assertEqual(config.get('crash', 'force_passwd_prompt'), '0')
 
         # Reading transformed values
         conf = Configuration(path)
@@ -120,6 +122,7 @@ class ConfigurationTest(TestCase):
         self.assertEqual(conf.get_or_set('verbosity', 0), 3)
         self.assertEqual(conf.get_or_set('autocomplete', True), False)
         self.assertEqual(conf.get_or_set('hosts', ['localhost']), ['c1', 'c2'])
+        self.assertEqual(conf.get_or_set('force_passwd_prompt', True), False)
 
         # Reading section header
         with open(path) as fp:

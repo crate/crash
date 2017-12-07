@@ -8,6 +8,8 @@ Unreleased
 Changes
 -------
 
+ - Added support for password authentication.
+
  - Added support for pasting and executing multiple statements at once.
 
  - The `\r` (read) command auto-completion now also shows directories, instead

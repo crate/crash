@@ -49,6 +49,8 @@ from prompt_toolkit.layout.processors import (
 from prompt_toolkit.key_binding.manager import KeyBindingManager
 from prompt_toolkit.shortcuts import (create_output,
                                       create_eventloop)
+from crate.client.exceptions import ProgrammingError
+from getpass import getpass
 
 from .commands import Command
 from .layout import create_layout
@@ -339,6 +341,21 @@ def loop(cmd, history_file):
             doc = cli.run(reset_current_buffer=True)
             if doc:
                 cmd.process(doc.text)
+        except ProgrammingError as e:
+            if '401' in e.message:
+                username = cmd.username
+                password = cmd.password
+                cmd.username = input('Username: ')
+                cmd.password = getpass()
+                try:
+                    cmd.process(doc.text)
+                except ProgrammingError as ex:
+                    # fallback to existing user/pw
+                    cmd.username = username
+                    cmd.password = password
+                    cmd.logger.warn(str(ex))
+            else:
+                cmd.logger.warn(str(e))
         except KeyboardInterrupt:
             cmd.logger.warn("Query not cancelled. Run KILL <jobId> to cancel it")
         except EOFError:

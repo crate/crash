@@ -29,6 +29,7 @@ import os
 import re
 import sys
 import urllib3
+from getpass import getpass
 from appdirs import user_data_dir, user_config_dir
 from argparse import ArgumentParser
 from collections import namedtuple
@@ -136,6 +137,9 @@ def get_parser(output_formats=[], conf=None):
                         help='use -a to enable experimental auto-capitalization of SQL keywords')
     parser.add_argument('-U', '--username', type=str,
                         help='the username to authenticate in the database')
+    parser.add_argument('-W', '--password', action='store_true',
+                        dest='force_passwd_prompt', default=_conf_or_default('force_passwd_prompt', False),
+                        help='force password prompt')
     parser.add_argument('--history', type=str,
                         help='the history file to use', default=HISTORY_PATH)
     parser.add_argument('--config', type=str,
@@ -216,7 +220,8 @@ class CrateCmd(object):
                  cert_file=None,
                  key_file=None,
                  ca_cert_file=None,
-                 username=None):
+                 username=None,
+                 password=None):
         self.error_trace = error_trace
         self.connection = connection or connect(error_trace=error_trace)
         self.cursor = self.connection.cursor()
@@ -237,6 +242,7 @@ class CrateCmd(object):
         self._autocomplete = autocomplete
         self._autocapitalize = autocapitalize
         self.username = username
+        self.password = password
         self.verify_ssl = verify_ssl
         self.cert_file = cert_file
         self.key_file = key_file
@@ -310,7 +316,8 @@ class CrateCmd(object):
                                   cert_file=self.cert_file,
                                   key_file=self.key_file,
                                   ca_cert=self.ca_cert_file,
-                                  username=self.username)
+                                  username=self.username,
+                                  password=self.password)
         self.cursor = self.connection.cursor()
 
     def _connect(self, server):
@@ -360,6 +367,9 @@ class CrateCmd(object):
                     message = cmd(self, *words[1:])
                 else:
                     message = cmd(*words[1:])
+            except ProgrammingError as e:
+                # repl needs to handle 401 authorization errors
+                raise e
             except TypeError as e:
                 self.logger.critical(getattr(e, 'message', None) or repr(e))
                 doc = cmd.__doc__
@@ -494,9 +504,40 @@ def main():
 
     crate_hosts = [host_and_port(h) for h in args.hosts]
     error_trace = args.verbose > 0
+
+    force_passwd_prompt = args.force_passwd_prompt
+    password = None
+
+    # If password prompt is not forced try to get it from env. variable.
+    if not force_passwd_prompt:
+        password = os.environ.get('CRATEPW', None)
+
+    # Prompt for password immediately to avoid that the first time trying to
+    # connect to the server runs into an `Unauthorized` excpetion
+    # is_tty = False
+    if force_passwd_prompt and not password and is_tty:
+        password = getpass()
+
+    # Tries to create a connection to the server.
+    # Prompts for the password automatically if the server only accepts
+    # password authentication.
+    cmd = None
     try:
-        cmd = _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args)
+        cmd = _create_cmd(crate_hosts, error_trace, output_writer, is_tty,
+                          args, password=password)
     except (ProgrammingError, LocationParseError) as e:
+        if '401' in e.message and not force_passwd_prompt:
+            if is_tty:
+                password = getpass()
+            try:
+                cmd = _create_cmd(crate_hosts, error_trace, output_writer,
+                                  is_tty, args, password=password)
+            except (ProgrammingError, LocationParseError) as ex:
+                printer.warn(str(ex))
+                sys.exit(1)
+        else:
+            raise e
+    except Exception as e:
         printer.warn(str(e))
         sys.exit(1)
 
@@ -522,14 +563,15 @@ def main():
     conf.save()
     sys.exit(cmd.exit())
 
-def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args, timeout=None):
+def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args, timeout=None, password=None):
     conn = connect(crate_hosts,
                    verify_ssl_cert=args.verify_ssl,
                    cert_file=args.cert_file,
                    key_file=args.key_file,
                    ca_cert=args.ca_cert_file,
                    username=args.username,
-                   timeout=timeout)
+                   timeout=timeout,
+                   password=password)
     return CrateCmd(connection=conn,
                     error_trace=error_trace,
                     output_writer=output_writer,
@@ -540,7 +582,8 @@ def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args, timeout=N
                     cert_file=args.cert_file,
                     key_file=args.key_file,
                     ca_cert_file=args.ca_cert_file,
-                    username=args.username)
+                    username=args.username,
+                    password=password)
 
 def file_with_permissions(path):
     open(path, 'r').close()

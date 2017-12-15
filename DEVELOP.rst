@@ -90,7 +90,7 @@ You'll also need to create a ``~/.pypirc`` file, like so::
       pypi
 
     [pypi]
-    repository=https://pypi.python.org/pypi
+    repository=https://upload.pypi.org/legacy/
     username=<USERNAME>
     password=<PASSWORD>
 

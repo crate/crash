@@ -94,12 +94,12 @@ class CommandUtilsTest(TestCase):
 
     def test_stmt_type(self):
         # regular multi word statement
-        self.assertEquals(stmt_type('SELECT 1;'), 'SELECT')
+        self.assertEqual(stmt_type('SELECT 1;'), 'SELECT')
         # regular single word statement
-        self.assertEquals(stmt_type('BEGIN;'), 'BEGIN')
+        self.assertEqual(stmt_type('BEGIN;'), 'BEGIN')
         # statements with trailing or leading spaces/tabs/linebreaks
-        self.assertEquals(stmt_type(' SELECT 1 ;'), 'SELECT')
-        self.assertEquals(stmt_type('\nSELECT\n1\n;\n'), 'SELECT')
+        self.assertEqual(stmt_type(' SELECT 1 ;'), 'SELECT')
+        self.assertEqual(stmt_type('\nSELECT\n1\n;\n'), 'SELECT')
 
 class CommandTest(TestCase):
 

@@ -45,7 +45,7 @@ class CrashBufferTest(TestCase):
     def test_create_buffer(self):
         cmd = CrateCmd()
         buffer = create_buffer(cmd, '/tmp/history')
-        self.assertEquals(buffer.on_text_insert.fire(), None)
+        self.assertEqual(buffer.on_text_insert.fire(), None)
 
 
 class AutoCapitalizeTest(TestCase):

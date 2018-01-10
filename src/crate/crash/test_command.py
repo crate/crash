@@ -5,11 +5,10 @@ import sys
 import os
 import re
 import ssl
-from unittest import TestCase
-from six import PY2, StringIO
 import tempfile
-from io import TextIOWrapper
-from mock import patch, Mock
+from io import TextIOWrapper, StringIO
+from unittest import TestCase
+from unittest.mock import patch, Mock
 from crate.client.exceptions import ProgrammingError
 from urllib3.exceptions import LocationParseError
 
@@ -23,10 +22,7 @@ from distutils.version import StrictVersion
 
 
 def fake_stdin(data):
-    if PY2:
-        stdin = tempfile.TemporaryFile()
-    else:
-        stdin = TextIOWrapper(tempfile.TemporaryFile())
+    stdin = TextIOWrapper(tempfile.TemporaryFile())
     stdin.write(data)
     stdin.flush()
     stdin.seek(0)
@@ -39,7 +35,7 @@ class OutputWriterTest(TestCase):
         self.ow = OutputWriter(writer=None, is_tty=False)
 
     def test_mixed_format_float_precision(self):
-        expected = u'foo | 152462.70754934277'
+        expected = 'foo | 152462.70754934277'
         result = Result(cols=['foo'],
                         rows=[[152462.70754934277]],
                         rowcount=1,
@@ -49,9 +45,9 @@ class OutputWriterTest(TestCase):
             next(self.ow.mixed(result)).rstrip(), expected)
 
     def test_mixed_format_utf8(self):
-        expected = u'name | Großvenediger'
+        expected = 'name | Großvenediger'
         result = Result(cols=['name'],
-                        rows=[[u'Großvenediger']],
+                        rows=[['Großvenediger']],
                         rowcount=1,
                         duration=1,
                         output_width=80)
@@ -59,7 +55,7 @@ class OutputWriterTest(TestCase):
             next(self.ow.mixed(result)).rstrip(), expected)
 
     def test_tabular_format_float_precision(self):
-        expected = u'152462.70754934277'
+        expected = '152462.70754934277'
 
         result = Result(cols=['foo'],
                         rows=[[152462.70754934277]],
@@ -369,7 +365,7 @@ class CommandTest(TestCase):
         """
         Create another column with a non-string value and FALSE.
         """
-        rows = [[u'FALSE'], [1]]
+        rows = [['FALSE'], [1]]
         expected = "\n".join(['+-------+',
                               '| x     |',
                               '+-------+',
@@ -385,7 +381,7 @@ class CommandTest(TestCase):
         """
         Create another column with a non-string value and FALSE.
         """
-        rows = [[u'FALSE'], [1]]
+        rows = [['FALSE'], [1]]
         expected = "\n".join(['+-------+',
                               '| x     |',
                               '| y     |',
@@ -402,7 +398,7 @@ class CommandTest(TestCase):
         """
         Create ta column that holds rows with multiline text.
         """
-        rows = [[u'create table foo (\n  id integer,\n  name string\n)', 'foo\nbar', 1]]
+        rows = [['create table foo (\n  id integer,\n  name string\n)', 'foo\nbar', 1]]
         expected = "\n".join(['+-----------------------+-----+---+',
                               '| show create table foo | a   | b |',
                               '+-----------------------+-----+---+',
@@ -419,7 +415,7 @@ class CommandTest(TestCase):
     def test_tabulate_empty_line(self):
 
         self.maxDiff=None
-        rows = [u'Aldebaran', u'Star System'], [u'Berlin', u'City'], [u'Galactic Sector QQ7 Active J Gamma', u'Galaxy'], [u'', u'Planet']
+        rows = ['Aldebaran', 'Star System'], ['Berlin', 'City'], ['Galactic Sector QQ7 Active J Gamma', 'Galaxy'], ['', 'Planet']
         expected = "\n".join(['+------------------------------------+-------------+',
                               '| min(name)                          | kind        |',
                               '+------------------------------------+-------------+',
@@ -438,7 +434,7 @@ class CommandTest(TestCase):
     def test_empty_line_first_row_first_column(self):
 
         self.maxDiff=None
-        rows = [u'', u'Planet'], [u'Aldebaran', u'Star System'], [u'Berlin', u'City'], [u'Galactic Sector QQ7 Active J Gamma', u'Galaxy']
+        rows = ['', 'Planet'], ['Aldebaran', 'Star System'], ['Berlin', 'City'], ['Galactic Sector QQ7 Active J Gamma', 'Galaxy']
         expected = "\n".join(['+------------------------------------+-------------+',
                               '| min(name)                          | kind        |',
                               '+------------------------------------+-------------+',
@@ -456,7 +452,7 @@ class CommandTest(TestCase):
     def test_empty_first_row(self):
 
             self.maxDiff=None
-            rows = [u'', u''], [u'Aldebaran', u'Aldebaran'], [u'Algol', u'Algol'], [u'Allosimanius Syneca', u'Allosimanius - Syneca'], [u'Alpha Centauri', u'Alpha - Centauri']
+            rows = ['', ''], ['Aldebaran', 'Aldebaran'], ['Algol', 'Algol'], ['Allosimanius Syneca', 'Allosimanius - Syneca'], ['Alpha Centauri', 'Alpha - Centauri']
             expected = "\n".join(['+---------------------+-----------------------+',
                                   '| name                | replaced              |',
                                   '+---------------------+-----------------------+',
@@ -475,7 +471,7 @@ class CommandTest(TestCase):
     def test_any_empty(self):
 
             self.maxDiff=None
-            rows = [u'Features and conformance views', u'FALSE', u'', u''], [u'Features and conformance views', u'TRUE', 1, u'SQL_FEATURES view'], [u'Features and conformance views', u'FALSE', 2, u'SQL_SIZING view'], [u'Features and conformance views', u'FALSE', 3, u'SQL_LANGUAGES view']
+            rows = ['Features and conformance views', 'FALSE', '', ''], ['Features and conformance views', 'TRUE', 1, 'SQL_FEATURES view'], ['Features and conformance views', 'FALSE', 2, 'SQL_SIZING view'], ['Features and conformance views', 'FALSE', 3, 'SQL_LANGUAGES view']
             expected = "\n".join(['+--------------------------------+--------------+----------------+--------------------+',
                                   '| feature_name                   | is_supported | sub_feature_id | sub_feature_name   |',
                                   '+--------------------------------+--------------+----------------+--------------------+',
@@ -493,7 +489,7 @@ class CommandTest(TestCase):
     def test_first_column_first_row_empty(self):
 
             self.maxDiff=None
-            rows = [u'', 1.0], [u'Aldebaran', 1.0], [u'Algol', 1.0], [u'Allosimanius Syneca', 1.0], [u'Alpha Centauri', 1.0], [u'Argabuthon', 1.0], [u'Arkintoofle Minor', 1.0], [u'Galactic Sector QQ7 Active J Gamma', 1.0], [u'North West Ripple', 1.0], [u'Outer Eastern Rim', 1.0], [u'NULL', 1.0]
+            rows = ['', 1.0], ['Aldebaran', 1.0], ['Algol', 1.0], ['Allosimanius Syneca', 1.0], ['Alpha Centauri', 1.0], ['Argabuthon', 1.0], ['Arkintoofle Minor', 1.0], ['Galactic Sector QQ7 Active J Gamma', 1.0], ['North West Ripple', 1.0], ['Outer Eastern Rim', 1.0], ['NULL', 1.0]
             expected = "\n".join(['+------------------------------------+--------+',
                                   '| name                               | _score |',
                                   '+------------------------------------+--------+',

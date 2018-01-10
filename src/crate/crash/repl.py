@@ -305,7 +305,7 @@ def loop(cmd, history_file):
     )
     bind_keys(key_binding_manager.registry)
     layout = create_layout(
-        message=u'cr> ',
+        message='cr> ',
         multiline=True,
         lexer=SqlLexer,
         extra_input_processors=[
@@ -359,5 +359,5 @@ def loop(cmd, history_file):
         except KeyboardInterrupt:
             cmd.logger.warn("Query not cancelled. Run KILL <jobId> to cancel it")
         except EOFError:
-            cmd.logger.warn(u'Bye!')
+            cmd.logger.warn('Bye!')
             return

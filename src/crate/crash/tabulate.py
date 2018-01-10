@@ -22,53 +22,27 @@
 
 """Pretty-print tabular data."""
 
-from __future__ import print_function
-from __future__ import unicode_literals
-from collections import namedtuple
-from platform import python_version_tuple
 import re
-import sys
+import io
+from collections import namedtuple
+from itertools import zip_longest as izip_longest
+from functools import reduce, partial
 
 
-if sys.version_info[:2] == (2, 7):
-    def float_format(val):
-        return repr(val)
-else:
-    def float_format(val):
-        return str(val)
+_none_type = type(None)
+_int_type = int
+_long_type = int
+_float_type = float
+_text_type = str
+_binary_type = bytes
 
 
-if python_version_tuple()[0] < "3":
-    from itertools import izip_longest
-    from functools import partial
-
-    _none_type = type(None)
-    _int_type = int
-    _long_type = long
-    _float_type = float
-    _text_type = unicode
-    _binary_type = str
+def float_format(val):
+    return str(val)
 
 
-    def _is_file(f):
-        return isinstance(f, file)
-
-else:
-    from itertools import zip_longest as izip_longest
-    from functools import reduce, partial
-
-    _none_type = type(None)
-    _int_type = int
-    _long_type = int
-    _float_type = float
-    _text_type = str
-    _binary_type = bytes
-
-    import io
-
-
-    def _is_file(f):
-        return isinstance(f, io.IOBase)
+def _is_file(f):
+    return isinstance(f, io.IOBase)
 
 try:
     import wcwidth  # optional wide-character (CJK) support
@@ -429,7 +403,7 @@ def _padleft(width, s, has_invisible=True):
         return fmt.format(val)
 
     num_lines = s.splitlines()
-    return len(num_lines) > 1 and u'\n'.join(map(impl, num_lines)) or impl(s)
+    return len(num_lines) > 1 and '\n'.join(map(impl, num_lines)) or impl(s)
 
 
 def _padright(width, s, has_invisible=True):
@@ -446,7 +420,7 @@ def _padright(width, s, has_invisible=True):
         return fmt.format(val)
 
     num_lines = s.splitlines()
-    return len(num_lines) > 1 and u'\n'.join(map(impl, num_lines)) or impl(s)
+    return len(num_lines) > 1 and '\n'.join(map(impl, num_lines)) or impl(s)
 
 
 def _padboth(width, s, has_invisible=True):
@@ -463,7 +437,7 @@ def _padboth(width, s, has_invisible=True):
         return fmt.format(val)
 
     num_lines = s.splitlines()
-    return len(num_lines) > 1 and u'\n'.join(map(impl, num_lines)) or impl(s)
+    return len(num_lines) > 1 and '\n'.join(map(impl, num_lines)) or impl(s)
 
 
 def _padnone(ignore_width, s):
@@ -1182,84 +1156,3 @@ def _format_table(fmt, headers, rows, colwidths, colaligns, is_multiline):
         _append_line(lines, padded_widths, colaligns, fmt.linebelow)
 
     return "\n".join(lines)
-
-
-def _main():
-    """\
-    Usage: tabulate [options] [FILE ...]
-
-    Pretty-print tabular data.
-    See also https://bitbucket.org/astanin/python-tabulate
-
-    FILE                      a filename of the file with tabular data;
-                              if "-" or missing, read data from stdin.
-
-    Options:
-
-    -h, --help                show this message
-    -1, --header              use the first row of data as a table header
-    -o FILE, --output FILE    print table to FILE (default: stdout)
-    -s REGEXP, --sep REGEXP   use a custom column separator (default: whitespace)
-    -F FPFMT, --float FPFMT   floating point number format (default: g)
-    -f FMT, --format FMT      set output table format; supported formats:
-                              plain, simple, grid, fancy_grid, pipe, orgtbl,
-                              rst, mediawiki, html, latex, latex_booktabs, tsv
-                              (default: simple)
-    """
-    import getopt
-    import sys
-    import textwrap
-    usage = textwrap.dedent(_main.__doc__)
-    try:
-        opts, args = getopt.getopt(sys.argv[1:],
-                                   "h1o:s:F:f:",
-                                   ["help", "header", "output", "sep=", "float=", "format="])
-    except getopt.GetoptError as e:
-        print(e)
-        print(usage)
-        sys.exit(2)
-    headers = []
-    floatfmt = "g"
-    tablefmt = "simple"
-    sep = r"\s+"
-    outfile = "-"
-    for opt, value in opts:
-        if opt in ["-1", "--header"]:
-            headers = "firstrow"
-        elif opt in ["-o", "--output"]:
-            outfile = value
-        elif opt in ["-F", "--float"]:
-            floatfmt = value
-        elif opt in ["-f", "--format"]:
-            if value not in tabulate_formats:
-                print("%s is not a supported table format" % value)
-                print(usage)
-                sys.exit(3)
-            tablefmt = value
-        elif opt in ["-s", "--sep"]:
-            sep = value
-        elif opt in ["-h", "--help"]:
-            print(usage)
-            sys.exit(0)
-    files = [sys.stdin] if not args else args
-    with (sys.stdout if outfile == "-" else open(outfile, "w")) as out:
-        for f in files:
-            if f == "-":
-                f = sys.stdin
-            if _is_file(f):
-                _pprint_file(f, headers=headers, tablefmt=tablefmt,
-                             sep=sep, floatfmt=floatfmt, file=out)
-            else:
-                with open(f) as fobj:
-                    _pprint_file(fobj, headers=headers, tablefmt=tablefmt,
-                                 sep=sep, floatfmt=floatfmt, file=out)
-
-
-def _pprint_file(fobject, headers, tablefmt, sep, floatfmt, file):
-    rows = fobject.readlines()
-    table = [re.split(sep, r.rstrip()) for r in rows]
-    print(tabulate(table, headers, tablefmt, floatfmt=floatfmt), file=file)
-
-
-if __name__ == "__main__":
-    _main()

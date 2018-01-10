@@ -15,9 +15,9 @@ else:
     from collections import OrderedDict
 
 
-NULL = u'NULL'
-TRUE = u'TRUE'
-FALSE = u'FALSE'
+NULL = 'NULL'
+TRUE = 'TRUE'
+FALSE = 'FALSE'
 
 crate_fmt = TableFormat(lineabove=TabulateLine("+", "-", "+", "+"),
                         linebelowheader=TabulateLine("+", "-", "+", "+"),
@@ -116,7 +116,7 @@ class OutputWriter(object):
         padding = max_col_len = max(len(c) for c in result.cols)
         if self.is_tty:
             max_col_len += len(Fore.YELLOW + Style.RESET_ALL)
-        tmpl = u'{0:<' + str(max_col_len) + '} | {1}'
+        tmpl = '{0:<' + str(max_col_len) + '} | {1}'
         row_delimiter = '-' * result.output_width
         for row in result.rows:
             for i, c in enumerate(result.cols):

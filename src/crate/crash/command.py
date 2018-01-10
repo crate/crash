@@ -300,7 +300,7 @@ class CrateCmd(object):
     @noargs_command
     def _quit(self, *args):
         """ quit crash """
-        self.logger.warn(u'Bye!')
+        self.logger.warn('Bye!')
         sys.exit(self.exit())
 
     def is_conn_available(self):

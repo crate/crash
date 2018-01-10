@@ -35,9 +35,10 @@ Screenshot
 Prerequisites
 =============
 
-Recent versions of Crash require Python (>= 2.7) to run.
+Recent versions of Crash require **Python 3** (>= 3.4) to run.
 
-Use Crash 0.16.0 if you're running Python 2.6.
+Use Crash version ``0.23.x`` if you are running Python 2.7/3.3 or version
+``0.16.x`` if you're running Python 2.6.
 
 Installation
 ============
@@ -59,11 +60,15 @@ To update, run::
 
     $ pip install -U crash
 
+If you use Python 2.7 or 3.3 with a recent version of pip_, it will install
+only version ``0.23.x`` by default, because newer versions of this package are
+not compatible with Python 2.7/3.3 any more.
+
 Standalone
 ----------
 
 Crash is also available as a standalone executable that includes all the
-necessary dependencies, and can be run as long as Python (>= 2.7) is available.
+necessary dependencies, and can be run as long as Python (>= 3.4) is available.
 
 First, download the executable::
 
@@ -79,6 +84,17 @@ Now, run it::
 
 If you would like to run ``crash`` from any directory and without using leading
 ``./`` you will need to move it to somewhere on your ``$PATH``.
+
+Legacy Versions
+...............
+
+For Python 2.7 and 3.3 please download version ``0.23.0`` from the CDN::
+
+    $ curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_0.23.0
+
+For Python 2.6 please download version ``0.16.2`` from the CDN::
+
+    $ curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_0.16.2
 
 Usage
 =====

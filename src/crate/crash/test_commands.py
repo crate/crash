@@ -23,9 +23,8 @@ import os
 import shutil
 import tempfile
 
-from six import StringIO
 from unittest import TestCase
-from mock import patch, MagicMock
+from unittest.mock import patch, MagicMock
 from .commands import ReadFileCommand, \
     ToggleAutocompleteCommand, ToggleAutoCapitalizeCommand, ToggleVerboseCommand, \
     NodeCheckCommand, ClusterCheckCommand, CheckCommand
@@ -81,7 +80,7 @@ class ReadFileCommandTest(TestCase):
             fp.write('SELECT * FROM sys.nodes')
         command = ReadFileCommand()
         command(fake_cmd, path)
-        fake_cmd.process_iterable.assert_called_once()
+        self.assertEqual(fake_cmd.process_iterable.call_count, 1)
 
 
 class ToggleAutocompleteCommandTest(TestCase):
@@ -115,12 +114,12 @@ class ToggleVerboseCommandTest(TestCase):
         command = ToggleVerboseCommand()
         output = command(fake_cmd)
         self.assertEqual(output, 'Verbose OFF')
-        fake_cmd._do_connect.assert_called_once()
+        self.assertEqual(fake_cmd._do_connect.call_count, 1)
 
         fake_cmd.reset_mock()
         output = command(fake_cmd)
         self.assertEqual(output, 'Verbose ON')
-        fake_cmd._do_connect.assert_called_once()
+        self.assertEqual(fake_cmd._do_connect.call_count, 1)
 
 
 class ShowTablesCommandTest(TestCase):
@@ -144,11 +143,11 @@ class ChecksCommandTest(TestCase):
     @patch('crate.crash.command.CrateCmd')
     def test_node_check(self, cmd):
         rows = [
-                    [u'local1', u'check1'],
-                    [u'local2', u'check2'],
-                    [u'loca1', u'check2']
+                    ['local1', 'check1'],
+                    ['local2', 'check2'],
+                    ['loca1', 'check2']
                 ]
-        cols = [(u'Failed Check', ), (u'Number of Nodes', )]
+        cols = [('Failed Check', ), ('Number of Nodes', )]
         cmd._execute.return_value = True
         cmd.cursor.fetchall.return_value = rows
         cmd.cursor.description = cols
@@ -167,11 +166,11 @@ class ChecksCommandTest(TestCase):
     @patch('crate.crash.command.CrateCmd')
     def test_cluster_check(self, cmd):
         rows = [
-                    [u'local1', u'check1'],
-                    [u'local2', u'check2'],
-                    [u'loca1', u'check2']
+                    ['local1', 'check1'],
+                    ['local2', 'check2'],
+                    ['loca1', 'check2']
                 ]
-        cols = [(u'Failed Check', ), (u'Number of Nodes', )]
+        cols = [('Failed Check', ), ('Number of Nodes', )]
         cmd._execute.return_value = True
         cmd.cursor.fetchall.return_value = rows
         cmd.cursor.description = cols

@@ -88,8 +88,8 @@ class SwitchFormatCommand(Command):
     def __call__(self, cmd, fmt=None):
         if fmt and fmt in cmd.output_writer.formats:
             cmd.output_writer.output_format = fmt
-            return u'changed output format to {0}'.format(fmt)
-        return u'{0} is not a valid output format.\nUse one of: {1}'.format(
+            return 'changed output format to {0}'.format(fmt)
+        return '{0} is not a valid output format.\nUse one of: {1}'.format(
             fmt, ', '.join(cmd.output_writer.formats))
 
 

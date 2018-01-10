@@ -22,8 +22,7 @@
 
 
 from unittest import TestCase
-from mock import patch
-from mock import MagicMock, PropertyMock
+from unittest.mock import patch, MagicMock, PropertyMock
 
 from .command import CrateCmd
 from .sysinfo import SysInfoCommand, Result as Res
@@ -33,14 +32,14 @@ CRATE_VERSION = StrictVersion("0.55.2")
 
 class SysInfoTest(TestCase):
 
-    NODES_FIELDS_FETCHED = ((u'crate_version', None), (u'total_heap_mb', None))
-    NODES_INFO = [[u'0.54.0', 16301], [u'0.54.0', 16301]]
-    NODES_FIELDS = [u'crate_version', u'total_heap_mb']
-    
+    NODES_FIELDS_FETCHED = (('crate_version', None), ('total_heap_mb', None))
+    NODES_INFO = [['0.54.0', 16301], ['0.54.0', 16301]]
+    NODES_FIELDS = ['crate_version', 'total_heap_mb']
+
     CLUSTER_FIELDS_FETCHED = \
-        ((u'number_of_shards', None), (u'number_of_records', None))
+        (('number_of_shards', None), ('number_of_records', None))
     CLUSTER_INFO = [[128, 664755863]]
-    CLUSTER_FIELDS = [u'number_of_shards', u'number_of_records']
+    CLUSTER_FIELDS = ['number_of_shards', 'number_of_records']
 
     def setUp(self):
         self.patcher = patch(__name__+'.CrateCmd')
@@ -56,7 +55,6 @@ class SysInfoTest(TestCase):
         self.desc = [SysInfoTest.CLUSTER_FIELDS_FETCHED] * len(SysInfoCommand.CLUSTER_INFO)
         self.desc.append(SysInfoTest.NODES_FIELDS_FETCHED)
 
-    
     def tearDown(self):
         self.patcher.stop()
 
@@ -74,7 +72,7 @@ class SysInfoTest(TestCase):
     def test_sys_info(self):
         self.cmd.cursor.fetchall.side_effect = self.fetch_all
         self.cmd._execute.return_value = True
-        type(self.cmd.cursor).description = PropertyMock(side_effect=self.desc)        
+        type(self.cmd.cursor).description = PropertyMock(side_effect=self.desc)
         succcess, result = self.sys_info._sys_info()
         self.assertEqual(succcess, True)
         expected_nodes = Res(SysInfoTest.NODES_INFO, SysInfoTest.NODES_FIELDS)

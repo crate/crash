@@ -79,6 +79,7 @@ setup(
               ],
         argcompletion=['argcomplete']
     ),
+    python_requires='>=2.7',
     install_requires=requirements,
     package_data={'': ['*.txt']},
     classifiers=[

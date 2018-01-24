@@ -243,6 +243,7 @@ class CommandTest(TestCase):
             except IOError:
                 pass
             sys.argv = orig_argv
+            sys.stdin.close()
 
     @patch('sys.stdin', fake_stdin(u"select 'via-stdin' from sys.cluster"))
     def test_cmd_precedence(self):
@@ -273,6 +274,7 @@ class CommandTest(TestCase):
             except IOError:
                 pass
             sys.argv = orig_argv
+            sys.stdin.close()
 
     def test_multiple_hosts(self):
         orig_argv = sys.argv[:]
@@ -327,7 +329,10 @@ class CommandTest(TestCase):
         expected = ("create table test( d string ) "
                     "clustered into 2 shards "
                     "with (number_of_replicas=0)")
-        self.assertEqual(stmt, expected)
+        try:
+            self.assertEqual(stmt, expected)
+        finally:
+            sys.stdin.close()
 
     @patch('sys.stdin', fake_stdin('\n'.join(["create table test(",
                                               "d string",
@@ -343,7 +348,10 @@ class CommandTest(TestCase):
         expected = ("create table test( d string ) "
                     "clustered into 2 shards "
                     "with (number_of_replicas=0);")
-        self.assertEqual(stmt, expected)
+        try:
+            self.assertEqual(stmt, expected)
+        finally:
+            sys.stdin.close()
 
     def test_tabulate_null_int_column(self):
         """

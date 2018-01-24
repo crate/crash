@@ -89,7 +89,7 @@ class CrateStyle(Style):
 class TruncatedFileHistory(FileHistory):
 
     def __init__(self, filename, max_length=1000):
-        super(TruncatedFileHistory, self).__init__(filename)
+        super().__init__(filename)
         base = os.path.dirname(filename)
         if not os.path.exists(base):
             os.makedirs(base)
@@ -100,7 +100,7 @@ class TruncatedFileHistory(FileHistory):
 
     def append(self, string):
         self.strings = self.strings[:max(0, self.max_length - 1)]
-        super(TruncatedFileHistory, self).append(string)
+        super().append(string)
 
 
 class SQLCompleter(Completer):
@@ -221,8 +221,7 @@ class CrashBuffer(Buffer):
                 return False
             return not doc.text.rstrip().endswith(';')
 
-        super(self.__class__, self).__init__(
-            *args, is_multiline=is_multiline, **kwargs)
+        super().__init__(*args, is_multiline=is_multiline, **kwargs)
 
 
 class Capitalizer:

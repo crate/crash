@@ -43,7 +43,7 @@ from .test_keybinding import TabIndentTest
 class CrateTestCmd(CrateCmd):
 
     def __init__(self, **kwargs):
-        super(CrateTestCmd, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         doctest_print = PrintWrapper()
         self.logger = ColorPrinter(False, stream=doctest_print, line_end='')
 

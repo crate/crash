@@ -279,7 +279,6 @@ def create_buffer(cmd, history_file):
 def _get_toolbar_tokens(is_conn_available, username, active_servers):
         tokens = []
         if is_conn_available():
-            active_servers = active_servers
             hosts = ', '.join(
                 (n.replace('http://', '').replace('https://', '') for n in active_servers))
             tokens.extend([(Token.Toolbar.Status.Key, 'USER: '),

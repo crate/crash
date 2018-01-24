@@ -321,7 +321,7 @@ class CrateCmd(object):
         self.cursor = self.connection.cursor()
 
     def _connect(self, server):
-        """ connect to the given server, e.g.: \connect localhost:4200 """
+        """ connect to the given server, e.g.: \\connect localhost:4200 """
         self.last_connected_servers = server
         self._do_connect()
         self._verify_connection(verbose=True)
@@ -384,7 +384,7 @@ class CrateCmd(object):
             return True
         else:
             self.logger.critical(
-                'Unknown command. Type \? for a full list of available commands.')
+                'Unknown command. Type \\? for a full list of available commands.')
         return False
 
     def _exec(self, line):
@@ -399,7 +399,7 @@ class CrateCmd(object):
             if self.error_trace:
                 self.logger.warn(str(e))
             self.logger.warn(
-                'Use \connect <server> to connect to one or more servers first.')
+                'Use \\connect <server> to connect to one or more servers first.')
         except ProgrammingError as e:
             self.logger.critical(e.message)
             if self.error_trace and e.error_trace:
@@ -433,7 +433,7 @@ def stmt_type(statement):
     """
     Extract type of statement, e.g. SELECT, INSERT, UPDATE, DELETE, ...
     """
-    return re.findall('[\w]+', statement)[0].upper()
+    return re.findall(r'[\w]+', statement)[0].upper()
 
 
 def get_stdin():

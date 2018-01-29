@@ -98,7 +98,7 @@ other hard-coded cli parameter.
 
 For example::
 
-    $ export CRASHPW=dustins-password
+    $ export CRATEPW=dustins-password
     $ crash --hosts localhost:4200 \
             --username dustin \
             --format json \

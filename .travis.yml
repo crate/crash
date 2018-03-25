@@ -8,8 +8,11 @@ python:
     - nightly
 
 before_install:
-    - pip install --upgrade setuptools
-    - pip uninstall -y six
+  # clean existing dependencies to avoid clashes
+  - pip freeze | xargs pip uninstall -y
+  - pip uninstall -y setuptools
+  - pip install setuptools==33.1.1  # pin specific version in virtualenv
+  - pip freeze --all  # debug
 
 install:
     - python bootstrap.py

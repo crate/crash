@@ -124,19 +124,26 @@ class ToggleVerboseCommandTest(TestCase):
 
 class ShowTablesCommandTest(TestCase):
 
+    def test_post_2_0(self):
+        cmd = CrateCmd()
+        cmd._exec = MagicMock()
+        cmd.connection.lowest_server_version = StrictVersion("2.0.0")
+        cmd._show_tables()
+        cmd._exec.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') AND table_type = 'BASE TABLE'")
+
     def test_post_0_57(self):
         cmd = CrateCmd()
         cmd._exec = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("0.57.0")
         cmd._show_tables()
-        cmd._exec.assert_called_with("select format('%s.%s', table_schema, table_name) as name from information_schema.tables where table_schema not in ('sys','information_schema', 'pg_catalog')")
+        cmd._exec.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog')")
 
     def test_pre_0_57(self):
         cmd = CrateCmd()
         cmd._exec = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("0.56.4")
         cmd._show_tables()
-        cmd._exec.assert_called_with("select format('%s.%s', schema_name, table_name) as name from information_schema.tables where schema_name not in ('sys','information_schema', 'pg_catalog')")
+        cmd._exec.assert_called_with("SELECT format('%s.%s', schema_name, table_name) AS name FROM information_schema.tables WHERE schema_name NOT IN ('sys','information_schema', 'pg_catalog')")
 
 class ChecksCommandTest(TestCase):
 

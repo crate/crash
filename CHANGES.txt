@@ -12,6 +12,8 @@ Changes
    If you are using crash with Python 2.7 or 3.3 already, you will not be able
    to install newer versions of this package.
 
+ - Updated the ``\dt`` command to show only tables, but not views. This is to
+   be forward compatible with CrateDB 3.0 and greater.
 
 2017/12/15 0.23.0
 =================

@@ -1,0 +1,91 @@
+.. _getting-started:
+
+===============
+Getting Started
+===============
+
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
+Install
+=======
+
+Crash is bundled with `CrateDB`_ so there is typically no need to install it
+yourself.
+
+.. TIP::
+
+   For manual installation instructions, consult the `PyPI overview`_.
+
+Run
+===
+
+If you are able to run the ``crate`` command (see `Running CrateDB`_), you
+should be able to run the ``crash`` command. Both of these executable files
+live inside the main CrateDB ``bin`` directory.
+
+If the CrateDB ``bin`` directory is on your `PATH`_, you can start Crash like
+so::
+
+  sh$ crash
+
+Otherwise, locate the CrateDB directory, and run it like so::
+
+  sh$ ./bin/crash
+
+When ``crash`` is run without any additional arguments, it will attempt to
+connect to ``localhost:4200``. To connect to another host, use the ``--hosts``
+flag. For example::
+
+  sh$ crash --host 198.51.100.1
+
+If you are experiencing a connection error, try the ``--verbose`` flag::
+
+  sh$ crash --verbose
+
+When run with ``--verbose``, Crash will print useful information about
+what it is doing to `STDOUT`_. This includes connection attempts and full stack
+traces (in the case of an error).
+
+.. TIP::
+
+   For more help, see :ref:`run`.
+
+Query
+=====
+
+When you run Crash, you will see something like this:
+
+.. image:: startup.png
+    :alt: A screenshot of Crash after startup
+
+This is an interactive `shell`_. You can type any CrateDB SQL query at the
+``cr>`` prompt.
+
+Queries are autocompleted as you type:
+
+.. image:: autocomplete.png
+    :alt: A screenshot of Crash after executing a query
+
+Once you have entered your query, hit :kbd:`Enter` to run.
+
+You should see something like this:
+
+.. image:: query.png
+    :alt: A screenshot of Crash after executing a query
+
+.. TIP::
+
+   For more help, see :ref:`commands` or :ref:`formats`.
+
+.. _Command Line Arguments: https://crate.io/docs/projects/crash/en/stable/cli.html
+.. _crate-python: https://pypi.python.org/pypi/crate/
+.. _CrateDB REST Endpoint: https://crate.io/docs/current/sql/rest.html
+.. _CrateDB: https://crate.io/products/cratedb/
+.. _PATH: https://en.wikipedia.org/wiki/PATH_(variable)
+.. _PyPI overview: https://pypi.python.org/pypi/crash/
+.. _Running CrateDB: https://crate.io/docs/crate/reference/en/latest/run.html
+.. _shell: https://en.wikipedia.org/wiki/Shell_(computing)
+.. _STDOUT: https://en.wikipedia.org/wiki/Standard_streams

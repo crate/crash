@@ -5,11 +5,14 @@ Developer Guide
 Setup
 =====
 
-This project uses buildout_ to set up the development environment.
+This project uses `buildout`_ to set up the development environment.
 
 To start things off, run::
 
     $ python bootstrap.py
+
+Your system python should be Python 3. If it isn't, try running `python3`
+instead. If that doesn't exist, you will have to install Python 3.
 
 Then, run::
 
@@ -22,7 +25,7 @@ Then to run your local crash, use::
 Running Tests
 =============
 
-The tests are run using the zope.testrunner_::
+The tests are run using the `zope.testrunner`_::
 
     $ ./bin/test
 
@@ -33,8 +36,8 @@ You can run the tests against multiple Python interpreters with tox_::
 
     $ ./bin/tox
 
-To do this, you will need ``python2.7``, ``python3.3``, and ``pypy`` on your
-``$PATH``.
+To do this, you will need (for example) ``python3.3`` (any other interpreters
+you want to test against) as well as ``pypy`` on your ``$PATH``.
 
 To run against a single interpreter, you can also do::
 
@@ -66,9 +69,9 @@ To create a new release, you must:
 
 - Create a tag by running ``./devtools/create_tag.sh``
 
-- Deploy to PyPI (see section below)
+- Deploy to PyPI (see below)
 
-- Archive docs for old releases (see section below)
+- Archive docs for old releases (see below)
 
 PyPI Deployment
 ---------------
@@ -77,11 +80,12 @@ To create the package use::
 
     $ bin/py setup.py sdist bdist_wheel
 
-Then, use twine_ to upload the package to PyPI_::
+Then, use twine_ to upload the package to `PyPI`_::
 
     $ bin/twine upload dist/*
 
-For this to work, you will need a personal PyPI account that is set up as a project admin.
+For this to work, you will need a personal PyPI account that is set up as a
+project admin.
 
 You'll also need to create a ``~/.pypirc`` file, like so::
 
@@ -94,7 +98,8 @@ You'll also need to create a ``~/.pypirc`` file, like so::
     username=<USERNAME>
     password=<PASSWORD>
 
-Here, ``<USERNAME>`` and ``<PASSWORD>`` should be replaced with your username and password, respectively.
+Here, ``<USERNAME>`` and ``<PASSWORD>`` should be replaced with your username
+and password, respectively.
 
 If you want to check the PyPI description before uploading, run::
 
@@ -105,7 +110,7 @@ Archiving Docs Versions
 
 Check the `versions hosted on ReadTheDocs`_.
 
-We should only be hosting the docs for `latest`, the last three minor release
+We should only be hosting the docs for ``latest``, the last three minor release
 branches of the last major release, and the last minor release branch
 corresponding to the last two major releases.
 
@@ -117,7 +122,7 @@ For example:
 - ``0.20``
 
 Because this project has not yet had a major release, as of yet, there are no
-major releases before `0` to include in this list.
+major releases before ``0`` to include in this list.
 
 Sometimes you might find that there are multiple older releases that need to be
 archived.
@@ -128,14 +133,15 @@ checkbox, and then saving.
 Standalone Deployment
 =====================
 
-The standalone executable is built and deployed by a Jenkins_ job.
+The standalone executable is built and deployed by a `Jenkins`_ job.
 
 Writing Documentation
 =====================
 
 The docs live under the ``docs`` directory.
 
-The docs are written written with ReStructuredText_ and processed with Sphinx_.
+The docs are written written with `ReStructuredText`_ and processed with
+`Sphinx`_.
 
 Build the docs by running::
 
@@ -154,5 +160,5 @@ nothing special you need to do to get the live docs to update.
 .. _Sphinx: http://sphinx-doc.org/
 .. _tox: http://testrun.org/tox/latest/
 .. _twine: https://pypi.python.org/pypi/twine
-.. _zope.testrunner: https://pypi.python.org/pypi/zope.testrunner/4.4.1
 .. _versions hosted on ReadTheDocs: https://readthedocs.org/projects/crash/versions/
+.. _zope.testrunner: https://pypi.python.org/pypi/zope.testrunner/4.4.1

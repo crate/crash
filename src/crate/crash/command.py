@@ -127,48 +127,48 @@ def get_parser(output_formats=[], conf=None):
     parser = ArgumentParser(description='crate shell')
     parser.add_argument('-v', '--verbose', action='count',
                         dest='verbose', default=_conf_or_default('verbosity', 0),
-                        help='use -v to get debug output')
+                        help='print debug information to STDOUT')
     parser.add_argument('-A', '--no-autocomplete', action='store_false',
                         dest='autocomplete',
                         default=_conf_or_default('autocomplete', True),
-                        help='use -A to disable SQL autocompletion')
+                        help='disable SQL keywords autocompletion')
     parser.add_argument('-a', '--autocapitalize', action='store_true',
                         dest='autocapitalize',
                         default=False,
-                        help='use -a to enable experimental auto-capitalization of SQL keywords')
-    parser.add_argument('-U', '--username', type=str,
-                        help='the username to authenticate in the database')
+                        help='enable automatic capitalization of SQL keywords while typing')
+    parser.add_argument('-U', '--username', type=str, metavar='USERNAME'
+                        help='Authenticate as USERNAME.')
     parser.add_argument('-W', '--password', action='store_true',
                         dest='force_passwd_prompt', default=_conf_or_default('force_passwd_prompt', False),
-                        help='force password prompt')
-    parser.add_argument('--history', type=str,
-                        help='the history file to use', default=HISTORY_PATH)
-    parser.add_argument('--config', type=str,
-                        help='the configuration file to use', default=CONFIG_PATH)
+                        help='force a password prompt')
+    parser.add_argument('--history', type=str, metavar='FILENAME'
+                        help='Use FILENAME as a history file', default=HISTORY_PATH)
+    parser.add_argument('--config', type=str, metavar='FILENAME'
+                        help='use FILENAME as a configuration file', default=CONFIG_PATH)
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-c', '--command', type=str,
-                       help='execute sql statement')
+    group.add_argument('-c', '--command', type=str, metavar='STATEMENT'
+                       help='Execute the STATEMENT and exit.')
     group.add_argument('--sysinfo', action='store_true', default=False,
-                       help='show system information')
+                       help='print system and cluster information')
 
     parser.add_argument('--hosts', type=str, nargs='*',
                         default=_conf_or_default('hosts', ['localhost:4200']),
-                        help='the crate hosts to connect to', metavar='HOST')
+                        help='connect to HOSTS.', metavar='HOSTS')
     parser.add_argument('--verify-ssl', type=boolean, default=True,
-                        help='force verification of the SSL certificate of the server')
-    parser.add_argument('--cert-file', type=file_with_permissions,
-                        help='path to the client certificate file')
-    parser.add_argument('--key-file', type=file_with_permissions,
-                        help='path to the key file of the client certificate')
-    parser.add_argument('--ca-cert-file', type=file_with_permissions,
-                        help='path to the CA certificate file')
+                        help='force the verification of the server SSL certificate')
+    parser.add_argument('--cert-file', type=file_with_permissions, metavar='FILENAME'
+                        help='use FILENAME as the client certificate file')
+    parser.add_argument('--key-file', type=file_with_permissions, metavar='FILENAME'
+                        help='Use FILENAME as the client certificate key file')
+    parser.add_argument('--ca-cert-file', type=file_with_permissions, metavar='FILENAME'
+                        help='use FILENAME as the CA certificate file')
     parser.add_argument('--format', type=str,
                         default=_conf_or_default('format', 'tabular'),
-                        choices=output_formats,
-                        help='output format of the sql response', metavar='FORMAT')
+                        choices=output_formats, metavar='FORMAT'
+                        help='the output FORMAT of the SQL response')
     parser.add_argument('--version', action='store_true', default=False,
-                        help='show crash version and exit')
+                        help='print the Crash version and exit')
 
     return parser
 

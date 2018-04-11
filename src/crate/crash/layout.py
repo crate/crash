@@ -36,7 +36,7 @@ from prompt_toolkit.layout.margins import PromptMargin, ConditionalMargin
 from prompt_toolkit.layout.utils import token_list_width
 
 
-def create_layout(message='', lexer=None,
+def create_layout(lexer=None,
                   reserve_space_for_menu=8,
                   get_prompt_tokens=None,
                   get_bottom_toolbar_tokens=None,
@@ -78,7 +78,6 @@ def create_layout(message='', lexer=None,
     ]
     sidebar_width = token_list_width(sidebar_token)
 
-    get_prompt_tokens = lambda _: [(Token.Prompt, message)]
     get_sidebar_tokens = lambda _: sidebar_token
 
     def get_height(cli):

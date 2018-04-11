@@ -657,7 +657,7 @@ class CommandTest(TestCase):
         args = parse_args(parser)
 
         crate_hosts = [host_and_port(h) for h in args.hosts]
-        crash = _create_shell(crate_hosts, False, None, False, args, None)
+        crash = _create_shell(crate_hosts, False, None, False, args)
         crash.execute("""
 CREATE FUNCTION fib(long)
 RETURNS LONG
@@ -668,20 +668,20 @@ LANGUAGE javascript AS '
     }'
         """)
 
-        timeout = 0.01
+        timeout = 0.1
         slow_query = "SELECT fib(35)"
 
         # without verbose
-        crash = _create_shell(crate_hosts, False, None, False, args, timeout)
+        crash = _create_shell(crate_hosts, False, None, False, args, timeout=timeout)
         crash.logger = Mock()
         crash.execute(slow_query)
         crash.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
 
         # with verbose
-        crash = _create_shell(crate_hosts, True, None, False, args, timeout)
+        crash = _create_shell(crate_hosts, True, None, False, args, timeout=timeout)
         crash.logger = Mock()
         crash.execute(slow_query)
-        crash.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.01)")
+        crash.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.1)")
         crash.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):

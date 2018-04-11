@@ -74,6 +74,9 @@ The ``crash`` executable supports multiple command-line options:
 |                               | ``json``, ``json_row``, ``csv`` and          |
 |                               | ``mixed``.                                   |
 +-------------------------------+----------------------------------------------+
+| ``--schema <SCHEMA>``         | The default schema that should be used for   |
+|                               | statements.                                  |
++-------------------------------+----------------------------------------------+
 | | ``-A`` ,                    | Disable SQL keywords autocompletion.         |
 | | ``--no-autocomplete``       |                                              |
 |                               | Autocompletion requires a minimum terminal   |

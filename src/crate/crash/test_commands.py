@@ -113,12 +113,12 @@ class ToggleVerboseCommandTest(TestCase):
         command = ToggleVerboseCommand()
         output = command(fake_cmd)
         self.assertEqual(output, 'Verbose OFF')
-        self.assertEqual(fake_cmd._do_connect.call_count, 1)
+        self.assertEqual(fake_cmd.reconnect.call_count, 1)
 
         fake_cmd.reset_mock()
         output = command(fake_cmd)
         self.assertEqual(output, 'Verbose ON')
-        self.assertEqual(fake_cmd._do_connect.call_count, 1)
+        self.assertEqual(fake_cmd.reconnect.call_count, 1)
 
 
 class ShowTablesCommandTest(TestCase):

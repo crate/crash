@@ -277,25 +277,30 @@ def create_buffer(cmd, history_file):
     return buffer
 
 
-def _get_toolbar_tokens(is_conn_available, username, active_servers):
-        tokens = []
-        if is_conn_available():
-            hosts = ', '.join(
-                (n.replace('http://', '').replace('https://', '') for n in active_servers))
-            tokens.extend([(Token.Toolbar.Status.Key, 'USER: '),
-                           (Token.Toolbar.Status, '{}'.format(username)),
-                           (Token.Toolbar.Status, ' | '),
-                           (Token.Toolbar.Status.Key, 'HOSTS: '),
-                           (Token.Toolbar.Status, hosts)])
-        else:
-            tokens.extend([(Token.Toolbar.Status, 'not connected')])
-        return tokens
+def get_toolbar_tokens(cmd):
+    return _get_toolbar_tokens(cmd.is_conn_available(),
+                               cmd.connection.client.active_servers,
+                               cmd.connect_info)
+
+
+def _get_toolbar_tokens(is_connected, servers, info):
+    tokens = []
+    if is_connected:
+        hosts = ', '.join(re.sub('^https?:\/\/', '', a) for a in servers)
+        tokens.extend([(Token.Toolbar.Status.Key, 'USER: '),
+                       (Token.Toolbar.Status, info.user or '--'),
+                       (Token.Toolbar.Status, ' | '),
+                       (Token.Toolbar.Status.Key, 'SCHEMA: '),
+                       (Token.Toolbar.Status, info.schema or 'doc'),
+                       (Token.Toolbar.Status, ' | '),
+                       (Token.Toolbar.Status.Key, 'HOSTS: '),
+                       (Token.Toolbar.Status, hosts)])
+    else:
+        tokens.extend([(Token.Toolbar.Status, 'not connected')])
+    return tokens
 
 
 def loop(cmd, history_file):
-
-    def session_toolbar(cli):
-        return _get_toolbar_tokens(cmd.is_conn_available, cmd.username, cmd.connection.client.active_servers)
 
     key_binding_manager = KeyBindingManager(
         enable_search=True,
@@ -305,7 +310,6 @@ def loop(cmd, history_file):
     )
     bind_keys(key_binding_manager.registry)
     layout = create_layout(
-        message='cr> ',
         multiline=True,
         lexer=SqlLexer,
         extra_input_processors=[
@@ -313,7 +317,8 @@ def loop(cmd, history_file):
                 processor=HighlightMatchingBracketProcessor(chars='[](){}'),
                 filter=HasFocus(DEFAULT_BUFFER) & ~IsDone())
         ],
-        get_bottom_toolbar_tokens=session_toolbar
+        get_bottom_toolbar_tokens=lambda cli: get_toolbar_tokens(cmd),
+        get_prompt_tokens=lambda cli: [(Token.Prompt, 'cr> ')]
     )
     application = Application(
         layout=layout,

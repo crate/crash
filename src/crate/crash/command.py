@@ -75,6 +75,8 @@ Result = namedtuple('Result', ['cols',
                                'duration',
                                'output_width'])
 
+ConnectionMeta = namedtuple('ConnectionMeta', ['user', 'schema'])
+
 TABLE_SCHEMA_MIN_VERSION = StrictVersion("0.57.0")
 TABLE_TYPE_MIN_VERSION = StrictVersion("2.0.0")
 
@@ -141,6 +143,8 @@ def get_parser(output_formats=[], conf=None):
     parser.add_argument('-W', '--password', action='store_true',
                         dest='force_passwd_prompt', default=_conf_or_default('force_passwd_prompt', False),
                         help='force a password prompt')
+    parser.add_argument('--schema', type=str,
+                        help='default schema for statements if schema is not explicitly stated in queries')
     parser.add_argument('--history', type=str, metavar='FILENAME',
                         help='Use FILENAME as a history file', default=HISTORY_PATH)
     parser.add_argument('--config', type=str, metavar='FILENAME',
@@ -223,18 +227,9 @@ class CrateShell:
                  ca_cert_file=None,
                  username=None,
                  password=None,
+                 schema=None,
                  timeout=None):
-        self.connection = connect(crate_hosts,
-                                  error_trace=error_trace,
-                                  verify_ssl_cert=verify_ssl,
-                                  cert_file=cert_file,
-                                  key_file=key_file,
-                                  ca_cert=ca_cert_file,
-                                  username=username,
-                                  password=password,
-                                  timeout=timeout)
-        self.cursor = self.connection.cursor()
-        self.last_connected_servers = crate_hosts
+        self.last_connected_servers = []
 
         self.exit_code = 0
         self.expanded_mode = False
@@ -259,6 +254,12 @@ class CrateShell:
         self.ca_cert_file = ca_cert_file
         self.username = username
         self.password = password
+        self.schema = schema
+        self.timeout = timeout
+
+        # establish connection
+        self.connection = None
+        self._do_connect(crate_hosts)
 
     def get_num_columns(self):
         return 80
@@ -323,28 +324,37 @@ class CrateShell:
         else:
             return True
 
-    def _do_connect(self):
-        self.connection = connect(servers=self.last_connected_servers,
+    def _do_connect(self, servers):
+        self.last_connected_servers = servers
+        if self.connection:
+            self.connection.close()
+        self.connection = connect(servers,
                                   error_trace=self.error_trace,
                                   verify_ssl_cert=self.verify_ssl,
                                   cert_file=self.cert_file,
                                   key_file=self.key_file,
                                   ca_cert=self.ca_cert_file,
                                   username=self.username,
-                                  password=self.password)
+                                  password=self.password,
+                                  schema=self.schema,
+                                  timeout=self.timeout)
         self.cursor = self.connection.cursor()
+        self._fetch_session_info()
 
-    def _connect(self, server):
-        """ connect to the given server, e.g.: \\connect localhost:4200 """
-        self.last_connected_servers = server
-        self._do_connect()
+    def _connect(self, servers):
+        """ connect to the given server, e.g.: \connect localhost:4200 """
+        self._do_connect(servers.split(' '))
         self._verify_connection(verbose=True)
+
+    def reconnect(self):
+        """Connect with same configuration and to last connected servers"""
+        self._do_connect(self.last_connected_servers)
 
     def _verify_connection(self, verbose=False):
         results = []
         failed = 0
         client = self.connection.client
-        for server in client.active_servers:
+        for server in client.server_pool.keys():
             try:
                 infos = client.server_infos(server)
             except ConnectionError as e:
@@ -367,6 +377,23 @@ class CrateShell:
                     get_information_schema_query(self.connection.lowest_server_version)
                 # check for failing node and cluster checks
                 built_in_commands['check'](self, startup=True)
+
+    def _fetch_session_info(self):
+        if self.is_conn_available() \
+                and self.connection.lowest_server_version >= StrictVersion("2.0"):
+            # CURRENT_USER function is only available in Enterprise Edition
+            self.cursor.execute("""
+                SELECT settings['license']['enterprise'] FROM sys.cluster;
+            """)
+            user_function = "current_user" if self.cursor.fetchone()[0] else "NULL"
+            self.cursor.execute("""
+                SELECT
+                  {} AS "user",
+                  current_schema AS "schema";
+            """.format(user_function))
+            self.connect_info = ConnectionMeta(*self.cursor.fetchone())
+        else:
+            self.connect_info = ConnectionMeta(None, None)
 
     def _try_exec_cmd(self, line):
         words = line.split(' ', 1)
@@ -594,6 +621,7 @@ def _create_shell(crate_hosts, error_trace, output_writer, is_tty, args,
                       ca_cert_file=args.ca_cert_file,
                       username=args.username,
                       password=password,
+                      schema=args.schema,
                       timeout=timeout)
 
 

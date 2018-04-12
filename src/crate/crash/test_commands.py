@@ -29,7 +29,7 @@ from .commands import ReadFileCommand, \
     ToggleAutocompleteCommand, ToggleAutoCapitalizeCommand, ToggleVerboseCommand, \
     NodeCheckCommand, ClusterCheckCommand, CheckCommand
 
-from .command import CrateCmd
+from .command import CrateShell
 from distutils.version import StrictVersion
 from .printer import PrintWrapper
 from .outputs import OutputWriter
@@ -73,7 +73,7 @@ class ReadFileCommandTest(TestCase):
             None, os.path.join(self.tmp_dir, 'dummy_folder/'))))
         self.assertEqual(results, ['dummy2.sql'])
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_call(self, fake_cmd):
         path = os.path.join(self.tmp_dir, 'foo.sql')
         with open(path, 'w') as fp:
@@ -85,7 +85,7 @@ class ReadFileCommandTest(TestCase):
 
 class ToggleAutocompleteCommandTest(TestCase):
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_toggle_output(self, fake_cmd):
         fake_cmd._autocomplete = True
         command = ToggleAutocompleteCommand()
@@ -97,7 +97,7 @@ class ToggleAutocompleteCommandTest(TestCase):
 
 class ToggleAutoCapitalizeCommandTest(TestCase):
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_toggle_output(self, fake_cmd):
         fake_cmd._autocapitalization = True
         command = ToggleAutoCapitalizeCommand()
@@ -108,7 +108,7 @@ class ToggleAutoCapitalizeCommandTest(TestCase):
 
 class ToggleVerboseCommandTest(TestCase):
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_toggle_output(self, fake_cmd):
         fake_cmd.error_trace = True
         command = ToggleVerboseCommand()
@@ -125,21 +125,21 @@ class ToggleVerboseCommandTest(TestCase):
 class ShowTablesCommandTest(TestCase):
 
     def test_post_2_0(self):
-        cmd = CrateCmd()
+        cmd = CrateShell()
         cmd._exec = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("2.0.0")
         cmd._show_tables()
         cmd._exec.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') AND table_type = 'BASE TABLE'")
 
     def test_post_0_57(self):
-        cmd = CrateCmd()
+        cmd = CrateShell()
         cmd._exec = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("0.57.0")
         cmd._show_tables()
         cmd._exec.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog')")
 
     def test_pre_0_57(self):
-        cmd = CrateCmd()
+        cmd = CrateShell()
         cmd._exec = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("0.56.4")
         cmd._show_tables()
@@ -147,7 +147,7 @@ class ShowTablesCommandTest(TestCase):
 
 class ChecksCommandTest(TestCase):
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_node_check(self, cmd):
         rows = [
                     ['local1', 'check1'],
@@ -163,14 +163,14 @@ class ChecksCommandTest(TestCase):
         NodeCheckCommand()(cmd)
         cmd.pprint.assert_called_with(rows, [c[0] for c in cols])
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_node_check_for_not_supported_version(self, cmd):
         cmd.connection.lowest_server_version = StrictVersion("0.52.3")
         NodeCheckCommand()(cmd)
         excepted = 'Crate 0.52.3 does not support the "\check nodes" command.'
         cmd.logger.warn.assert_called_with(excepted)
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_cluster_check(self, cmd):
         rows = [
                     ['local1', 'check1'],
@@ -186,14 +186,14 @@ class ChecksCommandTest(TestCase):
         ClusterCheckCommand()(cmd)
         cmd.pprint.assert_called_with(rows, [c[0] for c in cols])
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_cluster_check_for_not_supported_version(self, cmd):
         cmd.connection.lowest_server_version = StrictVersion("0.49.4")
         ClusterCheckCommand()(cmd)
         excepted = 'Crate 0.49.4 does not support the cluster "check" command.'
         cmd.logger.warn.assert_called_with(excepted)
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_check_command_with_cluster_check(self, cmd):
         command = CheckCommand()
         cmd._execute.return_value = True
@@ -203,7 +203,7 @@ class ChecksCommandTest(TestCase):
         command(cmd, 'cluster')
         cmd.logger.info.assert_called_with('CLUSTER CHECK OK')
 
-    @patch('crate.crash.command.CrateCmd')
+    @patch('crate.crash.command.CrateShell')
     def test_check_command_with_node_check(self, cmd):
         command = CheckCommand()
         cmd._execute.return_value = True

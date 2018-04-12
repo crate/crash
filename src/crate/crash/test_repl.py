@@ -23,12 +23,12 @@ from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
 from prompt_toolkit.token import Token
 from .repl import SQLCompleter, Capitalizer, create_buffer, _get_toolbar_tokens
-from .command import CrateCmd
+from .command import CrateShell
 
 class SQLCompleterTest(TestCase):
 
     def setUp(self):
-        cmd = CrateCmd()
+        cmd = CrateShell()
         self.completer = SQLCompleter(cmd)
 
     def test_get_builtin_command_completions(self):
@@ -43,7 +43,7 @@ class SQLCompleterTest(TestCase):
 class CrashBufferTest(TestCase):
 
     def test_create_buffer(self):
-        cmd = CrateCmd()
+        cmd = CrateShell()
         buffer = create_buffer(cmd, '/tmp/history')
         self.assertEqual(buffer.on_text_insert.fire(), None)
 
@@ -51,7 +51,7 @@ class CrashBufferTest(TestCase):
 class AutoCapitalizeTest(TestCase):
 
     def setUp(self):
-        cmd = CrateCmd()
+        cmd = CrateShell()
         self.capitalizer = Capitalizer(cmd)
 
     def test_capitalize(self):

@@ -27,7 +27,7 @@ import doctest
 import zc.customdoctests
 from . import command
 from crate.testing.layer import CrateLayer
-from .command import CrateCmd
+from .command import CrateShell
 from .printer import ColorPrinter, PrintWrapper
 from .test_command import CommandTest, CommandLineArgumentsTest, \
     OutputWriterTest, TestGetInformationSchemaQuery, CommandUtilsTest
@@ -40,7 +40,7 @@ from .test_config import ConfigurationTest
 from .test_keybinding import TabIndentTest
 
 
-class CrateTestCmd(CrateCmd):
+class TestShell(CrateShell):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -85,7 +85,7 @@ crate_uri = "http://" + crate_host
 
 
 def setUp(test):
-    test.globs['cmd'] = CrateTestCmd(error_trace=True, is_tty=False)
+    test.globs['cmd'] = TestShell(error_trace=True, is_tty=False)
 
 
 def tearDown(test):

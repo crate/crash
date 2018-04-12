@@ -24,7 +24,7 @@
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, PropertyMock
 
-from .command import CrateCmd
+from .command import CrateShell
 from .sysinfo import SysInfoCommand, Result as Res
 from distutils.version import StrictVersion
 
@@ -42,7 +42,7 @@ class SysInfoTest(TestCase):
     CLUSTER_FIELDS = ['number_of_shards', 'number_of_records']
 
     def setUp(self):
-        self.patcher = patch(__name__+'.CrateCmd')
+        self.patcher = patch(__name__+'.CrateShell')
         self.cmd = self.patcher.start()
         self.cmd.connection.lowest_server_version = CRATE_VERSION
         self.sys_info = SysInfoCommand(self.cmd)

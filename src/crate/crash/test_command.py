@@ -12,7 +12,7 @@ from unittest.mock import patch, Mock
 from crate.client.exceptions import ProgrammingError
 from urllib3.exceptions import LocationParseError
 
-from .command import CrateCmd, main, get_stdin, noargs_command, Result, \
+from .command import CrateShell, main, get_stdin, noargs_command, Result, \
     host_and_port, get_information_schema_query, stmt_type, _create_cmd, \
     get_parser, parse_args
 from .outputs import _val_len as val_len, OutputWriter
@@ -203,7 +203,7 @@ class CommandTest(TestCase):
                               "| name | name |",
                               "+------+------+",
                               "+------+------+\n"])
-        command = CrateCmd()
+        command = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             command.pprint([], ['name', 'name'])
             self.assertEqual(expected, output.getvalue())
@@ -215,7 +215,7 @@ class CommandTest(TestCase):
                               "+---------+",
                               "| 0.50    |",
                               "+---------+\n"])
-        command = CrateCmd()
+        command = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             command.pprint([["0.50"]], ['version'])
             self.assertEqual(expected, output.getvalue())
@@ -364,7 +364,7 @@ class CommandTest(TestCase):
                               '|    1 |',
                               '| NULL |',
                               '+------+\n'])
-        cmd = CrateCmd()
+        cmd = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             cmd.pprint(rows, cols=['x'])
             self.assertEqual(expected, output.getvalue())
@@ -380,7 +380,7 @@ class CommandTest(TestCase):
                               '| FALSE |',
                               '| 1     |',
                               '+-------+\n'])
-        cmd = CrateCmd()
+        cmd = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             cmd.pprint(rows, cols=['x'])
             self.assertEqual(expected, output.getvalue())
@@ -397,7 +397,7 @@ class CommandTest(TestCase):
                               '| FALSE |',
                               '| 1     |',
                               '+-------+\n'])
-        cmd = CrateCmd()
+        cmd = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             cmd.pprint(rows, cols=['x\ny'])
             self.assertEqual(expected, output.getvalue())
@@ -415,7 +415,7 @@ class CommandTest(TestCase):
                               '|   name string         |     |   |',
                               '| )                     |     |   |',
                               '+-----------------------+-----+---+\n'])
-        cmd = CrateCmd()
+        cmd = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             cmd.pprint(rows, cols=['show create table foo', 'a', 'b'])
             self.assertEqual(expected, output.getvalue())
@@ -433,7 +433,7 @@ class CommandTest(TestCase):
                               '|                                    | Planet      |',
                               '+------------------------------------+-------------+\n'])
 
-        cmd = CrateCmd()
+        cmd = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             cmd.pprint(rows, cols=['min(name)', 'kind'])
             #assert 0
@@ -452,7 +452,7 @@ class CommandTest(TestCase):
                               '| Galactic Sector QQ7 Active J Gamma | Galaxy      |',
                               '+------------------------------------+-------------+\n'])
 
-        cmd = CrateCmd()
+        cmd = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             cmd.pprint(rows, cols=['min(name)', 'kind'])
             self.assertEqual(expected, output.getvalue())
@@ -471,7 +471,7 @@ class CommandTest(TestCase):
                                   '| Alpha Centauri      | Alpha - Centauri      |',
                                   '+---------------------+-----------------------+\n'])
 
-            cmd = CrateCmd()
+            cmd = CrateShell()
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['name', 'replaced'])
                 self.assertEqual(expected, output.getvalue())
@@ -489,7 +489,7 @@ class CommandTest(TestCase):
                                   '| Features and conformance views | FALSE        | 3              | SQL_LANGUAGES view |',
                                   '+--------------------------------+--------------+----------------+--------------------+\n'])
 
-            cmd = CrateCmd()
+            cmd = CrateShell()
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['feature_name', 'is_supported', 'sub_feature_id', 'sub_feature_name'])
                 self.assertEqual(expected, output.getvalue())
@@ -514,7 +514,7 @@ class CommandTest(TestCase):
                                   '| NULL                               |    1.0 |',
                                   '+------------------------------------+--------+\n'])
 
-            cmd = CrateCmd()
+            cmd = CrateShell()
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['name', '_score'])
                 self.assertEqual(expected, output.getvalue())
@@ -531,7 +531,7 @@ class CommandTest(TestCase):
             self.assertEqual(e.code, 1)
 
     def test_verbose_with_error_trace(self):
-        command = CrateCmd(error_trace=True)
+        command = CrateShell(error_trace=True)
         command.logger = Mock()
         command.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
                                                                    error_trace="error trace"))
@@ -540,7 +540,7 @@ class CommandTest(TestCase):
         command.logger.critical.assert_called_with("\nerror trace")
 
     def test_verbose_no_error_trace(self):
-        command = CrateCmd(error_trace=True)
+        command = CrateShell(error_trace=True)
         command.logger = Mock()
         command.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
                                                                    error_trace=None))
@@ -556,7 +556,7 @@ class CommandTest(TestCase):
                               '+-------------------------------+',
                               '| {"age": 42, "name": "Arthur"} |',
                               '+-------------------------------+\n'])
-        command = CrateCmd()
+        command = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             command.pprint([[user]], ['user'])
             self.assertEqual(expected, output.getvalue())
@@ -569,7 +569,7 @@ class CommandTest(TestCase):
                               '+--------------------+',
                               '| ["Arthur", "Ford"] |',
                               '+--------------------+\n'])
-        command = CrateCmd()
+        command = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             command.pprint([[names]], ['names'])
             self.assertEqual(expected, output.getvalue())
@@ -582,14 +582,14 @@ class CommandTest(TestCase):
                               '|  3.1415926535 |',
                               '| 42.0          |',
                               '+---------------+\n'])
-        command = CrateCmd()
+        command = CrateShell()
         with patch('sys.stdout', new_callable=StringIO) as output:
             command.pprint([[3.1415926535], [42.0]], ['number'])
             self.assertEqual(expected, output.getvalue())
 
     def test_help_command(self):
         """Test output of help command"""
-        command = CrateCmd(is_tty=False)
+        command = CrateShell(is_tty=False)
         expected = "\n".join([
             '\\?                              print this help',
             '\\autocapitalize                 toggle automatic capitalization of SQL keywords',
@@ -608,7 +608,7 @@ class CommandTest(TestCase):
         help_ = command.commands['?']
         self.assertTrue(isinstance(help_, Command))
         self.assertEqual(expected, help_(command))
-        command = CrateCmd(is_tty=False)
+        command = CrateShell(is_tty=False)
 
         output = StringIO()
         command.logger = ColorPrinter(False, stream=output)

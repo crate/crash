@@ -208,7 +208,7 @@ def _parse_statements(lines):
         yield ' '.join(parts)
 
 
-class CrateCmd(object):
+class CrateShell:
 
     def __init__(self,
                  output_writer=None,
@@ -576,18 +576,18 @@ def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args, timeout=N
                    username=args.username,
                    timeout=timeout,
                    password=password)
-    return CrateCmd(connection=conn,
-                    error_trace=error_trace,
-                    output_writer=output_writer,
-                    is_tty=is_tty,
-                    autocomplete=args.autocomplete,
-                    autocapitalize=args.autocapitalize,
-                    verify_ssl=args.verify_ssl,
-                    cert_file=args.cert_file,
-                    key_file=args.key_file,
-                    ca_cert_file=args.ca_cert_file,
-                    username=args.username,
-                    password=password)
+    return CrateShell(connection=conn,
+                      error_trace=error_trace,
+                      output_writer=output_writer,
+                      is_tty=is_tty,
+                      autocomplete=args.autocomplete,
+                      autocapitalize=args.autocapitalize,
+                      verify_ssl=args.verify_ssl,
+                      cert_file=args.cert_file,
+                      key_file=args.key_file,
+                      ca_cert_file=args.ca_cert_file,
+                      username=args.username,
+                      password=password)
 
 def file_with_permissions(path):
     open(path, 'r').close()

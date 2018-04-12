@@ -211,8 +211,8 @@ def _parse_statements(lines):
 class CrateShell:
 
     def __init__(self,
+                 crate_hosts=['localhost:4200'],
                  output_writer=None,
-                 connection=None,
                  error_trace=False,
                  is_tty=True,
                  autocomplete=True,
@@ -222,12 +222,20 @@ class CrateShell:
                  key_file=None,
                  ca_cert_file=None,
                  username=None,
-                 password=None):
-        self.error_trace = error_trace
-        self.connection = connection or connect(error_trace=error_trace)
+                 password=None,
+                 timeout=None):
+        self.connection = connect(crate_hosts,
+                                  error_trace=error_trace,
+                                  verify_ssl_cert=verify_ssl,
+                                  cert_file=cert_file,
+                                  key_file=key_file,
+                                  ca_cert=ca_cert_file,
+                                  username=username,
+                                  password=password,
+                                  timeout=timeout)
         self.cursor = self.connection.cursor()
-        self.output_writer = output_writer or OutputWriter(
-            PrintWrapper(), is_tty)
+        self.last_connected_servers = crate_hosts
+
         self.exit_code = 0
         self.expanded_mode = False
         self.sys_info_cmd = SysInfoCommand(self)
@@ -240,15 +248,18 @@ class CrateShell:
         }
         self.commands.update(built_in_commands)
         self.logger = ColorPrinter(is_tty)
+
+        self.output_writer = output_writer or OutputWriter(PrintWrapper(), is_tty)
+        self.error_trace = error_trace
         self._autocomplete = autocomplete
         self._autocapitalize = autocapitalize
-        self.username = username
-        self.password = password
         self.verify_ssl = verify_ssl
         self.cert_file = cert_file
         self.key_file = key_file
         self.ca_cert_file = ca_cert_file
-        self.last_connected_servers = None
+        self.username = username
+        self.password = password
+
 
     def get_num_columns(self):
         return 80
@@ -527,15 +538,15 @@ def main():
     # password authentication.
     cmd = None
     try:
-        cmd = _create_cmd(crate_hosts, error_trace, output_writer, is_tty,
-                          args, password=password)
+        cmd = _create_shell(crate_hosts, error_trace, output_writer, is_tty,
+                            args, password=password)
     except (ProgrammingError, LocationParseError) as e:
         if '401' in e.message and not force_passwd_prompt:
             if is_tty:
                 password = getpass()
             try:
-                cmd = _create_cmd(crate_hosts, error_trace, output_writer,
-                                  is_tty, args, password=password)
+                cmd = _create_shell(crate_hosts, error_trace, output_writer,
+                                    is_tty, args, password=password)
             except (ProgrammingError, LocationParseError) as ex:
                 printer.warn(str(ex))
                 sys.exit(1)
@@ -567,16 +578,9 @@ def main():
     conf.save()
     sys.exit(cmd.exit())
 
-def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args, timeout=None, password=None):
-    conn = connect(crate_hosts,
-                   verify_ssl_cert=args.verify_ssl,
-                   cert_file=args.cert_file,
-                   key_file=args.key_file,
-                   ca_cert=args.ca_cert_file,
-                   username=args.username,
-                   timeout=timeout,
-                   password=password)
-    return CrateShell(connection=conn,
+def _create_shell(crate_hosts, error_trace, output_writer, is_tty, args,
+                  timeout=None, password=None):
+    return CrateShell(crate_hosts,
                       error_trace=error_trace,
                       output_writer=output_writer,
                       is_tty=is_tty,
@@ -587,7 +591,8 @@ def _create_cmd(crate_hosts, error_trace, output_writer, is_tty, args, timeout=N
                       key_file=args.key_file,
                       ca_cert_file=args.ca_cert_file,
                       username=args.username,
-                      password=password)
+                      password=password,
+                      timeout=timeout)
 
 def file_with_permissions(path):
     open(path, 'r').close()

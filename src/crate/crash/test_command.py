@@ -13,7 +13,7 @@ from crate.client.exceptions import ProgrammingError
 from urllib3.exceptions import LocationParseError
 
 from .command import CrateShell, main, get_stdin, noargs_command, Result, \
-    host_and_port, get_information_schema_query, stmt_type, _create_cmd, \
+    host_and_port, get_information_schema_query, stmt_type, _create_shell, \
     get_parser, parse_args
 from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
@@ -648,7 +648,7 @@ class CommandTest(TestCase):
         crate_hosts = [host_and_port(h) for h in args.hosts]
 
         with self.assertRaises(LocationParseError):
-            _create_cmd(crate_hosts, False, None, False, args)
+            _create_shell(crate_hosts, False, None, False, args)
 
     def test_command_timeout(self):
         sys.argv = ["testcrash", "--hosts", self.crate_host]
@@ -656,7 +656,7 @@ class CommandTest(TestCase):
         args = parse_args(parser)
 
         crate_hosts = [host_and_port(h) for h in args.hosts]
-        crateCmd = _create_cmd(crate_hosts, False, None, False, args, None)
+        crateCmd = _create_shell(crate_hosts, False, None, False, args, None)
         crateCmd.execute("""
 CREATE FUNCTION fib(long)
 RETURNS LONG
@@ -671,13 +671,13 @@ LANGUAGE javascript AS '
         slow_query = "SELECT fib(35)"
 
         # without verbose
-        crateCmd = _create_cmd(crate_hosts, False, None, False, args, timeout)
+        crateCmd = _create_shell(crate_hosts, False, None, False, args, timeout)
         crateCmd.logger = Mock()
         crateCmd.execute(slow_query)
         crateCmd.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
 
         # with verbose
-        crateCmd = _create_cmd(crate_hosts, True, None, False, args, timeout)
+        crateCmd = _create_shell(crate_hosts, True, None, False, args, timeout)
         crateCmd.logger = Mock()
         crateCmd.execute(slow_query)
         crateCmd.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.01)")
@@ -691,7 +691,7 @@ LANGUAGE javascript AS '
         parser = get_parser()
         args = parse_args(parser)
         crate_hosts = [host_and_port(h) for h in args.hosts]
-        crateCmd = _create_cmd(crate_hosts, False, None, False, args)
+        crateCmd = _create_shell(crate_hosts, False, None, False, args)
 
         self.assertEqual(crateCmd.username, "crate")
         self.assertEqual(crateCmd.connection.client.username, "crate")
@@ -717,7 +717,7 @@ LANGUAGE javascript AS '
         args = parse_args(parser)
 
         crate_hosts = [host_and_port(h) for h in args.hosts]
-        crateCmd = _create_cmd(crate_hosts, False, None, False, args)
+        crateCmd = _create_shell(crate_hosts, False, None, False, args)
 
         self.assertEqual(crateCmd.verify_ssl, False)
         self.assertEqual(crateCmd.connection.client._pool_kw['cert_reqs'], ssl.CERT_NONE)

@@ -656,8 +656,8 @@ class CommandTest(TestCase):
         args = parse_args(parser)
 
         crate_hosts = [host_and_port(h) for h in args.hosts]
-        crateCmd = _create_shell(crate_hosts, False, None, False, args, None)
-        crateCmd.execute("""
+        crash = _create_shell(crate_hosts, False, None, False, args, None)
+        crash.execute("""
 CREATE FUNCTION fib(long)
 RETURNS LONG
 LANGUAGE javascript AS '
@@ -671,17 +671,17 @@ LANGUAGE javascript AS '
         slow_query = "SELECT fib(35)"
 
         # without verbose
-        crateCmd = _create_shell(crate_hosts, False, None, False, args, timeout)
-        crateCmd.logger = Mock()
-        crateCmd.execute(slow_query)
-        crateCmd.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
+        crash = _create_shell(crate_hosts, False, None, False, args, timeout)
+        crash.logger = Mock()
+        crash.execute(slow_query)
+        crash.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
 
         # with verbose
-        crateCmd = _create_shell(crate_hosts, True, None, False, args, timeout)
-        crateCmd.logger = Mock()
-        crateCmd.execute(slow_query)
-        crateCmd.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.01)")
-        crateCmd.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
+        crash = _create_shell(crate_hosts, True, None, False, args, timeout)
+        crash.logger = Mock()
+        crash.execute(slow_query)
+        crash.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.01)")
+        crash.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):
         sys.argv = ["testcrash",
@@ -691,10 +691,10 @@ LANGUAGE javascript AS '
         parser = get_parser()
         args = parse_args(parser)
         crate_hosts = [host_and_port(h) for h in args.hosts]
-        crateCmd = _create_shell(crate_hosts, False, None, False, args)
+        crash = _create_shell(crate_hosts, False, None, False, args)
 
-        self.assertEqual(crateCmd.username, "crate")
-        self.assertEqual(crateCmd.connection.client.username, "crate")
+        self.assertEqual(crash.username, "crate")
+        self.assertEqual(crash.connection.client.username, "crate")
 
     def test_ssl_params(self):
         tmpdirname = tempfile.mkdtemp()
@@ -717,19 +717,19 @@ LANGUAGE javascript AS '
         args = parse_args(parser)
 
         crate_hosts = [host_and_port(h) for h in args.hosts]
-        crateCmd = _create_shell(crate_hosts, False, None, False, args)
+        crash = _create_shell(crate_hosts, False, None, False, args)
 
-        self.assertEqual(crateCmd.verify_ssl, False)
-        self.assertEqual(crateCmd.connection.client._pool_kw['cert_reqs'], ssl.CERT_NONE)
+        self.assertEqual(crash.verify_ssl, False)
+        self.assertEqual(crash.connection.client._pool_kw['cert_reqs'], ssl.CERT_NONE)
 
-        self.assertEqual(crateCmd.cert_file, cert_filename)
-        self.assertEqual(crateCmd.connection.client._pool_kw['cert_file'], cert_filename)
+        self.assertEqual(crash.cert_file, cert_filename)
+        self.assertEqual(crash.connection.client._pool_kw['cert_file'], cert_filename)
 
-        self.assertEqual(crateCmd.key_file, key_filename)
-        self.assertEqual(crateCmd.connection.client._pool_kw['key_file'], key_filename)
+        self.assertEqual(crash.key_file, key_filename)
+        self.assertEqual(crash.connection.client._pool_kw['key_file'], key_filename)
 
-        self.assertEqual(crateCmd.ca_cert_file, ca_cert_filename)
-        self.assertEqual(crateCmd.connection.client._pool_kw['ca_certs'], ca_cert_filename)
+        self.assertEqual(crash.ca_cert_file, ca_cert_filename)
+        self.assertEqual(crash.connection.client._pool_kw['ca_certs'], ca_cert_filename)
 
 
     def test_ssl_params_missing_file(self):

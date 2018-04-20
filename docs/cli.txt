@@ -6,60 +6,84 @@ Command Line Arguments
 
 The ``crash`` binary supports several command line arguments.
 
-+---------------------------------------+--------------------------------------------------+
-| Argument                              | Description                                      |
-+=======================================+==================================================+
-| ``-h``, ``--help``                    | Show the help message end exit.                  |
-+---------------------------------------+--------------------------------------------------+
-| ``-v``, ``--verbose``                 | Print debug information to stdout.               |
-+---------------------------------------+--------------------------------------------------+
-| ``-U``, ``--username``                | The username to authenticate in the database     |
-+---------------------------------------+--------------------------------------------------+
-| ``-W``, ``--password``                | Force prompt for password. Otherwise it prompts  |
-|                                       | for password automatically in case the server    |
-|                                       | requires user authorization.                     |
-+---------------------------------------+--------------------------------------------------+
-| ``-c COMMAND``, ``--command COMMAND`` | Execute the SQL statement and exit.              |
-+---------------------------------------+--------------------------------------------------+
-| ``--hosts HOSTS``                     | The CrateDB hosts to connect to.                 |
-+---------------------------------------+--------------------------------------------------+
-| ``--history HISTORY``                 | The history file the CrateDB shell uses.         |
-+---------------------------------------+--------------------------------------------------+
-| ``--config CONFIG``                   | Path to the configuration file which contains    |
-|                                       | default values for Crash.                        |
-|                                       | Defaults to the `user configuration directory`_  |
-|                                       | of the operating system, which is e.g on Linux   |
-|                                       | ``~/.config/Crate``,                             |
-|                                       | ``~/Library/Application Support/Crate`` on OSX   |
-|                                       | or ``C:\\Users\user\AppData\Local\Crate\Crate``  |
-|                                       | on Windows.                                      |
-+---------------------------------------+--------------------------------------------------+
-| ``--format FORMAT``                   | Specifies the output format of the SQL response. |
-+---------------------------------------+--------------------------------------------------+
-| ``--version``                         | Print the crash version and exit.                |
-+---------------------------------------+--------------------------------------------------+
-| ``--sysinfo``                         | Print system and cluster information.            |
-+---------------------------------------+--------------------------------------------------+
-| ``-A`` , ``--no-autocomplete``        | Disable autocomplete of SQL keywords on startup. |
-|                                       | Autocomplete requires a minimum terminal         |
-|                                       | height of 8 lines due to size of the dropdown    |
-|                                       | overlay for suggestions.                         |
-|                                       | Disabling autocomplete removes this limitation.  |
-+---------------------------------------+--------------------------------------------------+
-| ``-a`` , ``--autocapitalize``         | Enable automatic capitalization of SQL keywords  |
-|                                       | while typing. This feature is experimental and   |
-|                                       | may be removed in future versions.               |
-+---------------------------------------+--------------------------------------------------+
-| ``--verify-ssl``                      | Force verification of the SSL certificate of the |
-|                                       | server.                                          |
-+---------------------------------------+--------------------------------------------------+
-| ``--cert-file``                       | Path to the client certificate file.             |
-+---------------------------------------+--------------------------------------------------+
-| ``--key-file``                        | Path to the key file of the client certificate.  |
-+---------------------------------------+--------------------------------------------------+
-| ``--ca-cert-file``                    | Path to CA certificate file (used to verify      |
-|                                       | the certificate sent by the server.              |
-+---------------------------------------+--------------------------------------------------+
++-------------------------------+----------------------------------------------+
+| Argument                      | Description                                  |
++===============================+==============================================+
+| | ``-h``,                     | Print the help message and exit.             |
+| | ``--help``                  |                                              |
++-------------------------------+----------------------------------------------+
+| | ``-v``,                     | Print debug information to `STDOUT`_.        |
+| | ``--verbose``               |                                              |
++-------------------------------+----------------------------------------------+
+| ``--version``                 | Print the Crash version and exit.            |
++-------------------------------+----------------------------------------------+
+| ``--sysinfo``                 | Print system and cluster information.        |
++-------------------------------+----------------------------------------------+
+| | ``-U <USERNAME>``,          | Authenticate as ``<USERNAME>``.              |
+| | ``--username <USERNAME>``   |                                              |
++-------------------------------+----------------------------------------------+
+| | ``-W``,                     | Force a password prompt.                     |
+| | ``--password``              |                                              |
+|                               | If not set, a password prompt happens when   |
+|                               | required.                                    |
++-------------------------------+----------------------------------------------+
+| | ``-c <STATEMENT>``,         | Execute the ``<STATEMENT>`` and exit.        |
+| | ``--command <STATEMENT>``   |                                              |
++-------------------------------+----------------------------------------------+
+| ``--hosts <HOSTS>``           | Connect to ``<HOSTS>``.                      |
+|                               |                                              |
+|                               | ``<HOSTS>`` can be a single host, or it can  |
+|                               | be a  space separated list of hosts.         |
+|                               |                                              |
+|                               | If multiple hosts are specified, Crash will  |
+|                               | attempt to connect to all of them. The       |
+|                               | command will succeed if at least one         |
+|                               | connection is successful.                    |
++-------------------------------+----------------------------------------------+
+| ``--history <FILENAME>``      | Use ``<FILENAME>`` as a history file.        |
+|                               |                                              |
+|                               | Defaults to the ``crash_history`` file in    |
+|                               | the :ref:`user configuration directory       |
+|                               | <user-conf-dir>`.                            |
++-------------------------------+----------------------------------------------+
+| ``--config <FILENAME>``       | Use ``<FILENAME>`` as a configuration file.  |
+|                               |                                              |
+|                               | Defaults to the ``crash.cfg`` file in the    |
+|                               | :ref:`user configuration directory           |
+|                               | <user-conf-dir>`.                            |
++-------------------------------+----------------------------------------------+
+| ``--format <FORMAT>``         | The output ``<FORMAT>`` of the SQL response. |
+|                               |                                              |
+|                               | Available formats are: ``tabular``, ``raw``, |
+|                               | ``json``, ``json_row``, ``csv`` and          |
+|                               | ``mixed``.                                   |
++-------------------------------+----------------------------------------------+
+| | ``-A`` ,                    | Disable SQL keywords autocompletion.         |
+| | ``--no-autocomplete``       |                                              |
+|                               | Autocompletion requires a minimum terminal   |
+|                               | height of eight lines due to size of the     |
+|                               | dropdown overlay for suggestions. Disabling  |
+|                               | autocompletion removes this limitation.      |
++-------------------------------+----------------------------------------------+
+| | ``-a`` ,                    | Enable automatic capitalization of SQL       |
+| | ``--autocapitalize``        | keywords while typing.                       |
+|                               |                                              |
+|                               | This feature is experimental and may be      |
+|                               | removed in future versions.                  |
++-------------------------------+----------------------------------------------+
+| ``--verify-ssl``              | Force the verification of the server SSL     |
+|                               | certificate.                                 |
++-------------------------------+----------------------------------------------+
+| ``--cert-file <FILENAME>``    | Use ``<FILENAME>`` as the client certificate |
+|                               | file.                                        |
++-------------------------------+----------------------------------------------+
+| ``--key-file <FILENAME>``     | Use ``<FILENAME>`` as the client certificate |
+|                               | key file.                                    |
++-------------------------------+----------------------------------------------+
+| ``--ca-cert-file <FILENAME>`` | Use ``<FILENAME>`` as the certificate        |
+|                               | authority (CA) certificate file (used to     |
+|                               | verify the server certificate).              |
++-------------------------------+----------------------------------------------+
 
 Example Usage
 =============

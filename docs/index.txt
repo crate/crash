@@ -11,5 +11,5 @@ The CrashDB Shell (aka ``crash``) provides a CLI for the CrateDB Server.
    :maxdepth: 2
 
    usage
-   cli
+   run
    formats

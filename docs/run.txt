@@ -4,12 +4,23 @@
 Running Crash
 =============
 
-.. _cli:
+This document covers the basics of running Crash from the `command-line`_.
 
-Command Line Arguments
-======================
+.. NOTE::
 
-The ``crash`` binary supports several command line arguments.
+   For help using Crash for the first time, check out :ref:`getting-started`.
+
+.. _options:
+
+.. rubric:: Table of Contents
+
+.. contents::
+   :local:
+
+Command-Line Options
+====================
+
+The ``crash`` executable supports multiple command-line options:
 
 +-------------------------------+----------------------------------------------+
 | Argument                      | Description                                  |
@@ -90,129 +101,137 @@ The ``crash`` binary supports several command line arguments.
 |                               | verify the server certificate).              |
 +-------------------------------+----------------------------------------------+
 
-Example Usage
-=============
+Examples
+--------
 
-::
+Here's an example command::
 
-    $ crash --hosts st1.crate.io:4200 st2.crate.io st3.crate.io \
+    sh$ crash --hosts node1.example.com \
+                    node2.example.com \
+            -c "SELECT * FROM sys.nodes" \
             --format json \
-            -c 'select * from sys.nodes' > output.json
+        > output.json
 
+This command will:
 
-Example Usage with SSL
-======================
+- Run ``crash``, which will:
 
-::
+  - Attempt to connect to ``node1.example.com`` and ``node2.example.com``
 
-    $ crash --hosts st1.crate.io:4200 st2.crate.io st3.crate.io \
+  - Execute ``SELECT * FROM sys.nodes``
+
+  - Print the results as JSON
+
+- Redirect output to the ``output.json`` file
+
+.. TIP::
+
+   Instead of `redirecting`_ to a file, you can `pipe`_ into a tool like `jq`_
+   for for further processing of the response.
+
+We can modify this command to use SSL, like so::
+
+    sh$ crash --hosts node1.example.com \
+                    node2.example.com \
+            --verify-ssl true \
+            --cert-file ~/.certs/client.crt \
+            --key-file ~/.certs/client.key \
+            --ca-cert-file ~/.certs/server-ca.crt
+            -c "SELECT * FROM sys.nodes" \
             --format json \
-            --verify-ssl true --cert-file /home/.certs/crateClient.crt --key-file /home/.certs/crateClient.key \
-            --ca-cert-file /home/.certs/rootCA.crt -U sslUser \
-            -c 'select * from sys.nodes' > output.json
+        > output.json
 
+Here, we're using:
 
+- ``~/.certs/client.crt`` as the client certificate
+- ``~/.certs/client.key`` as the client certificate key
+- ``~/.certs/server-ca.crt`` as the server CA certificate
+
+.. _user-conf-dir:
+
+User Configuration Directory
+============================
+
+The ``crash`` executable looks for its configuration file and history file in
+the appropriate user configuration directory for your operating system.
+
+For Linux, that is::
+
+    ~/.config/Crate
+
+For macOS, it is::
+
+    ~/Library/Application Support/Crate
+
+And for Microsoft Windows, it is::
+
+    C:\\Users\user\AppData\Local\Crate\Crate
+
+.. _env-vars:
 
 Environment Variables
 =====================
 
-Crash takes the following environment variables into account to select default
-connection parameters. These can be helpful to avoid user-input prompts or any
-other hard-coded cli parameter.
+The ``crash`` executable will take configuration from the environment.
 
-:CRATEPW: Password to be used if CrateDB demands password authentication.
-          Keep in mind that for security reasons the usage of this variable is
-          not safe.
+At the moment, only one environment variable is supported.
 
+:``CRATEPW``: The password to be used if password authentication is necessary.
 
-For example::
+              .. CAUTION::
 
-    $ export CRATEPW=dustins-password
-    $ crash --hosts localhost:4200 \
-            --username dustin \
-            --format json \
-            -c 'select * from sys.nodes' > output.json
+                 Storing passwords in the environment is not always a good idea
+                 from a security perspective.
 
-.. _commands:
+You can set ``CRATEPW`` like so::
 
+    sh$ export CRATEPW=<PASSWORD>
 
-Commands
-========
+Here, ``<PASSWORD>`` should be replaced with the password you want to use.
 
-.. note::
+For the duration of your current session, invokations of ``crash`` will use this
+password when needed (unless you force a password prompt with ``--password`` or
+``-W``).
 
-    Crash client commands are available since version ``0.11.x``!
-
-Crash has several client commands, which start with a backslash (``\``).
-
-You can get a list of commands by typing ``\?``:
-
-+----------------------+------------------------------------------------------------------------------------+
-| Command              | Description                                                                        |
-+======================+====================================================================================+
-| ``\?``               | List all available commands.                                                       |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\c``, ``\connect`` | Connect to the given server.                                                       |
-|                      | Same as ``--host`` command line option.                                            |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\dt``              | Print existing tables.                                                             |
-|                      | The list does not include tables in the ``sys`` and ``information_schema`` schema. |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\format``          | Switch the output format of the SQL response.                                      |
-|                      | Same as ``--format`` command line option.                                          |
-|                      | Available formats are: ``tabular``, ``raw``, ``json``, ``json_row``, ``csv``       |
-|                      | and ``mixed``                                                                      |
-|                      |                                                                                    |
-|                      | see :ref:`formats` for details                                                     |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\q``               | Quit the CrateDB shell                                                             |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\check``           | Query the ``sys`` tables for failing cluster and node checks if no arguments are   |
-|                      | provided.                                                                          |
-|                      |                                                                                    |
-|                      | The following arguments are allowed:                                               |
-|                      |  - ``nodes``: to query the ``sys.node_checks`` table for failing node checks.      |
-|                      |  - ``cluster``: to query the ``sys.checks`` table for failing cluster checks.      |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\r <filename>``    | Reads statements from the given file and executes them                             |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\sysinfo``         | Query the ``sys`` tables for system and cluster information                        |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\autocomplete``    | Turn autocomplete feature on or off. Works as a toggle.                            |
-+----------------------+------------------------------------------------------------------------------------+
-| ``\autocapitalize``  | Turn automatic capitalization for SQL keywords or off. Works as a toggle.          |
-+----------------------+------------------------------------------------------------------------------------+
-
+.. _status-messages:
 
 Status Messages
 ===============
 
-The ``SUCCESS`` status messages are only printed when ``crash`` is used as
-an interactive tty.
+When used interactively, Crash will print a status message after every
+successfully executed query.
 
-If the output is routed, e.g. dumped into a file or piped into another command
-(such as `jq`_) for further processing of the response, these messages are omitted.
+.. NOTE::
 
+   When used non-interactively, these messages are omitted.
 
-The synopsis of the ``SUCCESS`` message is as follows::
+   Examples of non-interactive use include: executing ``crash`` in a shell
+   script, `redirecting`_ output to a file, or `piping`_ output into a another
+   command
 
-    SUCCESS <STMT>, <NUM> row(s) affected (<DURATION> sec)
+If the query alters rows, the status message looks like this::
 
-If the SQL statement (``SELECT``) returns selected columns::
+    <STATEMENT>, <NUMBER> row(s) affected (<DURATION> sec)
 
-    SUCCESS <STMT> <NUM> row(s) in set (<DURATION> sec)
+If the query returns rows, the message looks like this::
 
-The ``STMT`` is the definition/manipulation/query keyword, such as
-``CREATE``, ``INSERT``, ``UPDATE``, ``DELETE``, ``SELECT``, etc.
+    <STATEMENT> <NUMBER> row(s) in set (<DURATION> sec)
 
-``NUM`` is the number of rows that were affected by the SQL statement.
-It is ``-1`` for statements that do not affect any rows or
-if the row count of a statement is unknown.
+In both instances:
 
-``DURATION`` is the time it took to process the SQL statement on the server
-from request to response.
+- ``<STATEMENT>`` is the query keyword (e.g. ``CREATE``, ``INSERT``,
+  ``UPDATE``, ``DELETE``, ``SELECT``, and so on)
 
+- ``<NUMBER>`` is the number of rows (``-1`` for queries that do not affect any
+  rows or if the row count is unknown)
 
+- ``<DURATION>`` is the total number of seconds the query took to execute on the
+  cluster
+
+.. _command-line: https://en.wikipedia.org/wiki/Command-line_interface
 .. _jq: http://stedolan.github.io/jq/
+.. _pipe: https://www.wikiwand.com/en/Pipeline_(Unix)
+.. _piping: https://www.wikiwand.com/en/Pipeline_(Unix)
+.. _redirecting: https://www.tldp.org/LDP/abs/html/io-redirection.html
+.. _STDOUT: https://en.wikipedia.org/wiki/Standard_streams
 .. _user configuration directory: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-

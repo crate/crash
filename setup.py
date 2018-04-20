@@ -41,8 +41,7 @@ def read(path):
 
 
 long_description = (
-    read('README.rst') + '\n' +
-    read(os.path.join('src', 'crate', 'crash', 'usage.txt'))
+    read('README.rst')
 )
 
 versionf_content = read(os.path.join('src', 'crate', 'crash', '__init__.py'))

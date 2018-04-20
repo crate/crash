@@ -1,6 +1,11 @@
+.. _run:
+
+=============
+Running Crash
+=============
+
 .. _cli:
 
-======================
 Command Line Arguments
 ======================
 
@@ -107,7 +112,7 @@ Example Usage with SSL
             -c 'select * from sys.nodes' > output.json
 
 
-=====================
+
 Environment Variables
 =====================
 
@@ -130,9 +135,9 @@ For example::
 
 .. _commands:
 
-==============
-Crash Commands
-==============
+
+Commands
+========
 
 .. note::
 
@@ -178,7 +183,7 @@ You can get a list of commands by typing ``\?``:
 | ``\autocapitalize``  | Turn automatic capitalization for SQL keywords or off. Works as a toggle.          |
 +----------------------+------------------------------------------------------------------------------------+
 
-===============
+
 Status Messages
 ===============
 

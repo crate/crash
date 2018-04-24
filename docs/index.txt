@@ -4,8 +4,12 @@
 The CrateDB Shell
 =================
 
-The CrashDB Shell (aka *Crash*) is an interactive `command-line interface`_
-(CLI) tool for interacting with CrateDB.
+The CrateDB Shell (aka *Crash*) is an interactive `command-line interface`_
+(CLI) tool for working with CrateDB.
+
+.. SEEALSO::
+
+   Crash is an open source project and is `hosted on GitHub`_.
 
 .. sidebar:: Screnshots
 
@@ -33,4 +37,4 @@ The CrashDB Shell (aka *Crash*) is an interactive `command-line interface`_
    compatibility
 
 .. _command-line interface: https://en.wikipedia.org/wiki/Command-line_interface
-.. _PATH: https://en.wikipedia.org/wiki/PATH_(variable)
+.. _hosted on GitHub: https://github.com/crate/crash

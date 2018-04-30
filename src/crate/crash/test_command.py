@@ -792,4 +792,3 @@ class TestGetInformationSchemaQuery(TestCase):
             from information_schema.tables
             where table_schema
             not in ('information_schema', 'sys', 'pg_catalog') """, query)
-

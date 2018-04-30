@@ -89,7 +89,7 @@ class SysInfoTest(TestCase):
 
         succcess, result = self.sys_info._sys_info()
         self.assertEqual(succcess, False)
-        expected_nodes = Res(SysInfoTest.NODES_INFO, SysInfoTest.NODES_FIELDS)
+        Res(SysInfoTest.NODES_INFO, SysInfoTest.NODES_FIELDS)
         # must not contain any partial result from first successful calls
         self.assertEqual([], result)
 

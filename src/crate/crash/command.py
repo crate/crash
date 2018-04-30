@@ -89,7 +89,7 @@ def parse_config_path(args=sys.argv):
         idx = args.index('--config')
         if len(args) > idx + 1:
             config = args.pop(idx + 1)
-        _ = args.pop(idx)
+        args.pop(idx)
     return config
 
 

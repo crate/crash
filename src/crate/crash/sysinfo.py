@@ -21,14 +21,8 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 
-import logging
 from collections import namedtuple
 from distutils.version import StrictVersion
-
-from crate.client.exceptions import ConnectionError, ProgrammingError
-from crate.client import connect
-
-from .printer import ColorPrinter
 
 
 Result = namedtuple('Result', ['rows', 'cols'])

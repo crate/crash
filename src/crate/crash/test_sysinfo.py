@@ -22,9 +22,9 @@
 
 
 from unittest import TestCase
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, PropertyMock
 
-from .command import CrateShell
+from .command import CrateShell  # noqa: F401 - required for patch()
 from .sysinfo import SysInfoCommand, Result as Res
 from distutils.version import StrictVersion
 

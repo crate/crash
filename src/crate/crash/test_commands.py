@@ -31,8 +31,6 @@ from .commands import ReadFileCommand, \
 
 from .command import CrateShell
 from distutils.version import StrictVersion
-from .printer import PrintWrapper
-from .outputs import OutputWriter
 
 
 class ReadFileCommandTest(TestCase):

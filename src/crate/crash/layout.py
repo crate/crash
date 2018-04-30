@@ -21,18 +21,17 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-from prompt_toolkit.filters import IsDone, HasFocus, RendererHeightIsKnown, to_cli_filter, Condition
+from prompt_toolkit.filters import IsDone, HasFocus, RendererHeightIsKnown, to_cli_filter
 from prompt_toolkit.enums import DEFAULT_BUFFER, SEARCH_BUFFER
 from prompt_toolkit.token import Token
 from prompt_toolkit.layout import Window, HSplit, VSplit, Float
 from prompt_toolkit.layout.containers import ConditionalContainer, FloatContainer
 from prompt_toolkit.layout.dimension import LayoutDimension
-from prompt_toolkit.layout.controls import TokenListControl, BufferControl, FillControl
+from prompt_toolkit.layout.controls import TokenListControl, BufferControl
 from prompt_toolkit.layout.lexers import PygmentsLexer
-from prompt_toolkit.layout.screen import Char
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.layout.processors import ConditionalProcessor, HighlightSearchProcessor
-from prompt_toolkit.layout.toolbars import TokenListToolbar, SearchToolbar
+from prompt_toolkit.layout.toolbars import SearchToolbar
 from prompt_toolkit.layout.margins import PromptMargin, ConditionalMargin
 from prompt_toolkit.layout.utils import token_list_width
 

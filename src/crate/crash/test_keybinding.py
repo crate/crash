@@ -19,12 +19,22 @@
 
 from unittest import TestCase
 from prompt_toolkit.document import Document
-from .keybinding import _is_start_of_multiline, _line_ends_with_tab
+from prompt_toolkit.keys import Keys
+from prompt_toolkit.key_binding.manager import KeyBindingManager
+from .keybinding import bind_keys, _is_start_of_multiline, _line_ends_with_tab
 
 
 doc = lambda t: Document(t, len(t))
 is_start_of_multiline = lambda t: _is_start_of_multiline(doc(t))
 line_ends_with_tab = lambda t: _line_ends_with_tab(doc(t))
+
+
+def bindings_for_key(mngr, key):
+    return mngr.registry.get_bindings_for_keys((key,))
+
+
+def handlers_for_key(mngr, key):
+    return [b.handler.__name__ for b in bindings_for_key(mngr, key)]
 
 
 class TabIndentTest(TestCase):
@@ -44,3 +54,15 @@ class TabIndentTest(TestCase):
         self.assertFalse(line_ends_with_tab('SELECT  \n'))
         self.assertTrue(line_ends_with_tab('SELECT    '))
         self.assertTrue(line_ends_with_tab('SELECT\n    '))
+
+    def test_bindings(self):
+        mngr = KeyBindingManager(
+            enable_search=True,
+            enable_abort_and_exit_bindings=True,
+            enable_system_bindings=True,
+            enable_open_in_editor=True
+        )
+        bind_keys(mngr.registry)
+
+        self.assertTrue('on_backspace' in handlers_for_key(mngr, Keys.Backspace))
+        self.assertTrue('on_tab' in handlers_for_key(mngr, Keys.Tab))

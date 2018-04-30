@@ -30,6 +30,7 @@ from distutils.version import StrictVersion
 
 CRATE_VERSION = StrictVersion("0.55.2")
 
+
 class SysInfoTest(TestCase):
 
     NODES_FIELDS_FETCHED = (('crate_version', None), ('total_heap_mb', None))

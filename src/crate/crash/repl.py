@@ -208,6 +208,7 @@ class SQLCompleter(Completer):
                 if keyword.startswith(word_before_cursor.lower()):
                     yield Completion(keyword.upper(), -len(word_before_cursor))
 
+
 class CrashBuffer(Buffer):
 
     def __init__(self, *args, **kwargs):
@@ -274,6 +275,7 @@ def create_buffer(cmd, history_file):
     )
     buffer.complete_while_typing = lambda cli=None: cmd.should_autocomplete()
     return buffer
+
 
 def _get_toolbar_tokens(is_conn_available, username, active_servers):
         tokens = []

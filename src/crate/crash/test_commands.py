@@ -106,6 +106,7 @@ class ToggleAutoCapitalizeCommandTest(TestCase):
         output = command(fake_cmd)
         self.assertEqual(output, 'Auto-capitalization ON')
 
+
 class ToggleVerboseCommandTest(TestCase):
 
     @patch('crate.crash.command.CrateShell')
@@ -144,6 +145,7 @@ class ShowTablesCommandTest(TestCase):
         cmd.connection.lowest_server_version = StrictVersion("0.56.4")
         cmd._show_tables()
         cmd._exec.assert_called_with("SELECT format('%s.%s', schema_name, table_name) AS name FROM information_schema.tables WHERE schema_name NOT IN ('sys','information_schema', 'pg_catalog')")
+
 
 class ChecksCommandTest(TestCase):
 

@@ -25,6 +25,7 @@ from prompt_toolkit.token import Token
 from .repl import SQLCompleter, Capitalizer, create_buffer, _get_toolbar_tokens
 from .command import CrateShell
 
+
 class SQLCompleterTest(TestCase):
 
     def setUp(self):

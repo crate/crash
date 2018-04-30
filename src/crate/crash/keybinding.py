@@ -53,7 +53,7 @@ def bind_keys(registry):
     def on_tab(event):
         event.cli.current_buffer.insert_text(' ' * TAB_WIDTH)
 
-    registry.add_binding(Keys.Backspace,
-                         filter=Condition(doc_condition(_line_ends_with_tab)))
+    @registry.add_binding(Keys.Backspace,
+                          filter=Condition(doc_condition(_line_ends_with_tab)))
     def on_backspace(event):
         event.cli.current_buffer.delete_before_cursor(TAB_WIDTH)

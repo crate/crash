@@ -36,7 +36,15 @@ from prompt_toolkit.layout.toolbars import TokenListToolbar, SearchToolbar
 from prompt_toolkit.layout.margins import PromptMargin, ConditionalMargin
 from prompt_toolkit.layout.utils import token_list_width
 
-""" Creates a custom `Layout` for the Crash input REPL
+
+def create_layout(message='', lexer=None,
+                  reserve_space_for_menu=8,
+                  get_prompt_tokens=None,
+                  get_bottom_toolbar_tokens=None,
+                  extra_input_processors=None, multiline=False,
+                  wrap_lines=True):
+    """
+    Creates a custom `Layout` for the Crash input REPL
 
     This layout includes:
         * a bottom left-aligned session toolbar container
@@ -49,13 +57,7 @@ from prompt_toolkit.layout.utils import token_list_width
     +-------------------------------------------+
     | bottom_toolbar_tokens      sidebar_tokens |
     +-------------------------------------------+
-"""
-def create_layout(message='', lexer=None,
-                  reserve_space_for_menu=8,
-                  get_prompt_tokens=None,
-                  get_bottom_toolbar_tokens=None,
-                  extra_input_processors=None, multiline=False,
-                  wrap_lines=True):
+    """
 
     # Create processors list.
     input_processors = [

@@ -101,6 +101,7 @@ class CommandUtilsTest(TestCase):
         self.assertEqual(stmt_type(' SELECT 1 ;'), 'SELECT')
         self.assertEqual(stmt_type('\nSELECT\n1\n;\n'), 'SELECT')
 
+
 class CommandTest(TestCase):
 
     def _output_format(self, format, func, query="select name from sys.cluster"):
@@ -730,7 +731,6 @@ LANGUAGE javascript AS '
 
         self.assertEqual(crash.ca_cert_file, ca_cert_filename)
         self.assertEqual(crash.connection.client._pool_kw['ca_certs'], ca_cert_filename)
-
 
     def test_ssl_params_missing_file(self):
         sys.argv = ["testcrash",

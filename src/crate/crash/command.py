@@ -365,7 +365,7 @@ class CrateShell:
             # Execute cluster/node checks only in verbose mode
             if verbose:
                 SysInfoCommand.CLUSTER_INFO['information_schema_query'] = \
-                get_information_schema_query(self.connection.lowest_server_version)
+                    get_information_schema_query(self.connection.lowest_server_version)
                 # check for failing node and cluster checks
                 built_in_commands['check'](self, startup=True)
 

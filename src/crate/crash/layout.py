@@ -122,11 +122,12 @@ def create_layout(message='', lexer=None,
                     [
                         # Completion menu
                         Float(xcursor=True,
-                            ycursor=True,
-                            content=CompletionsMenu(
-                                max_height=16,
-                                scroll_offset=1,
-                                extra_filter=HasFocus(DEFAULT_BUFFER))),
+                              ycursor=True,
+                              content=CompletionsMenu(
+                                  max_height=16,
+                                  scroll_offset=1,
+                                  extra_filter=HasFocus(DEFAULT_BUFFER))
+                              ),
                     ]
                 ),
 

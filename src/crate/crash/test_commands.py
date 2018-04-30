@@ -150,10 +150,10 @@ class ChecksCommandTest(TestCase):
     @patch('crate.crash.command.CrateShell')
     def test_node_check(self, cmd):
         rows = [
-                    ['local1', 'check1'],
-                    ['local2', 'check2'],
-                    ['loca1', 'check2']
-                ]
+            ['local1', 'check1'],
+            ['local2', 'check2'],
+            ['loca1', 'check2'],
+        ]
         cols = [('Failed Check', ), ('Number of Nodes', )]
         cmd._execute.return_value = True
         cmd.cursor.fetchall.return_value = rows
@@ -173,10 +173,10 @@ class ChecksCommandTest(TestCase):
     @patch('crate.crash.command.CrateShell')
     def test_cluster_check(self, cmd):
         rows = [
-                    ['local1', 'check1'],
-                    ['local2', 'check2'],
-                    ['loca1', 'check2']
-                ]
+            ['local1', 'check1'],
+            ['local2', 'check2'],
+            ['loca1', 'check2'],
+        ]
         cols = [('Failed Check', ), ('Number of Nodes', )]
         cmd._execute.return_value = True
         cmd.cursor.fetchall.return_value = rows

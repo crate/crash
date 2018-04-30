@@ -209,9 +209,9 @@ class CheckCommand(Command):
     """ print failed cluster and/or node checks, e.g. \check nodes """
 
     CHECKS = OrderedDict([
-                ('cluster', ClusterCheckCommand()),
-                ('nodes', NodeCheckCommand())
-            ])
+        ('cluster', ClusterCheckCommand()),
+        ('nodes', NodeCheckCommand()),
+    ])
 
     def complete(self, cmd, text):
         return (i for i in self.CHECKS if i.startswith(text))

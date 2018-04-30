@@ -58,7 +58,7 @@ class ConfigurationTest(TestCase):
             path = os.path.join(self.tmp_dir, 'invalid')
             conf = Configuration(path)
         self.assertEqual(str(cm.exception),
-            'Path to configuration file needs to end with .cfg')
+                         'Path to configuration file needs to end with .cfg')
 
     def test_create_config(self):
         path = os.path.join(self.tmp_dir, 'foo.cfg')

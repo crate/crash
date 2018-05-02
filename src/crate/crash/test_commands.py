@@ -31,8 +31,6 @@ from .commands import ReadFileCommand, \
 
 from .command import CrateShell
 from distutils.version import StrictVersion
-from .printer import PrintWrapper
-from .outputs import OutputWriter
 
 
 class ReadFileCommandTest(TestCase):
@@ -106,6 +104,7 @@ class ToggleAutoCapitalizeCommandTest(TestCase):
         output = command(fake_cmd)
         self.assertEqual(output, 'Auto-capitalization ON')
 
+
 class ToggleVerboseCommandTest(TestCase):
 
     @patch('crate.crash.command.CrateShell')
@@ -145,15 +144,16 @@ class ShowTablesCommandTest(TestCase):
         cmd._show_tables()
         cmd._exec.assert_called_with("SELECT format('%s.%s', schema_name, table_name) AS name FROM information_schema.tables WHERE schema_name NOT IN ('sys','information_schema', 'pg_catalog')")
 
+
 class ChecksCommandTest(TestCase):
 
     @patch('crate.crash.command.CrateShell')
     def test_node_check(self, cmd):
         rows = [
-                    ['local1', 'check1'],
-                    ['local2', 'check2'],
-                    ['loca1', 'check2']
-                ]
+            ['local1', 'check1'],
+            ['local2', 'check2'],
+            ['loca1', 'check2'],
+        ]
         cols = [('Failed Check', ), ('Number of Nodes', )]
         cmd._execute.return_value = True
         cmd.cursor.fetchall.return_value = rows
@@ -173,10 +173,10 @@ class ChecksCommandTest(TestCase):
     @patch('crate.crash.command.CrateShell')
     def test_cluster_check(self, cmd):
         rows = [
-                    ['local1', 'check1'],
-                    ['local2', 'check2'],
-                    ['loca1', 'check2']
-                ]
+            ['local1', 'check1'],
+            ['local2', 'check2'],
+            ['loca1', 'check2'],
+        ]
         cols = [('Failed Check', ), ('Number of Nodes', )]
         cmd._execute.return_value = True
         cmd.cursor.fetchall.return_value = rows

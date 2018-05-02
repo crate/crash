@@ -108,4 +108,3 @@ class Configuration(object):
     def save(self):
         with open(self.path, 'w') as fp:
             self.cfg.write(fp)
-

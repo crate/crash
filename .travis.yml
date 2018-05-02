@@ -16,9 +16,10 @@ before_install:
 
 install:
     - python bootstrap.py
-    - bin/buildout install scripts crate test
+    - bin/buildout install scripts crate test linter
 
 script:
+    - bin/flake8
     - bin/coverage run bin/test
 
 after_success:

@@ -21,22 +21,29 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-from prompt_toolkit.filters import IsDone, HasFocus, RendererHeightIsKnown, to_cli_filter, Condition
+from prompt_toolkit.filters import IsDone, HasFocus, RendererHeightIsKnown, to_cli_filter
 from prompt_toolkit.enums import DEFAULT_BUFFER, SEARCH_BUFFER
 from prompt_toolkit.token import Token
 from prompt_toolkit.layout import Window, HSplit, VSplit, Float
 from prompt_toolkit.layout.containers import ConditionalContainer, FloatContainer
 from prompt_toolkit.layout.dimension import LayoutDimension
-from prompt_toolkit.layout.controls import TokenListControl, BufferControl, FillControl
+from prompt_toolkit.layout.controls import TokenListControl, BufferControl
 from prompt_toolkit.layout.lexers import PygmentsLexer
-from prompt_toolkit.layout.screen import Char
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.layout.processors import ConditionalProcessor, HighlightSearchProcessor
-from prompt_toolkit.layout.toolbars import TokenListToolbar, SearchToolbar
+from prompt_toolkit.layout.toolbars import SearchToolbar
 from prompt_toolkit.layout.margins import PromptMargin, ConditionalMargin
 from prompt_toolkit.layout.utils import token_list_width
 
-""" Creates a custom `Layout` for the Crash input REPL
+
+def create_layout(message='', lexer=None,
+                  reserve_space_for_menu=8,
+                  get_prompt_tokens=None,
+                  get_bottom_toolbar_tokens=None,
+                  extra_input_processors=None, multiline=False,
+                  wrap_lines=True):
+    """
+    Creates a custom `Layout` for the Crash input REPL
 
     This layout includes:
         * a bottom left-aligned session toolbar container
@@ -49,13 +56,7 @@ from prompt_toolkit.layout.utils import token_list_width
     +-------------------------------------------+
     | bottom_toolbar_tokens      sidebar_tokens |
     +-------------------------------------------+
-"""
-def create_layout(message='', lexer=None,
-                  reserve_space_for_menu=8,
-                  get_prompt_tokens=None,
-                  get_bottom_toolbar_tokens=None,
-                  extra_input_processors=None, multiline=False,
-                  wrap_lines=True):
+    """
 
     # Create processors list.
     input_processors = [
@@ -122,11 +123,12 @@ def create_layout(message='', lexer=None,
                     [
                         # Completion menu
                         Float(xcursor=True,
-                            ycursor=True,
-                            content=CompletionsMenu(
-                                max_height=16,
-                                scroll_offset=1,
-                                extra_filter=HasFocus(DEFAULT_BUFFER))),
+                              ycursor=True,
+                              content=CompletionsMenu(
+                                  max_height=16,
+                                  scroll_offset=1,
+                                  extra_filter=HasFocus(DEFAULT_BUFFER))
+                              ),
                     ]
                 ),
 

@@ -21,14 +21,8 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 
-import logging
 from collections import namedtuple
 from distutils.version import StrictVersion
-
-from crate.client.exceptions import ConnectionError, ProgrammingError
-from crate.client import connect
-
-from .printer import ColorPrinter
 
 
 Result = namedtuple('Result', ['rows', 'cols'])
@@ -49,26 +43,28 @@ from sys.nodes
         """,
     }
 
-    NODES_INFO = [ """ select name,
-                          hostname,
-                          version['number'] as crate_version,
-                          round(heap['max'] / 1024.0 / 1024.0)
-                                as total_heap_mb,
-                          round((mem['free'] + mem['used']) / 1024.0 / 1024.0)
-                                as total_memory_mb,
-                          os_info['available_processors'] as cpus,
-                          os['uptime'] /1000 as uptime_s,
-                          format('%s - %s (%s)',
-                                os_info['name'],
-                                os_info['version'],
-                                os_info['arch']) as os_info,
-                          format('java version \"%s\" %s %s (build %s)',
-                                os_info['jvm']['version'],
-                                os_info['jvm']['vm_vendor'],
-                                os_info['jvm']['vm_name'],
-                                os_info['jvm']['vm_version']) as jvm_info
-                          from sys.nodes
-                          order by os['uptime'] desc """ ]
+    NODES_INFO = [
+        """select name,
+                  hostname,
+                  version['number'] as crate_version,
+                  round(heap['max'] / 1024.0 / 1024.0)
+                        as total_heap_mb,
+                  round((mem['free'] + mem['used']) / 1024.0 / 1024.0)
+                        as total_memory_mb,
+                  os_info['available_processors'] as cpus,
+                  os['uptime'] /1000 as uptime_s,
+                  format('%s - %s (%s)',
+                        os_info['name'],
+                        os_info['version'],
+                        os_info['arch']) as os_info,
+                  format('java version \"%s\" %s %s (build %s)',
+                        os_info['jvm']['version'],
+                        os_info['jvm']['vm_vendor'],
+                        os_info['jvm']['vm_name'],
+                        os_info['jvm']['vm_version']) as jvm_info
+           from sys.nodes
+           order by os['uptime'] desc""",
+    ]
 
     def __init__(self, cmd):
         self.cmd = cmd

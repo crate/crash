@@ -22,13 +22,14 @@
 
 
 from unittest import TestCase
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, PropertyMock
 
-from .command import CrateShell
+from .command import CrateShell  # noqa: F401 - required for patch()
 from .sysinfo import SysInfoCommand, Result as Res
 from distutils.version import StrictVersion
 
 CRATE_VERSION = StrictVersion("0.55.2")
+
 
 class SysInfoTest(TestCase):
 
@@ -42,7 +43,7 @@ class SysInfoTest(TestCase):
     CLUSTER_FIELDS = ['number_of_shards', 'number_of_records']
 
     def setUp(self):
-        self.patcher = patch(__name__+'.CrateShell')
+        self.patcher = patch(__name__ + '.CrateShell')
         self.cmd = self.patcher.start()
         self.cmd.connection.lowest_server_version = CRATE_VERSION
         self.sys_info = SysInfoCommand(self.cmd)
@@ -88,7 +89,7 @@ class SysInfoTest(TestCase):
 
         succcess, result = self.sys_info._sys_info()
         self.assertEqual(succcess, False)
-        expected_nodes = Res(SysInfoTest.NODES_INFO, SysInfoTest.NODES_FIELDS)
+        Res(SysInfoTest.NODES_INFO, SysInfoTest.NODES_FIELDS)
         # must not contain any partial result from first successful calls
         self.assertEqual([], result)
 

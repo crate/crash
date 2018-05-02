@@ -114,6 +114,7 @@ class ToggleAutoCapitalizeCommand(Command):
             cmd._autocapitalize and 'ON' or 'OFF'
         )
 
+
 class ToggleVerboseCommand(Command):
     """ toggle verbose mode """
 
@@ -124,6 +125,7 @@ class ToggleVerboseCommand(Command):
         return 'Verbose {0}'.format(
             cmd.error_trace and 'ON' or 'OFF'
         )
+
 
 class CheckBaseCommand(Command):
 
@@ -209,9 +211,9 @@ class CheckCommand(Command):
     """ print failed cluster and/or node checks, e.g. \check nodes """
 
     CHECKS = OrderedDict([
-                ('cluster', ClusterCheckCommand()),
-                ('nodes', NodeCheckCommand())
-            ])
+        ('cluster', ClusterCheckCommand()),
+        ('nodes', NodeCheckCommand()),
+    ])
 
     def complete(self, cmd, text):
         return (i for i in self.CHECKS if i.startswith(text))

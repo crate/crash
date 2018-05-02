@@ -56,9 +56,9 @@ class ConfigurationTest(TestCase):
     def test_invalid_config(self):
         with self.assertRaises(ConfigurationError) as cm:
             path = os.path.join(self.tmp_dir, 'invalid')
-            conf = Configuration(path)
+            conf = Configuration(path)  # noqa: F841 - creating instance fails
         self.assertEqual(str(cm.exception),
-            'Path to configuration file needs to end with .cfg')
+                         'Path to configuration file needs to end with .cfg')
 
     def test_create_config(self):
         path = os.path.join(self.tmp_dir, 'foo.cfg')

@@ -342,7 +342,7 @@ class CrateShell:
         self._fetch_session_info()
 
     def _connect(self, servers):
-        """ connect to the given server, e.g.: \connect localhost:4200 """
+        """ connect to the given server, e.g.: \\connect localhost:4200 """
         self._do_connect(servers.split(' '))
         self._verify_connection(verbose=True)
 

@@ -296,8 +296,8 @@ class CommandTest(TestCase):
                     self.assertEqual(exception_code, 0)
                     output = output.getvalue()
                     lines = output.split('\n')
-                    self.assertTrue(re.match('^\| http://[\d\.:]+. *\| crate .*\| TRUE .*\| OK', lines[3]) is not None, lines[3])
-                    self.assertTrue(re.match('^\| http://[\d\.:]+ .*\| NULL .*\| FALSE .*\| Server not available', lines[4]) is not None, lines[4])
+                    self.assertTrue(re.match(r'^\| http://[\d\.:]+. *\| crate .*\| TRUE .*\| OK', lines[3]) is not None, lines[3])
+                    self.assertTrue(re.match(r'^\| http://[\d\.:]+ .*\| NULL .*\| FALSE .*\| Server not available', lines[4]) is not None, lines[4])
         finally:
             try:
                 os.remove(tmphistory)
@@ -595,9 +595,9 @@ class CommandTest(TestCase):
             '\\?                              print this help',
             '\\autocapitalize                 toggle automatic capitalization of SQL keywords',
             '\\autocomplete                   toggle autocomplete',
-            '\\c                              connect to the given server, e.g.: \connect localhost:4200',
-            '\\check                          print failed cluster and/or node checks, e.g. \check nodes',
-            '\\connect                        connect to the given server, e.g.: \connect localhost:4200',
+            '\\c                              connect to the given server, e.g.: \\connect localhost:4200',
+            '\\check                          print failed cluster and/or node checks, e.g. \\check nodes',
+            '\\connect                        connect to the given server, e.g.: \\connect localhost:4200',
             '\\dt                             print the existing tables within the \'doc\' schema',
             '\\format                         switch output format',
             '\\q                              quit crash',
@@ -675,14 +675,14 @@ LANGUAGE javascript AS '
         crash = _create_shell(crate_hosts, False, None, False, args, timeout=timeout)
         crash.logger = Mock()
         crash.execute(slow_query)
-        crash.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
+        crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
         # with verbose
         crash = _create_shell(crate_hosts, True, None, False, args, timeout=timeout)
         crash.logger = Mock()
         crash.execute(slow_query)
         crash.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.1)")
-        crash.logger.warn.assert_any_call("Use \connect <server> to connect to one or more servers first.")
+        crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):
         sys.argv = ["testcrash",

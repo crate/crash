@@ -37,7 +37,7 @@ class SQLCompleterTest(TestCase):
         self.assertEqual(result, ['c', 'check', 'connect'])
 
     def test_get_command_completions_format(self):
-        result = list(self.completer.get_command_completions(r'\format dyn'))
+        result = list(self.completer.get_command_completions('\\format dyn'))
         self.assertEqual(result, ['dynamic'])
 
 
@@ -93,10 +93,10 @@ class AutoCapitalizeTest(TestCase):
         self.capitalizer.apply_capitalization(buffer)
         self.assertEqual('CREATE TABLE test\n(a BOOLEAN, b STRING, c INTEGER)', buffer.text)
 
-        text = '\select dynamic'
+        text = '\\select dynamic'
         buffer.set_document(Document(text, len(text)))
         self.capitalizer.apply_capitalization(buffer)
-        self.assertEqual('\select dynamic', buffer.text)
+        self.assertEqual('\\select dynamic', buffer.text)
 
     def test_undo_capitalize(self):
         buffer = Buffer()

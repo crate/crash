@@ -8,6 +8,7 @@ import ssl
 import tempfile
 from io import TextIOWrapper, StringIO
 from unittest import TestCase
+from contextlib import contextmanager
 from unittest.mock import patch, Mock
 from crate.client.exceptions import ProgrammingError
 from urllib3.exceptions import LocationParseError
@@ -19,6 +20,23 @@ from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 from .commands import Command
 from distutils.version import StrictVersion
+
+
+@contextmanager
+def crate_shell(hosts='localhost:4200', **kwargs):
+    """
+    Create an "auto-closable" CrateShell object that can be used in conjunction
+    with the ``with`` statement, for example::
+
+    >>> with crate_shell(error_trace=True) as cmd:
+    ...     # do something here
+
+    """
+    cmd = CrateShell(hosts.split(' '), **kwargs)
+    try:
+        yield cmd
+    finally:
+        cmd.connection.close()
 
 
 def fake_stdin(data):
@@ -204,10 +222,10 @@ class CommandTest(TestCase):
                               "| name | name |",
                               "+------+------+",
                               "+------+------+\n"])
-        command = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            command.pprint([], ['name', 'name'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint([], ['name', 'name'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_pprint_dont_guess_type(self):
         "Output: table with duplicate keys"
@@ -216,10 +234,10 @@ class CommandTest(TestCase):
                               "+---------+",
                               "| 0.50    |",
                               "+---------+\n"])
-        command = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            command.pprint([["0.50"]], ['version'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint([["0.50"]], ['version'])
+                self.assertEqual(expected, output.getvalue())
 
     @patch('sys.stdin', fake_stdin(u"select 'via-stdin' from sys.cluster"))
     def test_stdin_cmd(self):
@@ -365,10 +383,10 @@ class CommandTest(TestCase):
                               '|    1 |',
                               '| NULL |',
                               '+------+\n'])
-        cmd = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            cmd.pprint(rows, cols=['x'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['x'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_tabulate_boolean_int_column(self):
         """
@@ -381,10 +399,10 @@ class CommandTest(TestCase):
                               '| FALSE |',
                               '| 1     |',
                               '+-------+\n'])
-        cmd = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            cmd.pprint(rows, cols=['x'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['x'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_multiline_header(self):
         """
@@ -398,10 +416,10 @@ class CommandTest(TestCase):
                               '| FALSE |',
                               '| 1     |',
                               '+-------+\n'])
-        cmd = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            cmd.pprint(rows, cols=['x\ny'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['x\ny'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_multiline_row(self):
         """
@@ -416,10 +434,10 @@ class CommandTest(TestCase):
                               '|   name string         |     |   |',
                               '| )                     |     |   |',
                               '+-----------------------+-----+---+\n'])
-        cmd = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            cmd.pprint(rows, cols=['show create table foo', 'a', 'b'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['show create table foo', 'a', 'b'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_tabulate_empty_line(self):
         self.maxDiff = None
@@ -433,11 +451,11 @@ class CommandTest(TestCase):
                               '|                                    | Planet      |',
                               '+------------------------------------+-------------+\n'])
 
-        cmd = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            cmd.pprint(rows, cols=['min(name)', 'kind'])
-            # assert 0
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['min(name)', 'kind'])
+                # assert 0
+                self.assertEqual(expected, output.getvalue())
 
     def test_empty_line_first_row_first_column(self):
         self.maxDiff = None
@@ -451,10 +469,10 @@ class CommandTest(TestCase):
                               '| Galactic Sector QQ7 Active J Gamma | Galaxy      |',
                               '+------------------------------------+-------------+\n'])
 
-        cmd = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            cmd.pprint(rows, cols=['min(name)', 'kind'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['min(name)', 'kind'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_empty_first_row(self):
         self.maxDiff = None
@@ -469,10 +487,10 @@ class CommandTest(TestCase):
                               '| Alpha Centauri      | Alpha - Centauri      |',
                               '+---------------------+-----------------------+\n'])
 
-        cmd = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            cmd.pprint(rows, cols=['name', 'replaced'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['name', 'replaced'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_any_empty(self):
         self.maxDiff = None
@@ -486,10 +504,10 @@ class CommandTest(TestCase):
                               '| Features and conformance views | FALSE        | 3              | SQL_LANGUAGES view |',
                               '+--------------------------------+--------------+----------------+--------------------+\n'])
 
-        cmd = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            cmd.pprint(rows, cols=['feature_name', 'is_supported', 'sub_feature_id', 'sub_feature_name'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['feature_name', 'is_supported', 'sub_feature_id', 'sub_feature_name'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_first_column_first_row_empty(self):
         self.maxDiff = None
@@ -510,10 +528,10 @@ class CommandTest(TestCase):
                               '| NULL                               |    1.0 |',
                               '+------------------------------------+--------+\n'])
 
-        cmd = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            cmd.pprint(rows, cols=['name', '_score'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint(rows, cols=['name', '_score'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_error_exit_code(self):
         """Test returns an error exit code"""
@@ -527,22 +545,22 @@ class CommandTest(TestCase):
             self.assertEqual(e.code, 1)
 
     def test_verbose_with_error_trace(self):
-        command = CrateShell(error_trace=True)
-        command.logger = Mock()
-        command.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
-                                                                   error_trace="error trace"))
-        command.execute("select invalid statement")
-        command.logger.critical.assert_any_call("the error message")
-        command.logger.critical.assert_called_with("\nerror trace")
+        with crate_shell(error_trace=True) as cmd:
+            cmd.logger = Mock()
+            cmd.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
+                                                                       error_trace="error trace"))
+            cmd.execute("select invalid statement")
+            cmd.logger.critical.assert_any_call("the error message")
+            cmd.logger.critical.assert_called_with("\nerror trace")
 
     def test_verbose_no_error_trace(self):
-        command = CrateShell(error_trace=True)
-        command.logger = Mock()
-        command.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
-                                                                   error_trace=None))
-        command.execute("select invalid statement")
-        # only the message is logged
-        command.logger.critical.assert_called_once_with("the error message")
+        with crate_shell(error_trace=True) as cmd:
+            cmd.logger = Mock()
+            cmd.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
+                                                                       error_trace=None))
+            cmd.execute("select invalid statement")
+            # only the message is logged
+            cmd.logger.critical.assert_called_once_with("the error message")
 
     def test_rendering_object(self):
         """Test rendering an object"""
@@ -552,10 +570,10 @@ class CommandTest(TestCase):
                               '+-------------------------------+',
                               '| {"age": 42, "name": "Arthur"} |',
                               '+-------------------------------+\n'])
-        command = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            command.pprint([[user]], ['user'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint([[user]], ['user'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_rendering_array(self):
         """Test rendering an array"""
@@ -565,10 +583,10 @@ class CommandTest(TestCase):
                               '+--------------------+',
                               '| ["Arthur", "Ford"] |',
                               '+--------------------+\n'])
-        command = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            command.pprint([[names]], ['names'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint([[names]], ['names'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_rendering_float(self):
         """Test rendering an array"""
@@ -578,10 +596,10 @@ class CommandTest(TestCase):
                               '|  3.1415926535 |',
                               '| 42.0          |',
                               '+---------------+\n'])
-        command = CrateShell()
-        with patch('sys.stdout', new_callable=StringIO) as output:
-            command.pprint([[3.1415926535], [42.0]], ['number'])
-            self.assertEqual(expected, output.getvalue())
+        with crate_shell() as cmd:
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.pprint([[3.1415926535], [42.0]], ['number'])
+                self.assertEqual(expected, output.getvalue())
 
     def test_help_command(self):
         """Test output of help command"""
@@ -604,13 +622,12 @@ class CommandTest(TestCase):
         help_ = command.commands['?']
         self.assertTrue(isinstance(help_, Command))
         self.assertEqual(expected, help_(command))
-        command = CrateShell(is_tty=False)
-
-        output = StringIO()
-        command.logger = ColorPrinter(False, stream=output)
-        text = help_(command, 'arg1', 'arg2')
-        self.assertEqual(None, text)
-        self.assertEqual('Command does not take any arguments.\n', output.getvalue())
+        with crate_shell(is_tty=False) as cmd:
+            output = StringIO()
+            cmd.logger = ColorPrinter(False, stream=output)
+            text = help_(cmd, 'arg1', 'arg2')
+            self.assertEqual(None, text)
+            self.assertEqual('Command does not take any arguments.\n', output.getvalue())
 
     def test_noargs_decorator(self):
         """Test noargs decorator"""
@@ -647,50 +664,42 @@ class CommandTest(TestCase):
             _create_shell(crate_hosts, False, None, False, args)
 
     def test_command_timeout(self):
-        sys.argv = ["testcrash", "--hosts", self.crate_host]
-        parser = get_parser()
-        args = parse_args(parser)
-
-        crate_hosts = [host_and_port(h) for h in args.hosts]
-        crash = _create_shell(crate_hosts, False, None, False, args)
-        crash.execute("""
-CREATE FUNCTION fib(long)
-RETURNS LONG
-LANGUAGE javascript AS '
-    function fib(n) {
-      if (n < 2) return 1;
-      return fib(n - 1) + fib(n - 2);
-    }'
-        """)
+        with crate_shell(self.crate_host) as crash:
+            crash.execute("""
+    CREATE FUNCTION fib(long)
+    RETURNS LONG
+    LANGUAGE javascript AS '
+        function fib(n) {
+          if (n < 2) return 1;
+          return fib(n - 1) + fib(n - 2);
+        }'
+            """)
 
         timeout = 0.1
         slow_query = "SELECT fib(35)"
 
         # without verbose
-        crash = _create_shell(crate_hosts, False, None, False, args, timeout=timeout)
-        crash.logger = Mock()
-        crash.execute(slow_query)
-        crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
+        with crate_shell(self.crate_host,
+                         error_trace=False,
+                         timeout=timeout) as crash:
+            crash.logger = Mock()
+            crash.execute(slow_query)
+            crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
         # with verbose
-        crash = _create_shell(crate_hosts, True, None, False, args, timeout=timeout)
-        crash.logger = Mock()
-        crash.execute(slow_query)
-        crash.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.1)")
-        crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
+        with crate_shell(self.crate_host,
+                         error_trace=True,
+                         timeout=timeout) as crash:
+            crash.logger = Mock()
+            crash.execute(slow_query)
+            crash.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.1)")
+            crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):
-        sys.argv = ["testcrash",
-                    "--hosts", self.crate_host,
-                    "--username", "crate"
-                    ]
-        parser = get_parser()
-        args = parse_args(parser)
-        crate_hosts = [host_and_port(h) for h in args.hosts]
-        crash = _create_shell(crate_hosts, False, None, False, args)
-
-        self.assertEqual(crash.username, "crate")
-        self.assertEqual(crash.connection.client.username, "crate")
+        with crate_shell(self.crate_host,
+                         username='crate') as crash:
+            self.assertEqual(crash.username, "crate")
+            self.assertEqual(crash.connection.client.username, "crate")
 
     def test_ssl_params(self):
         tmpdirname = tempfile.mkdtemp()
@@ -702,30 +711,22 @@ LANGUAGE javascript AS '
         open(key_filename, 'a').close()
         open(ca_cert_filename, 'a').close()
 
-        sys.argv = ["testcrash",
-                    "--hosts", self.crate_host,
-                    "--verify-ssl", "false",
-                    "--cert-file", cert_filename,
-                    "--key-file", key_filename,
-                    "--ca-cert-file", ca_cert_filename
-                    ]
-        parser = get_parser()
-        args = parse_args(parser)
+        with crate_shell(self.crate_host,
+                         verify_ssl=False,
+                         cert_file=cert_filename,
+                         key_file=key_filename,
+                         ca_cert_file=ca_cert_filename) as crash:
+            self.assertEqual(crash.verify_ssl, False)
+            self.assertEqual(crash.connection.client._pool_kw['cert_reqs'], ssl.CERT_NONE)
 
-        crate_hosts = [host_and_port(h) for h in args.hosts]
-        crash = _create_shell(crate_hosts, False, None, False, args)
+            self.assertEqual(crash.cert_file, cert_filename)
+            self.assertEqual(crash.connection.client._pool_kw['cert_file'], cert_filename)
 
-        self.assertEqual(crash.verify_ssl, False)
-        self.assertEqual(crash.connection.client._pool_kw['cert_reqs'], ssl.CERT_NONE)
+            self.assertEqual(crash.key_file, key_filename)
+            self.assertEqual(crash.connection.client._pool_kw['key_file'], key_filename)
 
-        self.assertEqual(crash.cert_file, cert_filename)
-        self.assertEqual(crash.connection.client._pool_kw['cert_file'], cert_filename)
-
-        self.assertEqual(crash.key_file, key_filename)
-        self.assertEqual(crash.connection.client._pool_kw['key_file'], key_filename)
-
-        self.assertEqual(crash.ca_cert_file, ca_cert_filename)
-        self.assertEqual(crash.connection.client._pool_kw['ca_certs'], ca_cert_filename)
+            self.assertEqual(crash.ca_cert_file, ca_cert_filename)
+            self.assertEqual(crash.connection.client._pool_kw['ca_certs'], ca_cert_filename)
 
     def test_ssl_params_missing_file(self):
         sys.argv = ["testcrash",

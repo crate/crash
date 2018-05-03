@@ -422,7 +422,6 @@ class CommandTest(TestCase):
             self.assertEqual(expected, output.getvalue())
 
     def test_tabulate_empty_line(self):
-
         self.maxDiff = None
         rows = ['Aldebaran', 'Star System'], ['Berlin', 'City'], ['Galactic Sector QQ7 Active J Gamma', 'Galaxy'], ['', 'Planet']
         expected = "\n".join(['+------------------------------------+-------------+',
@@ -441,7 +440,6 @@ class CommandTest(TestCase):
             self.assertEqual(expected, output.getvalue())
 
     def test_empty_line_first_row_first_column(self):
-
         self.maxDiff = None
         rows = ['', 'Planet'], ['Aldebaran', 'Star System'], ['Berlin', 'City'], ['Galactic Sector QQ7 Active J Gamma', 'Galaxy']
         expected = "\n".join(['+------------------------------------+-------------+',
@@ -459,66 +457,63 @@ class CommandTest(TestCase):
             self.assertEqual(expected, output.getvalue())
 
     def test_empty_first_row(self):
+        self.maxDiff = None
+        rows = ['', ''], ['Aldebaran', 'Aldebaran'], ['Algol', 'Algol'], ['Allosimanius Syneca', 'Allosimanius - Syneca'], ['Alpha Centauri', 'Alpha - Centauri']
+        expected = "\n".join(['+---------------------+-----------------------+',
+                              '| name                | replaced              |',
+                              '+---------------------+-----------------------+',
+                              '|                     |                       |',
+                              '| Aldebaran           | Aldebaran             |',
+                              '| Algol               | Algol                 |',
+                              '| Allosimanius Syneca | Allosimanius - Syneca |',
+                              '| Alpha Centauri      | Alpha - Centauri      |',
+                              '+---------------------+-----------------------+\n'])
 
-            self.maxDiff = None
-            rows = ['', ''], ['Aldebaran', 'Aldebaran'], ['Algol', 'Algol'], ['Allosimanius Syneca', 'Allosimanius - Syneca'], ['Alpha Centauri', 'Alpha - Centauri']
-            expected = "\n".join(['+---------------------+-----------------------+',
-                                  '| name                | replaced              |',
-                                  '+---------------------+-----------------------+',
-                                  '|                     |                       |',
-                                  '| Aldebaran           | Aldebaran             |',
-                                  '| Algol               | Algol                 |',
-                                  '| Allosimanius Syneca | Allosimanius - Syneca |',
-                                  '| Alpha Centauri      | Alpha - Centauri      |',
-                                  '+---------------------+-----------------------+\n'])
-
-            cmd = CrateShell()
-            with patch('sys.stdout', new_callable=StringIO) as output:
-                cmd.pprint(rows, cols=['name', 'replaced'])
-                self.assertEqual(expected, output.getvalue())
+        cmd = CrateShell()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            cmd.pprint(rows, cols=['name', 'replaced'])
+            self.assertEqual(expected, output.getvalue())
 
     def test_any_empty(self):
+        self.maxDiff = None
+        rows = ['Features and conformance views', 'FALSE', '', ''], ['Features and conformance views', 'TRUE', 1, 'SQL_FEATURES view'], ['Features and conformance views', 'FALSE', 2, 'SQL_SIZING view'], ['Features and conformance views', 'FALSE', 3, 'SQL_LANGUAGES view']
+        expected = "\n".join(['+--------------------------------+--------------+----------------+--------------------+',
+                              '| feature_name                   | is_supported | sub_feature_id | sub_feature_name   |',
+                              '+--------------------------------+--------------+----------------+--------------------+',
+                              '| Features and conformance views | FALSE        |                |                    |',
+                              '| Features and conformance views | TRUE         | 1              | SQL_FEATURES view  |',
+                              '| Features and conformance views | FALSE        | 2              | SQL_SIZING view    |',
+                              '| Features and conformance views | FALSE        | 3              | SQL_LANGUAGES view |',
+                              '+--------------------------------+--------------+----------------+--------------------+\n'])
 
-            self.maxDiff = None
-            rows = ['Features and conformance views', 'FALSE', '', ''], ['Features and conformance views', 'TRUE', 1, 'SQL_FEATURES view'], ['Features and conformance views', 'FALSE', 2, 'SQL_SIZING view'], ['Features and conformance views', 'FALSE', 3, 'SQL_LANGUAGES view']
-            expected = "\n".join(['+--------------------------------+--------------+----------------+--------------------+',
-                                  '| feature_name                   | is_supported | sub_feature_id | sub_feature_name   |',
-                                  '+--------------------------------+--------------+----------------+--------------------+',
-                                  '| Features and conformance views | FALSE        |                |                    |',
-                                  '| Features and conformance views | TRUE         | 1              | SQL_FEATURES view  |',
-                                  '| Features and conformance views | FALSE        | 2              | SQL_SIZING view    |',
-                                  '| Features and conformance views | FALSE        | 3              | SQL_LANGUAGES view |',
-                                  '+--------------------------------+--------------+----------------+--------------------+\n'])
-
-            cmd = CrateShell()
-            with patch('sys.stdout', new_callable=StringIO) as output:
-                cmd.pprint(rows, cols=['feature_name', 'is_supported', 'sub_feature_id', 'sub_feature_name'])
-                self.assertEqual(expected, output.getvalue())
+        cmd = CrateShell()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            cmd.pprint(rows, cols=['feature_name', 'is_supported', 'sub_feature_id', 'sub_feature_name'])
+            self.assertEqual(expected, output.getvalue())
 
     def test_first_column_first_row_empty(self):
+        self.maxDiff = None
+        rows = ['', 1.0], ['Aldebaran', 1.0], ['Algol', 1.0], ['Allosimanius Syneca', 1.0], ['Alpha Centauri', 1.0], ['Argabuthon', 1.0], ['Arkintoofle Minor', 1.0], ['Galactic Sector QQ7 Active J Gamma', 1.0], ['North West Ripple', 1.0], ['Outer Eastern Rim', 1.0], ['NULL', 1.0]
+        expected = "\n".join(['+------------------------------------+--------+',
+                              '| name                               | _score |',
+                              '+------------------------------------+--------+',
+                              '|                                    |    1.0 |',
+                              '| Aldebaran                          |    1.0 |',
+                              '| Algol                              |    1.0 |',
+                              '| Allosimanius Syneca                |    1.0 |',
+                              '| Alpha Centauri                     |    1.0 |',
+                              '| Argabuthon                         |    1.0 |',
+                              '| Arkintoofle Minor                  |    1.0 |',
+                              '| Galactic Sector QQ7 Active J Gamma |    1.0 |',
+                              '| North West Ripple                  |    1.0 |',
+                              '| Outer Eastern Rim                  |    1.0 |',
+                              '| NULL                               |    1.0 |',
+                              '+------------------------------------+--------+\n'])
 
-            self.maxDiff = None
-            rows = ['', 1.0], ['Aldebaran', 1.0], ['Algol', 1.0], ['Allosimanius Syneca', 1.0], ['Alpha Centauri', 1.0], ['Argabuthon', 1.0], ['Arkintoofle Minor', 1.0], ['Galactic Sector QQ7 Active J Gamma', 1.0], ['North West Ripple', 1.0], ['Outer Eastern Rim', 1.0], ['NULL', 1.0]
-            expected = "\n".join(['+------------------------------------+--------+',
-                                  '| name                               | _score |',
-                                  '+------------------------------------+--------+',
-                                  '|                                    |    1.0 |',
-                                  '| Aldebaran                          |    1.0 |',
-                                  '| Algol                              |    1.0 |',
-                                  '| Allosimanius Syneca                |    1.0 |',
-                                  '| Alpha Centauri                     |    1.0 |',
-                                  '| Argabuthon                         |    1.0 |',
-                                  '| Arkintoofle Minor                  |    1.0 |',
-                                  '| Galactic Sector QQ7 Active J Gamma |    1.0 |',
-                                  '| North West Ripple                  |    1.0 |',
-                                  '| Outer Eastern Rim                  |    1.0 |',
-                                  '| NULL                               |    1.0 |',
-                                  '+------------------------------------+--------+\n'])
-
-            cmd = CrateShell()
-            with patch('sys.stdout', new_callable=StringIO) as output:
-                cmd.pprint(rows, cols=['name', '_score'])
-                self.assertEqual(expected, output.getvalue())
+        cmd = CrateShell()
+        with patch('sys.stdout', new_callable=StringIO) as output:
+            cmd.pprint(rows, cols=['name', '_score'])
+            self.assertEqual(expected, output.getvalue())
 
     def test_error_exit_code(self):
         """Test returns an error exit code"""

@@ -8,7 +8,6 @@ import ssl
 import tempfile
 from io import TextIOWrapper, StringIO
 from unittest import TestCase
-from contextlib import contextmanager
 from unittest.mock import patch, Mock
 from crate.client.exceptions import ProgrammingError
 from urllib3.exceptions import LocationParseError
@@ -20,23 +19,6 @@ from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 from .commands import Command
 from distutils.version import StrictVersion
-
-
-@contextmanager
-def crate_shell(hosts='localhost:4200', **kwargs):
-    """
-    Create an "auto-closable" CrateShell object that can be used in conjunction
-    with the ``with`` statement, for example::
-
-    >>> with crate_shell(error_trace=True) as cmd:
-    ...     # do something here
-
-    """
-    cmd = CrateShell(hosts.split(' '), **kwargs)
-    try:
-        yield cmd
-    finally:
-        cmd.connection.close()
 
 
 def fake_stdin(data):
@@ -222,7 +204,7 @@ class CommandTest(TestCase):
                               "| name | name |",
                               "+------+------+",
                               "+------+------+\n"])
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([], ['name', 'name'])
                 self.assertEqual(expected, output.getvalue())
@@ -234,7 +216,7 @@ class CommandTest(TestCase):
                               "+---------+",
                               "| 0.50    |",
                               "+---------+\n"])
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([["0.50"]], ['version'])
                 self.assertEqual(expected, output.getvalue())
@@ -383,7 +365,7 @@ class CommandTest(TestCase):
                               '|    1 |',
                               '| NULL |',
                               '+------+\n'])
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['x'])
                 self.assertEqual(expected, output.getvalue())
@@ -399,7 +381,7 @@ class CommandTest(TestCase):
                               '| FALSE |',
                               '| 1     |',
                               '+-------+\n'])
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['x'])
                 self.assertEqual(expected, output.getvalue())
@@ -416,7 +398,7 @@ class CommandTest(TestCase):
                               '| FALSE |',
                               '| 1     |',
                               '+-------+\n'])
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['x\ny'])
                 self.assertEqual(expected, output.getvalue())
@@ -434,7 +416,7 @@ class CommandTest(TestCase):
                               '|   name string         |     |   |',
                               '| )                     |     |   |',
                               '+-----------------------+-----+---+\n'])
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['show create table foo', 'a', 'b'])
                 self.assertEqual(expected, output.getvalue())
@@ -451,7 +433,7 @@ class CommandTest(TestCase):
                               '|                                    | Planet      |',
                               '+------------------------------------+-------------+\n'])
 
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['min(name)', 'kind'])
                 # assert 0
@@ -469,7 +451,7 @@ class CommandTest(TestCase):
                               '| Galactic Sector QQ7 Active J Gamma | Galaxy      |',
                               '+------------------------------------+-------------+\n'])
 
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['min(name)', 'kind'])
                 self.assertEqual(expected, output.getvalue())
@@ -487,7 +469,7 @@ class CommandTest(TestCase):
                               '| Alpha Centauri      | Alpha - Centauri      |',
                               '+---------------------+-----------------------+\n'])
 
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['name', 'replaced'])
                 self.assertEqual(expected, output.getvalue())
@@ -504,7 +486,7 @@ class CommandTest(TestCase):
                               '| Features and conformance views | FALSE        | 3              | SQL_LANGUAGES view |',
                               '+--------------------------------+--------------+----------------+--------------------+\n'])
 
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['feature_name', 'is_supported', 'sub_feature_id', 'sub_feature_name'])
                 self.assertEqual(expected, output.getvalue())
@@ -528,7 +510,7 @@ class CommandTest(TestCase):
                               '| NULL                               |    1.0 |',
                               '+------------------------------------+--------+\n'])
 
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['name', '_score'])
                 self.assertEqual(expected, output.getvalue())
@@ -545,7 +527,7 @@ class CommandTest(TestCase):
             self.assertEqual(e.code, 1)
 
     def test_verbose_with_error_trace(self):
-        with crate_shell(error_trace=True) as cmd:
+        with CrateShell(error_trace=True) as cmd:
             cmd.logger = Mock()
             cmd.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
                                                                        error_trace="error trace"))
@@ -554,7 +536,7 @@ class CommandTest(TestCase):
             cmd.logger.critical.assert_called_with("\nerror trace")
 
     def test_verbose_no_error_trace(self):
-        with crate_shell(error_trace=True) as cmd:
+        with CrateShell(error_trace=True) as cmd:
             cmd.logger = Mock()
             cmd.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
                                                                        error_trace=None))
@@ -570,7 +552,7 @@ class CommandTest(TestCase):
                               '+-------------------------------+',
                               '| {"age": 42, "name": "Arthur"} |',
                               '+-------------------------------+\n'])
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([[user]], ['user'])
                 self.assertEqual(expected, output.getvalue())
@@ -583,7 +565,7 @@ class CommandTest(TestCase):
                               '+--------------------+',
                               '| ["Arthur", "Ford"] |',
                               '+--------------------+\n'])
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([[names]], ['names'])
                 self.assertEqual(expected, output.getvalue())
@@ -596,7 +578,7 @@ class CommandTest(TestCase):
                               '|  3.1415926535 |',
                               '| 42.0          |',
                               '+---------------+\n'])
-        with crate_shell() as cmd:
+        with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([[3.1415926535], [42.0]], ['number'])
                 self.assertEqual(expected, output.getvalue())
@@ -622,7 +604,7 @@ class CommandTest(TestCase):
         help_ = command.commands['?']
         self.assertTrue(isinstance(help_, Command))
         self.assertEqual(expected, help_(command))
-        with crate_shell(is_tty=False) as cmd:
+        with CrateShell(is_tty=False) as cmd:
             output = StringIO()
             cmd.logger = ColorPrinter(False, stream=output)
             text = help_(cmd, 'arg1', 'arg2')
@@ -664,7 +646,7 @@ class CommandTest(TestCase):
             _create_shell(crate_hosts, False, None, False, args)
 
     def test_command_timeout(self):
-        with crate_shell(self.crate_host) as crash:
+        with CrateShell(self.crate_host) as crash:
             crash.execute("""
     CREATE FUNCTION fib(long)
     RETURNS LONG
@@ -679,25 +661,25 @@ class CommandTest(TestCase):
         slow_query = "SELECT fib(35)"
 
         # without verbose
-        with crate_shell(self.crate_host,
-                         error_trace=False,
-                         timeout=timeout) as crash:
+        with CrateShell(self.crate_host,
+                        error_trace=False,
+                        timeout=timeout) as crash:
             crash.logger = Mock()
             crash.execute(slow_query)
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
         # with verbose
-        with crate_shell(self.crate_host,
-                         error_trace=True,
-                         timeout=timeout) as crash:
+        with CrateShell(self.crate_host,
+                        error_trace=True,
+                        timeout=timeout) as crash:
             crash.logger = Mock()
             crash.execute(slow_query)
             crash.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.1)")
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):
-        with crate_shell(self.crate_host,
-                         username='crate') as crash:
+        with CrateShell(self.crate_host,
+                        username='crate') as crash:
             self.assertEqual(crash.username, "crate")
             self.assertEqual(crash.connection.client.username, "crate")
 
@@ -711,11 +693,11 @@ class CommandTest(TestCase):
         open(key_filename, 'a').close()
         open(ca_cert_filename, 'a').close()
 
-        with crate_shell(self.crate_host,
-                         verify_ssl=False,
-                         cert_file=cert_filename,
-                         key_file=key_filename,
-                         ca_cert_file=ca_cert_filename) as crash:
+        with CrateShell(self.crate_host,
+                        verify_ssl=False,
+                        cert_file=cert_filename,
+                        key_file=key_filename,
+                        ca_cert_file=ca_cert_filename) as crash:
             self.assertEqual(crash.verify_ssl, False)
             self.assertEqual(crash.connection.client._pool_kw['cert_reqs'], ssl.CERT_NONE)
 
@@ -767,6 +749,21 @@ class CommandTest(TestCase):
 
         with self.assertRaises(PermissionError):
             parse_args(parser)
+
+    def test_close_shell(self):
+        crash = CrateShell(self.crate_host)
+        self.assertFalse(crash.is_closed())
+        self.assertTrue(crash.is_conn_available())
+
+        crash.close()
+        self.assertTrue(crash.is_closed())
+        self.assertFalse(crash.is_conn_available())
+
+        with self.assertRaises(ProgrammingError) as ctx:
+            crash.close()
+
+        self.assertEqual('CrateShell is already closed',
+                         ctx.exception.message)
 
 
 class TestGetInformationSchemaQuery(TestCase):

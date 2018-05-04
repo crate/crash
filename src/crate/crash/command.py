@@ -259,8 +259,15 @@ class CrateShell:
         self.timeout = timeout
 
         # establish connection
+        self.cursor = None
         self.connection = None
         self._do_connect(crate_hosts)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.exit()
 
     def get_num_columns(self):
         return 80
@@ -294,9 +301,21 @@ class CrateShell:
                 self._exec(statement)
 
     def exit(self):
-        self.cursor.close()
-        self.connection.close()
+        self.close()
         return self.exit_code
+
+    def close(self):
+        if self.is_closed():
+            raise ProgrammingError('CrateShell is already closed')
+        if self.cursor:
+            self.cursor.close()
+        self.cursor = None
+        if self.connection:
+            self.connection.close()
+        self.connection = None
+
+    def is_closed(self):
+        return not (self.cursor and self.connection)
 
     @noargs_command
     def _show_tables(self, *args):
@@ -320,15 +339,13 @@ class CrateShell:
         sys.exit(self.exit())
 
     def is_conn_available(self):
-        if self.connection.lowest_server_version == StrictVersion("0.0.0"):
-            return False
-        else:
-            return True
+        return self.connection and \
+            self.connection.lowest_server_version != StrictVersion("0.0.0")
 
     def _do_connect(self, servers):
         self.last_connected_servers = servers
-        if self.connection:
-            self.connection.close()
+        if self.cursor or self.connection:
+            self.close()  # reset open cursor and connection
         self.connection = connect(servers,
                                   error_trace=self.error_trace,
                                   verify_ssl_cert=self.verify_ssl,

@@ -37,6 +37,7 @@ from crate.client import connect
 from crate.client.exceptions import ConnectionError, ProgrammingError
 from distutils.version import StrictVersion
 from urllib3.exceptions import LocationParseError
+from operator import itemgetter
 
 from .commands import built_in_commands, Command
 from .config import Configuration, ConfigurationError
@@ -362,6 +363,10 @@ class CrateShell:
                 results.append([server, None, '0.0.0', False, e.message])
             else:
                 results.append(infos + (True, 'OK', ))
+
+        # sort by CONNECTED DESC, SERVER_URL
+        results.sort(key=itemgetter(3), reverse=True)
+        results.sort(key=itemgetter(0))
 
         if verbose:
             cols = ['server_url', 'node_name', 'version', 'connected', 'message']

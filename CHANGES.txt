@@ -5,8 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
-Changes
--------
+2018/05/12 0.24.0
+=================
 
  - BREAKING: Dropped support for Python 2.7 and 3.3
    If you are using crash with Python 2.7 or 3.3 already, you will not be able
@@ -21,18 +21,12 @@ Changes
 2017/12/15 0.23.0
 =================
 
-Changes
--------
-
  - Added support for password authentication.
 
  - Added support for pasting and executing multiple statements at once.
 
  - The `\r` (read) command auto-completion now also shows directories, instead
    of only files ending in `.sql`
-
-Fixes
------
 
 2017/11/13 0.22.3
 =================

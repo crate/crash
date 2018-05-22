@@ -1,0 +1,15 @@
+.. _appendices:
+
+==========
+Appendices
+==========
+
+Supplementary information for the Crash
+
+.. rubric:: Table of Contents
+
+.. toctree::
+   :maxdepth: 2
+
+   formats
+   compatibility

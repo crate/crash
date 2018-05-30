@@ -15,7 +15,7 @@ Install
 Crash is bundled with `CrateDB`_ so there is typically no need to install it
 yourself.
 
-.. TIP::
+.. SEEALSO::
 
    For manual installation instructions, consult the `PyPI overview`_.
 
@@ -49,7 +49,7 @@ When run with ``--verbose``, Crash will print useful information about
 what it is doing to `STDOUT`_. This includes connection attempts and full stack
 traces (in the case of an error).
 
-.. TIP::
+.. SEEALSO::
 
    For more help, see :ref:`run`.
 
@@ -76,7 +76,7 @@ You should see something like this:
 .. image:: query.png
     :alt: A screenshot of Crash after executing a query
 
-.. TIP::
+.. SEEALSO::
 
    For more help, see :ref:`commands` or :ref:`formats`.
 

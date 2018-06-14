@@ -5,6 +5,10 @@ Changes for crash
 Unreleased
 ==========
 
+- Fixed a dependecy problem that caused ``crash`` not being able to connect to
+  CrateDB if an older version of the dependency ``crate`` was already
+  installed.
+
 2018/05/12 0.24.0
 =================
 

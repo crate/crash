@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+- Fixed an issue where line comments could only be used at the beginning of a
+  line and not after a partial statement.
+
 2018/06/15 0.24.1
 =================
 

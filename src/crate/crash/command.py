@@ -196,7 +196,7 @@ def _parse_statements(lines):
           Everything after the last ';' will be treated as the last statement.
 
     >>> list(_parse_statements(['select * from ', 't1;', 'select name']))
-    ['select * from t1', 'select name']
+    ['select * from\\nt1', 'select name']
 
     >>> list(_parse_statements(['select * from t1;', '  ']))
     ['select * from t1']
@@ -207,10 +207,10 @@ def _parse_statements(lines):
     for line in lines:
         parts.append(line.rstrip(';'))
         if line.endswith(';'):
-            yield ' '.join(parts)
+            yield '\n'.join(parts)
             parts[:] = []
     if parts:
-        yield ' '.join(parts)
+        yield '\n'.join(parts)
 
 
 class CrateShell:
@@ -297,7 +297,7 @@ class CrateShell:
         if text.startswith('\\'):
             self._try_exec_cmd(text.lstrip('\\'))
         else:
-            for statement in _parse_statements(text.split('\n')):
+            for statement in _parse_statements([text]):
                 self._exec(statement)
 
     def exit(self):

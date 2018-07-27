@@ -765,6 +765,33 @@ class CommandTest(TestCase):
         self.assertEqual('CrateShell is already closed',
                          ctx.exception.message)
 
+    def test_connect_info(self):
+        with CrateShell(self.crate_host,
+                        username='crate',
+                        schema='test') as crash:
+            self.assertEqual(crash.connect_info.user, "crate")
+            self.assertEqual(crash.connect_info.schema, "test")
+
+            self.execute = crash.cursor.execute
+            crash.cursor.execute = self.mock_execute
+            crash._fetch_session_info()
+            self.assertEqual(crash.connect_info.user, None)
+            self.assertEqual(crash.connect_info.schema, "test")
+
+    def mock_execute(self, cmd):
+        if 'current_user' in cmd:
+            raise ProgrammingError()
+        return self.execute(cmd)
+
+    @patch.object(CrateShell, "is_conn_available")
+    def test_connect_info_not_available(self, is_conn_available):
+        is_conn_available.return_value = False
+        with CrateShell(self.crate_host,
+                        username='crate',
+                        schema='test') as crash:
+            self.assertEqual(crash.connect_info.user, None)
+            self.assertEqual(crash.connect_info.schema, None)
+
 
 class TestGetInformationSchemaQuery(TestCase):
 

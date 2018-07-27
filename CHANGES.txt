@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+- Fixed an issue that caused a crash when connecting to a CrateDB enterprise
+  edition with a user that don't have ``DQL`` privileges on ``sys.cluster``.
+
 - Fixed an issue where line comments could only be used at the beginning of a
   line and not after a partial statement.
 

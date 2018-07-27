@@ -403,19 +403,26 @@ class CrateShell:
     def _fetch_session_info(self):
         if self.is_conn_available() \
                 and self.connection.lowest_server_version >= StrictVersion("2.0"):
-            # CURRENT_USER function is only available in Enterprise Edition
-            self.cursor.execute("""
-                SELECT settings['license']['enterprise'] FROM sys.cluster;
-            """)
-            user_function = "current_user" if self.cursor.fetchone()[0] else "NULL"
-            self.cursor.execute("""
-                SELECT
-                  {} AS "user",
-                  current_schema AS "schema";
-            """.format(user_function))
-            self.connect_info = ConnectionMeta(*self.cursor.fetchone())
+            user, schema = self._user_and_schema()
+            self.connect_info = ConnectionMeta(user, schema)
         else:
             self.connect_info = ConnectionMeta(None, None)
+
+    def _user_and_schema(self):
+        try:
+            # CURRENT_USER function is only available in Enterprise Edition.
+            self.cursor.execute("""
+                SELECT
+                current_user AS "user",
+                current_schema AS "schema";
+            """)
+        except ProgrammingError:
+            self.cursor.execute("""
+                SELECT
+                NULL AS "user",
+                current_schema AS "schema";
+            """)
+        return self.cursor.fetchone()
 
     def _try_exec_cmd(self, line):
         words = line.split(' ', 1)

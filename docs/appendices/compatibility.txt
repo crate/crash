@@ -14,12 +14,36 @@ Compatibility
 Version Notes
 =============
 
+.. _python-versions
+
+Python
+------
+
+You must be running the following versions of Python:
+
++----------------+-----------------+
+| Client Version | Python Version  |
++================+=================+
+| >= 0.23        | >=3.4           |
++----------------+-----------------+
+| 0.23.x         | 3.3             |
++----------------+-----------------+
+| 0.23.x         | 2.7             |
++----------------+-----------------+
+| 0.16.x         | 2.6             |
++----------------+-----------------+
+
+.. NOTE::
+
+    If you are using `pip`_, the highest compatible version of the client will
+    be installed according to the version of Python you are using.
+
 .. _cratedb-versions:
 
 CrateDB
 -------
 
-Consult the following table for CrateDB version compatibility notes:
+Consult the following table for CrateDB compatibility notes:
 
 +----------------+-----------------+-------------------------------------------+
 | Client Version | CrateDB Version | Notes                                     |
@@ -52,6 +76,7 @@ Consult the following table for CrateDB version compatibility notes:
 .. _array constructors: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#array-constructor
 .. _client library: https://crate.io/docs/crate/getting-started/en/latest/start-building/index.html
 .. _CrateDB REST endpoint: https://crate.io/docs/crate/reference/en/latest/interfaces/http.html
-.. _object literals: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#object-literals
 .. _create your own users: https://crate.io/docs/crate/reference/en/latest/admin/user-management.html
 .. _enterprise edition: https://crate.io/products/cratedb-enterprise/
+.. _object literals: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#object-literals
+.. _pip: https://pypi.python.org/pypi/pip

@@ -27,36 +27,16 @@ The CrashDB Shell (aka *Crash*) is an interactive `command-line interface`_
 Screenshot
 ==========
 
-.. image:: docs/query.png
+.. image:: https://raw.githubusercontent.com/crate/crash/master/docs/query.png
     :alt: A screenshot of Crash
-
-Prerequisites
-=============
-
-Recent versions of Crash require Python 3 (>= 3.4) to run.
-
-Use Crash version 0.23.x if you are running Python 2.7 or 3.3.
-
-Use Crash version 0.16.x if you're running Python 2.6.
 
 Installation
 ============
 
-Under normal circumstances, you do not have to manually install Crash.
-
-Crash is bundled with CrateDB so there is typically no need to install it
-yourself.
-
-If you are able to run the ``crate`` command, you should be able to run the
-``crash`` command (either from the same ``bin`` directory, or on your `PATH`_).
-
-The following instructions should only be followed if you specifically want to
-install Crash separately from CrateDB.
-
 Python Package
 --------------
 
-Crash is available as a pip_ package.
+Crash is available as a `pip`_ package.
 
 To install, run::
 
@@ -68,9 +48,9 @@ Now, run it::
 
 To update, run::
 
-    $ pip install -U crash
+     $ pip install -U crash
 
-If you are not using Python version 3.4 or above, recent version of pip_ will
+If you are not using Python version 3.4 or above, recent version of `pip`_ will
 only install version 0.23.x. This is because newer versions of this package are
 not compatible with Python 2.7 or 3.3 and below.
 
@@ -95,24 +75,6 @@ Now, run it::
 
 If you would like to run ``crash`` from any directory, and without the leading
 ``./``, the file has to be in a directory that is on your `PATH`_.
-
-Legacy Versions
-...............
-
-For Python 2.7 and 3.3 please download version 0.23.0 from the CDN::
-
-    $ curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_0.23.0
-
-For Python 2.6 please download version 0.16.2 from the CDN::
-
-    $ curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_0.16.2
-
-Usage
-=====
-
-For usage information and options, run::
-
-    $ crash --help
 
 Contributing
 ============

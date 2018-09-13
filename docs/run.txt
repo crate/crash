@@ -107,7 +107,9 @@ The ``crash`` executable supports multiple command-line options:
 Examples
 --------
 
-Here's an example command::
+Here's an example command:
+
+.. code-block:: console
 
     sh$ crash --hosts node1.example.com \
                     node2.example.com \
@@ -132,14 +134,16 @@ This command will:
    Instead of `redirecting`_ to a file, you can `pipe`_ into a tool like `jq`_
    for for further processing of the response.
 
-We can modify this command to use SSL, like so::
+We can modify this command to use SSL, like so:
+
+.. code-block:: console
 
     sh$ crash --hosts node1.example.com \
                     node2.example.com \
             --verify-ssl true \
             --cert-file ~/.certs/client.crt \
             --key-file ~/.certs/client.key \
-            --ca-cert-file ~/.certs/server-ca.crt
+            --ca-cert-file ~/.certs/server-ca.crt \
             -c "SELECT * FROM sys.nodes" \
             --format json \
         > output.json
@@ -186,7 +190,9 @@ At the moment, only one environment variable is supported.
                  Storing passwords in the environment is not always a good idea
                  from a security perspective.
 
-You can set ``CRATEPW`` like so::
+You can set ``CRATEPW`` like so:
+
+.. code-block:: console
 
     sh$ export CRATEPW=<PASSWORD>
 

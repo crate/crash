@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2018/10/04 0.24.2
+=================
+
 - Fixed an issue that caused a crash when connecting to a CrateDB enterprise
   edition with a user that don't have ``DQL`` privileges on ``sys.cluster``.
 

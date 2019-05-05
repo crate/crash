@@ -14,7 +14,7 @@ Compatibility
 Version Notes
 =============
 
-.. _python-versions
+.. _python-versions:
 
 Python
 ------

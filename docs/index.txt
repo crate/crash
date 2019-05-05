@@ -11,7 +11,7 @@ The CrateDB Shell (aka *Crash*) is an interactive `command-line interface`_
 
    Crash is an open source project and is `hosted on GitHub`_.
 
-.. sidebar:: Screnshots
+.. sidebar:: Screenshots
 
    .. image:: startup.png
        :alt: A screenshot of Crash after startup

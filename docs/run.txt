@@ -17,7 +17,7 @@ This document covers the basics of running Crash from the `command-line`_.
 .. contents::
    :local:
 
-Command-Line Options
+Command-line options
 ====================
 
 The ``crash`` executable supports multiple command-line options:
@@ -156,7 +156,7 @@ Here, we're using:
 
 .. _user-conf-dir:
 
-User Configuration Directory
+User configuration directory
 ============================
 
 The ``crash`` executable looks for its configuration file and history file in
@@ -176,7 +176,7 @@ And for Microsoft Windows, it is::
 
 .. _env-vars:
 
-Environment Variables
+Environment variables
 =====================
 
 The ``crash`` executable will take configuration from the environment.
@@ -204,7 +204,7 @@ password when needed (unless you force a password prompt with ``--password`` or
 
 .. _status-messages:
 
-Status Messages
+Status messages
 ===============
 
 When used interactively, Crash will print a status message after every

@@ -16,7 +16,7 @@ Installation
 
     Consult the :ref:`compatibility` appendix for prerequisites information.
 
-Python Package
+Python package
 --------------
 
 Crash is available as a `pip`_ package.
@@ -67,7 +67,7 @@ Now, run it:
 If you would like to run ``crash`` from any directory, and without the leading
 ``./``, the file has to be in a directory that is on your `PATH`_.
 
-Legacy Versions
+Legacy versions
 ...............
 
 For Python 2.7 and 3.3 please download version 0.23.0 from the CDN:

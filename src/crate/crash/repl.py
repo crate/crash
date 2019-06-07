@@ -25,6 +25,8 @@ import re
 
 from pygments.lexers.sql import SqlLexer
 from pygments.style import Style
+from prompt_toolkit.output.defaults import get_default_output
+from prompt_toolkit.styles.pygments import style_from_pygments_cls
 from pygments.token import (Keyword,
                             Comment,
                             Operator,
@@ -38,17 +40,16 @@ from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.filters import Condition, IsDone, HasFocus
-from prompt_toolkit import CommandLineInterface, AbortAction, Application
-from prompt_toolkit.interface import AcceptAction
-from prompt_toolkit.styles import PygmentsStyle
+from prompt_toolkit import Application
 from prompt_toolkit.enums import DEFAULT_BUFFER, EditingMode
+from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
+from prompt_toolkit.key_binding.bindings.open_in_editor import load_open_in_editor_bindings
 from prompt_toolkit.layout.processors import (
     HighlightMatchingBracketProcessor,
     ConditionalProcessor
 )
-from prompt_toolkit.key_binding.manager import KeyBindingManager
-from prompt_toolkit.shortcuts import (create_output,
-                                      create_eventloop)
+from prompt_toolkit.application import get_app
 from crate.client.exceptions import ProgrammingError
 from getpass import getpass
 
@@ -222,7 +223,7 @@ class CrashBuffer(Buffer):
                 return False
             return not doc.text.rstrip().endswith(';')
 
-        super().__init__(*args, is_multiline=is_multiline, **kwargs)
+        super().__init__(*args, multiline=is_multiline, **kwargs)
 
 
 class Capitalizer:
@@ -267,10 +268,17 @@ class Capitalizer:
 
 
 def create_buffer(cmd, history_file):
+    def accept(buff):
+        get_app().exit(result=buff.document.text)
+        return True
+
+    history = TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH)
     buffer = CrashBuffer(
-        history=TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH),
-        accept_action=AcceptAction.RETURN_DOCUMENT,
+        name=DEFAULT_BUFFER,
+        history=history,
         completer=SQLCompleter(cmd),
+        enable_history_search=True,
+        accept_handler=accept,
         on_text_insert=Capitalizer(cmd).apply_capitalization
     )
     buffer.complete_while_typing = lambda cli=None: cmd.should_autocomplete()
@@ -284,32 +292,28 @@ def get_toolbar_tokens(cmd):
 
 
 def _get_toolbar_tokens(is_connected, servers, info):
-    tokens = []
     if is_connected:
-        hosts = ', '.join(re.sub('^https?:\/\/', '', a) for a in servers)
-        tokens.extend([(Token.Toolbar.Status.Key, 'USER: '),
-                       (Token.Toolbar.Status, info.user or '--'),
-                       (Token.Toolbar.Status, ' | '),
-                       (Token.Toolbar.Status.Key, 'SCHEMA: '),
-                       (Token.Toolbar.Status, info.schema or 'doc'),
-                       (Token.Toolbar.Status, ' | '),
-                       (Token.Toolbar.Status.Key, 'HOSTS: '),
-                       (Token.Toolbar.Status, hosts)])
+        hosts = ', '.join(re.sub(r'^https?:\/\/', '', a) for a in servers)
+        return PygmentsTokens([
+            (Token.Toolbar.Status.Key, 'USER: '),
+            (Token.Toolbar.Status, info.user or '--'),
+            (Token.Toolbar.Status, ' | '),
+            (Token.Toolbar.Status.Key, 'SCHEMA: '),
+            (Token.Toolbar.Status, info.schema or 'doc'),
+            (Token.Toolbar.Status, ' | '),
+            (Token.Toolbar.Status.Key, 'HOSTS: '),
+            (Token.Toolbar.Status, hosts)
+        ])
     else:
-        tokens.extend([(Token.Toolbar.Status, 'not connected')])
-    return tokens
+        return PygmentsTokens([(Token.Toolbar.Status, 'not connected')])
 
 
 def loop(cmd, history_file):
-
-    key_binding_manager = KeyBindingManager(
-        enable_search=True,
-        enable_abort_and_exit_bindings=True,
-        enable_system_bindings=True,
-        enable_open_in_editor=True
-    )
-    bind_keys(key_binding_manager.registry)
+    buf = create_buffer(cmd, history_file)
+    key_bindings = KeyBindings()
+    bind_keys(buf, key_bindings)
     layout = create_layout(
+        buffer=buf,
         multiline=True,
         lexer=SqlLexer,
         extra_input_processors=[
@@ -317,35 +321,28 @@ def loop(cmd, history_file):
                 processor=HighlightMatchingBracketProcessor(chars='[](){}'),
                 filter=HasFocus(DEFAULT_BUFFER) & ~IsDone())
         ],
-        get_bottom_toolbar_tokens=lambda cli: get_toolbar_tokens(cmd),
-        get_prompt_tokens=lambda cli: [(Token.Prompt, 'cr> ')]
+        get_bottom_toolbar_tokens=lambda: get_toolbar_tokens(cmd),
+        get_prompt_tokens=lambda: [('class:prompt', 'cr> ')]
     )
-    application = Application(
+    output = get_default_output()
+    app = Application(
         layout=layout,
-        buffer=create_buffer(cmd, history_file),
-        style=PygmentsStyle.from_defaults(pygments_style_cls=CrateStyle),
-        key_bindings_registry=key_binding_manager.registry,
+        style=style_from_pygments_cls(CrateStyle),
+        key_bindings=merge_key_bindings([
+            key_bindings,
+            load_open_in_editor_bindings()
+        ]),
         editing_mode=_get_editing_mode(),
-        on_exit=AbortAction.RAISE_EXCEPTION,
-        on_abort=AbortAction.RETRY,
-    )
-    eventloop = create_eventloop()
-    output = create_output()
-    cli = CommandLineInterface(
-        application=application,
-        eventloop=eventloop,
         output=output
     )
-
-    def get_num_columns_override():
-        return output.get_size().columns
-    cmd.get_num_columns = get_num_columns_override
+    cmd.get_num_columns = lambda: output.get_size().columns
 
     while True:
         try:
-            doc = cli.run(reset_current_buffer=True)
-            if doc:
-                cmd.process(doc.text)
+            text = app.run()
+            if text:
+                cmd.process(text)
+            buf.reset()
         except ProgrammingError as e:
             if '401' in e.message:
                 username = cmd.username
@@ -353,7 +350,7 @@ def loop(cmd, history_file):
                 cmd.username = input('Username: ')
                 cmd.password = getpass()
                 try:
-                    cmd.process(doc.text)
+                    cmd.process(text)
                 except ProgrammingError as ex:
                     # fallback to existing user/pw
                     cmd.username = username

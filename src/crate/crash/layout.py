@@ -21,26 +21,44 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-from prompt_toolkit.filters import IsDone, HasFocus, RendererHeightIsKnown, to_cli_filter
+from prompt_toolkit.filters import (
+    is_done,
+    has_focus,
+    renderer_height_is_known
+)
 from prompt_toolkit.enums import DEFAULT_BUFFER, SEARCH_BUFFER
-from prompt_toolkit.token import Token
-from prompt_toolkit.layout import Window, HSplit, VSplit, Float
-from prompt_toolkit.layout.containers import ConditionalContainer, FloatContainer
-from prompt_toolkit.layout.dimension import LayoutDimension
-from prompt_toolkit.layout.controls import TokenListControl, BufferControl
-from prompt_toolkit.layout.lexers import PygmentsLexer
+from prompt_toolkit.layout import (
+    Layout,
+    Window,
+    WindowAlign,
+    HSplit,
+    VSplit,
+    Float
+)
+from prompt_toolkit.layout.containers import (
+    ConditionalContainer,
+    FloatContainer
+)
+from prompt_toolkit.layout.dimension import Dimension
+from prompt_toolkit.layout.controls import FormattedTextControl, BufferControl
+from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.layout.menus import CompletionsMenu
-from prompt_toolkit.layout.processors import ConditionalProcessor, HighlightSearchProcessor
-from prompt_toolkit.layout.toolbars import SearchToolbar
+from prompt_toolkit.layout.processors import (
+    ConditionalProcessor,
+    HighlightSearchProcessor
+)
+from prompt_toolkit.widgets import SearchToolbar
 from prompt_toolkit.layout.margins import PromptMargin, ConditionalMargin
-from prompt_toolkit.layout.utils import token_list_width
+from prompt_toolkit.application import get_app
 
 
-def create_layout(lexer=None,
+def create_layout(buffer,
+                  lexer=None,
                   reserve_space_for_menu=8,
                   get_prompt_tokens=None,
                   get_bottom_toolbar_tokens=None,
-                  extra_input_processors=None, multiline=False,
+                  extra_input_processors=None,
+                  multiline=False,
                   wrap_lines=True):
     """
     Creates a custom `Layout` for the Crash input REPL
@@ -58,100 +76,84 @@ def create_layout(lexer=None,
     +-------------------------------------------+
     """
 
-    # Create processors list.
     input_processors = [
         ConditionalProcessor(
             # Highlight the reverse-i-search buffer
-            HighlightSearchProcessor(preview_search=True),
-            HasFocus(SEARCH_BUFFER)),
-    ]
-
-    if extra_input_processors:
-        input_processors.extend(extra_input_processors)
-
+            HighlightSearchProcessor(),
+            has_focus(SEARCH_BUFFER)),
+    ] + (extra_input_processors or [])
     lexer = PygmentsLexer(lexer, sync_from_start=True)
-    multiline = to_cli_filter(multiline)
-
     sidebar_token = [
-        (Token.Toolbar.Status.Key, "[ctrl+d]"),
-        (Token.Toolbar.Status, " Exit")
+        ('class:status-toolbar', "[ctrl+d]"),
+        ('class:status-toolbar.text', " Exit")
     ]
-    sidebar_width = token_list_width(sidebar_token)
 
-    get_sidebar_tokens = lambda _: sidebar_token
-
-    def get_height(cli):
+    def _get_buffer_control_height(buf):
         # If there is an autocompletion menu to be shown, make sure that our
         # layout has at least a minimal height in order to display it.
-        if reserve_space_for_menu and not cli.is_done:
-            buff = cli.current_buffer
-
+        if reserve_space_for_menu and not get_app().is_done:
+            buff = buffer
             # Reserve the space, either when there are completions, or when
             # `complete_while_typing` is true and we expect completions very
             # soon.
             if buff.complete_while_typing() or buff.complete_state is not None:
-                return LayoutDimension(min=reserve_space_for_menu)
+                return Dimension(min=reserve_space_for_menu)
 
-        return LayoutDimension()
+        return Dimension()
 
-    # Create and return Container instance.
-    return HSplit([
-        VSplit([
-            HSplit([
-                # The main input, with completion menus floating on top of it.
-                FloatContainer(
-                    HSplit([
-                        Window(
-                            BufferControl(
-                                input_processors=input_processors,
-                                lexer=lexer,
-                                # enable preview search for reverse-i-search
-                                preview_search=True),
-                            get_height=get_height,
-                            wrap_lines=wrap_lines,
-                            left_margins=[
-                                # In multiline mode, use the window margin to display
-                                # the prompt and continuation tokens.
-                                ConditionalMargin(
-                                    PromptMargin(get_prompt_tokens),
-                                    filter=multiline
-                                )
-                            ],
-                        ),
-                    ]),
-                    [
-                        # Completion menu
-                        Float(xcursor=True,
-                              ycursor=True,
-                              content=CompletionsMenu(
-                                  max_height=16,
-                                  scroll_offset=1,
-                                  extra_filter=HasFocus(DEFAULT_BUFFER))
-                              ),
-                    ]
-                ),
-
-                # reverse-i-search toolbar (ctrl+r)
-                ConditionalContainer(SearchToolbar(), multiline),
-            ])
-        ]),
-    ] + [
-        VSplit([
-            # Left-Aligned Session Toolbar
-            ConditionalContainer(
-                Window(
-                    TokenListControl(get_bottom_toolbar_tokens),
-                    height=LayoutDimension.exact(1)
-                ),
-                filter=~IsDone() & RendererHeightIsKnown()),
-
-            # Right-Aligned Container
-            ConditionalContainer(
-                Window(
-                    TokenListControl(get_sidebar_tokens),
-                    height=LayoutDimension.exact(1),
-                    width=LayoutDimension.exact(sidebar_width)
-                ),
-                filter=~IsDone() & RendererHeightIsKnown())
+    search_toolbar = SearchToolbar()
+    buf_ctrl_window = Window(
+        BufferControl(
+            buffer=buffer,
+            search_buffer_control=search_toolbar.control,
+            input_processors=input_processors,
+            lexer=lexer,
+            preview_search=True
+        ),
+        height=lambda: _get_buffer_control_height(buffer),
+        wrap_lines=wrap_lines,
+        left_margins=[
+            ConditionalMargin(
+                PromptMargin(get_prompt_tokens),
+                filter=multiline
+            )
+        ]
+    )
+    in_out_area = VSplit([
+        HSplit([
+            FloatContainer(
+                HSplit([buf_ctrl_window]),
+                [
+                    Float(
+                        xcursor=True,
+                        ycursor=True,
+                        content=CompletionsMenu(
+                            max_height=16,
+                            scroll_offset=1,
+                            extra_filter=has_focus(DEFAULT_BUFFER)
+                        )
+                    ),
+                ]
+            ),
+            # reverse-i-search toolbar (ctrl+r)
+            search_toolbar,
         ])
     ])
+    bottom_toolbar = VSplit([
+        ConditionalContainer(
+            Window(
+                FormattedTextControl(get_bottom_toolbar_tokens),
+                height=Dimension.exact(1)
+            ),
+            filter=~is_done & renderer_height_is_known
+        ),
+        ConditionalContainer(
+            Window(
+                FormattedTextControl(lambda: sidebar_token),
+                height=Dimension.exact(1),
+                align=WindowAlign.RIGHT
+            ),
+            filter=~is_done & renderer_height_is_known
+        )
+    ])
+    return Layout(HSplit([in_out_area, bottom_toolbar]))

@@ -29,8 +29,12 @@ TAB_WIDTH = 4
 WHITESPACE_RE = re.compile(r'\s+$')
 
 
-def doc_condition(fn):
-    return lambda cli: fn(cli.current_buffer.document)
+def mk_filter(buf, fn):
+    @Condition
+    def call_fn():
+        return fn(buf.document)
+
+    return call_fn
 
 
 def _is_start_of_multiline(doc):
@@ -46,14 +50,26 @@ def _line_ends_with_tab(doc):
     )
 
 
-def bind_keys(registry):
+def bind_keys(buf, key_bindings):
 
-    @registry.add_binding(Keys.Tab,
-                          filter=Condition(doc_condition(_is_start_of_multiline)))
+    handle = key_bindings.add
+
+    @handle('c-d')
+    def exit_(event):
+        event.app.exit(exception=EOFError, style='class:exiting')
+
+    @handle('c-c')
+    def interrupt_(event):
+        event.app.exit(exception=KeyboardInterrupt, style='class:aborting')
+
+    @handle('c-z')
+    def suspend_(event):
+        event.app.suspend_to_background()
+
+    @handle(Keys.Tab, filter=mk_filter(buf, _is_start_of_multiline))
     def on_tab(event):
         event.cli.current_buffer.insert_text(' ' * TAB_WIDTH)
 
-    @registry.add_binding(Keys.Backspace,
-                          filter=Condition(doc_condition(_line_ends_with_tab)))
+    @handle(Keys.Backspace, filter=mk_filter(buf, _line_ends_with_tab))
     def on_backspace(event):
         event.cli.current_buffer.delete_before_cursor(TAB_WIDTH)

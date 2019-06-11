@@ -279,7 +279,8 @@ def create_buffer(cmd, history_file):
         completer=SQLCompleter(cmd),
         enable_history_search=True,
         accept_handler=accept,
-        on_text_insert=Capitalizer(cmd).apply_capitalization
+        on_text_insert=Capitalizer(cmd).apply_capitalization,
+        tempfile_suffix=lambda: '.sql'
     )
     buffer.complete_while_typing = lambda cli=None: cmd.should_autocomplete()
     return buffer

@@ -21,7 +21,7 @@ import re
 from unittest import TestCase
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
-from prompt_toolkit.token import Token
+from pygments.token import Token
 from .repl import SQLCompleter, Capitalizer, create_buffer, _get_toolbar_tokens
 from .command import CrateShell, ConnectionMeta
 
@@ -143,20 +143,29 @@ class AutoCapitalizeTest(TestCase):
 class ToolbarTest(TestCase):
 
     def test_get_session_tokens(self):
-        result = _get_toolbar_tokens(True,
-                                     ['http://host1:4200', 'https://host2:4200'],
-                                     ConnectionMeta('crate', 'doc'))
-        self.assertEqual(result, [(Token.Toolbar.Status.Key, 'USER: '),
-                                  (Token.Toolbar.Status, 'crate'),
-                                  (Token.Toolbar.Status, ' | '),
-                                  (Token.Toolbar.Status.Key, 'SCHEMA: '),
-                                  (Token.Toolbar.Status, 'doc'),
-                                  (Token.Toolbar.Status, ' | '),
-                                  (Token.Toolbar.Status.Key, 'HOSTS: '),
-                                  (Token.Toolbar.Status, 'host1:4200, host2:4200')])
+        result = _get_toolbar_tokens(
+            True,
+            ['http://host1:4200', 'https://host2:4200'],
+            ConnectionMeta('crate', 'doc')
+        )
+        self.assertEqual(
+            result.token_list,
+            [(Token.Toolbar.Status.Key, 'USER: '),
+             (Token.Toolbar.Status, 'crate'),
+             (Token.Toolbar.Status, ' | '),
+             (Token.Toolbar.Status.Key, 'SCHEMA: '),
+             (Token.Toolbar.Status, 'doc'),
+             (Token.Toolbar.Status, ' | '),
+             (Token.Toolbar.Status.Key, 'HOSTS: '),
+             (Token.Toolbar.Status, 'host1:4200, host2:4200')])
 
     def test_get_not_connected_tokens(self):
-        result = _get_toolbar_tokens(False,
-                                     [],
-                                     ConnectionMeta(None, None))
-        self.assertEqual(result, [(Token.Toolbar.Status, 'not connected')])
+        result = _get_toolbar_tokens(
+            False,
+            [],
+            ConnectionMeta(None, None)
+        )
+        self.assertEqual(
+            result.token_list,
+            [(Token.Toolbar.Status, 'not connected')]
+        )

@@ -1,7 +1,7 @@
 .. _formats:
 
 ================
-Response Formats
+Response formats
 ================
 
 Crash supports multiple output formats.
@@ -9,7 +9,7 @@ Crash supports multiple output formats.
 You can select between these output formats using either :ref:`commands` or
 :ref:`options`.
 
-.. rubric:: Table of Contents
+.. rubric:: Table of contents
 
 .. contents::
    :local:

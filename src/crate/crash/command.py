@@ -31,7 +31,7 @@ import sys
 import urllib3
 from getpass import getpass
 from appdirs import user_data_dir, user_config_dir
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentTypeError
 from collections import namedtuple
 from crate.client import connect
 from crate.client.exceptions import ConnectionError, ProgrammingError
@@ -110,12 +110,14 @@ def parse_args(parser):
 
 
 def boolean(v):
-    if str(v).lower() in ("yes", "true", "t", "1"):
+    v = str(v).lower()
+    if v in ("yes", "true", "t", "1"):
         return True
-    elif str(v).lower() in ("no", "false", "f", "0"):
+    elif v in ("no", "false", "f", "0"):
         return False
     else:
-        raise ValueError('not a boolean value')
+        raise ArgumentTypeError(
+            'Invalid choice `{v}`, expected one of: [yes, true, t, 1, no, false, f, 0]'.format(v=v))
 
 
 def get_parser(output_formats=[], conf=None):
@@ -160,8 +162,13 @@ def get_parser(output_formats=[], conf=None):
     parser.add_argument('--hosts', type=str, nargs='*',
                         default=_conf_or_default('hosts', ['localhost:4200']),
                         help='connect to HOSTS.', metavar='HOSTS')
-    parser.add_argument('--verify-ssl', type=boolean, default=True,
-                        help='force the verification of the server SSL certificate')
+    parser.add_argument(
+        '--verify-ssl',
+        choices=(True, False),
+        type=boolean,
+        default=True,
+        help='Enable or disable the verification of the server SSL certificate'
+    )
     parser.add_argument('--cert-file', type=file_with_permissions, metavar='FILENAME',
                         help='use FILENAME as the client certificate file')
     parser.add_argument('--key-file', type=file_with_permissions, metavar='FILENAME',

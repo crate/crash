@@ -14,7 +14,7 @@ from urllib3.exceptions import LocationParseError
 
 from .command import CrateShell, main, get_stdin, noargs_command, Result, \
     host_and_port, get_information_schema_query, stmt_type, _create_shell, \
-    get_parser, parse_args
+    get_parser
 from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 from .commands import Command
@@ -551,9 +551,11 @@ class CommandTest(TestCase):
     def test_error_exit_code(self):
         """Test returns an error exit code"""
         stmt = u"select * from invalid sql statement"
-        sys.argv = ['testcrash',
-                    "--command", stmt,
-                    '--hosts', self.crate_host]
+        sys.argv = [
+            "testcrash",
+            "--command", stmt,
+            '--hosts', self.crate_host
+        ]
         try:
             main()
         except SystemExit as e:
@@ -667,11 +669,10 @@ class CommandTest(TestCase):
         self.assertEqual('Command does not take any arguments.\n', output.getvalue())
 
     def test_wrong_host_format(self):
-        sys.argv = ["testcrash",
-                    "--hosts", 'localhost:12AB'
-                    ]
         parser = get_parser()
-        args = parse_args(parser)
+        args = parser.parse_args([
+            "--hosts", "localhost:12AB"
+        ])
 
         crate_hosts = [host_and_port(h) for h in args.hosts]
 
@@ -744,15 +745,15 @@ class CommandTest(TestCase):
             self.assertEqual(crash.connection.client._pool_kw['ca_certs'], ca_cert_filename)
 
     def test_ssl_params_missing_file(self):
-        sys.argv = ["testcrash",
-                    "--hosts", self.crate_host,
-                    "--verify-ssl", "false",
-                    "--key-file", "wrong_file",
-                    "--ca-cert-file", "ca_cert_file"
-                    ]
+        argv = [
+            "--hosts", self.crate_host,
+            "--verify-ssl", "false",
+            "--key-file", "wrong_file",
+            "--ca-cert-file", "ca_cert_file"
+        ]
         parser = get_parser()
         with self.assertRaises(FileNotFoundError):
-            parse_args(parser)
+            parser.parse_args(argv)
 
     def test_ssl_params_wrong_permision_file(self):
         tmpdirname = tempfile.mkdtemp()
@@ -760,14 +761,14 @@ class CommandTest(TestCase):
         open(ca_cert_filename, 'a').close()
         os.chmod(ca_cert_filename, 0000)
 
-        sys.argv = ["testcrash",
-                    "--hosts", self.crate_host,
-                    "--verify-ssl", "false",
-                    "--ca-cert-file", ca_cert_filename
-                    ]
+        argv = [
+            "--hosts", self.crate_host,
+            "--verify-ssl", "false",
+            "--ca-cert-file", ca_cert_filename
+        ]
         parser = get_parser()
         with self.assertRaises(PermissionError):
-            parse_args(parser)
+            parser.parse_args(argv)
 
     def test_close_shell(self):
         crash = CrateShell(self.crate_host)

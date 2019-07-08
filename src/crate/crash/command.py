@@ -96,19 +96,6 @@ def parse_config_path(args=sys.argv):
     return config
 
 
-def parse_args(parser):
-    """
-    Parse sys.argv arguments with given parser
-    """
-    try:
-        import argcomplete
-        argcomplete.autocomplete(parser)
-    except ImportError:
-        pass
-
-    return parser.parse_args()
-
-
 def boolean(v):
     v = str(v).lower()
     if v in ("yes", "true", "t", "1"):
@@ -182,6 +169,11 @@ def get_parser(output_formats=[], conf=None):
     parser.add_argument('--version', action='store_true', default=False,
                         help='print the Crash version and exit')
 
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        pass
     return parser
 
 
@@ -571,7 +563,7 @@ def main():
         sys.exit(1)
     parser = get_parser(output_writer.formats, conf=conf)
     try:
-        args = parse_args(parser)
+        args = parser.parse_args()
     except Exception as e:
         printer.warn(str(e))
         sys.exit(1)

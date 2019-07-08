@@ -718,13 +718,6 @@ class CommandTest(TestCase):
                     "--ca-cert-file", "ca_cert_file"
                     ]
         parser = get_parser()
-
-        # Python 2
-        try:
-            FileNotFoundError
-        except NameError:
-            FileNotFoundError = IOError
-
         with self.assertRaises(FileNotFoundError):
             parse_args(parser)
 
@@ -740,13 +733,6 @@ class CommandTest(TestCase):
                     "--ca-cert-file", ca_cert_filename
                     ]
         parser = get_parser()
-
-        # Python 2
-        try:
-            PermissionError
-        except NameError:
-            PermissionError = IOError
-
         with self.assertRaises(PermissionError):
             parse_args(parser)
 

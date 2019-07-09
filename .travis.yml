@@ -13,6 +13,8 @@ before_install:
   - pip uninstall -y setuptools
   - pip install setuptools==33.1.1  # pin specific version in virtualenv
   - pip freeze --all  # debug
+  - sudo add-apt-repository ppa:openjdk-r/ppa -y
+  - sudo apt-get install -y openjdk-11-jre-headless
 
 install:
     - python bootstrap.py
@@ -31,10 +33,6 @@ notifications:
     email: false
 
 sudo: false
-addons:
-  apt:
-    packages:
-      - oracle-java8-set-default
 
 matrix:
     allow_failures:

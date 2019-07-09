@@ -14,7 +14,7 @@ from urllib3.exceptions import LocationParseError
 
 from .command import CrateShell, main, get_stdin, noargs_command, Result, \
     host_and_port, get_information_schema_query, stmt_type, _create_shell, \
-    get_parser, parse_args
+    get_parser
 from .outputs import _val_len as val_len, OutputWriter
 from .printer import ColorPrinter
 from .commands import Command
@@ -423,7 +423,12 @@ class CommandTest(TestCase):
 
     def test_tabulate_empty_line(self):
         self.maxDiff = None
-        rows = ['Aldebaran', 'Star System'], ['Berlin', 'City'], ['Galactic Sector QQ7 Active J Gamma', 'Galaxy'], ['', 'Planet']
+        rows = (
+            ['Aldebaran', 'Star System'],
+            ['Berlin', 'City'],
+            ['Galactic Sector QQ7 Active J Gamma', 'Galaxy'],
+            ['', 'Planet']
+        )
         expected = "\n".join(['+------------------------------------+-------------+',
                               '| min(name)                          | kind        |',
                               '+------------------------------------+-------------+',
@@ -441,7 +446,12 @@ class CommandTest(TestCase):
 
     def test_empty_line_first_row_first_column(self):
         self.maxDiff = None
-        rows = ['', 'Planet'], ['Aldebaran', 'Star System'], ['Berlin', 'City'], ['Galactic Sector QQ7 Active J Gamma', 'Galaxy']
+        rows = (
+            ['', 'Planet'],
+            ['Aldebaran', 'Star System'],
+            ['Berlin', 'City'],
+            ['Galactic Sector QQ7 Active J Gamma', 'Galaxy']
+        )
         expected = "\n".join(['+------------------------------------+-------------+',
                               '| min(name)                          | kind        |',
                               '+------------------------------------+-------------+',
@@ -458,7 +468,13 @@ class CommandTest(TestCase):
 
     def test_empty_first_row(self):
         self.maxDiff = None
-        rows = ['', ''], ['Aldebaran', 'Aldebaran'], ['Algol', 'Algol'], ['Allosimanius Syneca', 'Allosimanius - Syneca'], ['Alpha Centauri', 'Alpha - Centauri']
+        rows = (
+            ['', ''],
+            ['Aldebaran', 'Aldebaran'],
+            ['Algol', 'Algol'],
+            ['Allosimanius Syneca', 'Allosimanius - Syneca'],
+            ['Alpha Centauri', 'Alpha - Centauri']
+        )
         expected = "\n".join(['+---------------------+-----------------------+',
                               '| name                | replaced              |',
                               '+---------------------+-----------------------+',
@@ -476,7 +492,12 @@ class CommandTest(TestCase):
 
     def test_any_empty(self):
         self.maxDiff = None
-        rows = ['Features and conformance views', 'FALSE', '', ''], ['Features and conformance views', 'TRUE', 1, 'SQL_FEATURES view'], ['Features and conformance views', 'FALSE', 2, 'SQL_SIZING view'], ['Features and conformance views', 'FALSE', 3, 'SQL_LANGUAGES view']
+        rows = (
+            ['Features and conformance views', 'FALSE', '', ''],
+            ['Features and conformance views', 'TRUE', 1, 'SQL_FEATURES view'],
+            ['Features and conformance views', 'FALSE', 2, 'SQL_SIZING view'],
+            ['Features and conformance views', 'FALSE', 3, 'SQL_LANGUAGES view']
+        )
         expected = "\n".join(['+--------------------------------+--------------+----------------+--------------------+',
                               '| feature_name                   | is_supported | sub_feature_id | sub_feature_name   |',
                               '+--------------------------------+--------------+----------------+--------------------+',
@@ -493,7 +514,19 @@ class CommandTest(TestCase):
 
     def test_first_column_first_row_empty(self):
         self.maxDiff = None
-        rows = ['', 1.0], ['Aldebaran', 1.0], ['Algol', 1.0], ['Allosimanius Syneca', 1.0], ['Alpha Centauri', 1.0], ['Argabuthon', 1.0], ['Arkintoofle Minor', 1.0], ['Galactic Sector QQ7 Active J Gamma', 1.0], ['North West Ripple', 1.0], ['Outer Eastern Rim', 1.0], ['NULL', 1.0]
+        rows = (
+            ['', 1.0],
+            ['Aldebaran', 1.0],
+            ['Algol', 1.0],
+            ['Allosimanius Syneca', 1.0],
+            ['Alpha Centauri', 1.0],
+            ['Argabuthon', 1.0],
+            ['Arkintoofle Minor', 1.0],
+            ['Galactic Sector QQ7 Active J Gamma', 1.0],
+            ['North West Ripple', 1.0],
+            ['Outer Eastern Rim', 1.0],
+            ['NULL', 1.0]
+        )
         expected = "\n".join(['+------------------------------------+--------+',
                               '| name                               | _score |',
                               '+------------------------------------+--------+',
@@ -518,9 +551,11 @@ class CommandTest(TestCase):
     def test_error_exit_code(self):
         """Test returns an error exit code"""
         stmt = u"select * from invalid sql statement"
-        sys.argv = ['testcrash',
-                    "--command", stmt,
-                    '--hosts', self.crate_host]
+        sys.argv = [
+            "testcrash",
+            "--command", stmt,
+            '--hosts', self.crate_host
+        ]
         try:
             main()
         except SystemExit as e:
@@ -634,11 +669,10 @@ class CommandTest(TestCase):
         self.assertEqual('Command does not take any arguments.\n', output.getvalue())
 
     def test_wrong_host_format(self):
-        sys.argv = ["testcrash",
-                    "--hosts", 'localhost:12AB'
-                    ]
         parser = get_parser()
-        args = parse_args(parser)
+        args = parser.parse_args([
+            "--hosts", "localhost:12AB"
+        ])
 
         crate_hosts = [host_and_port(h) for h in args.hosts]
 
@@ -711,22 +745,15 @@ class CommandTest(TestCase):
             self.assertEqual(crash.connection.client._pool_kw['ca_certs'], ca_cert_filename)
 
     def test_ssl_params_missing_file(self):
-        sys.argv = ["testcrash",
-                    "--hosts", self.crate_host,
-                    "--verify-ssl", "false",
-                    "--key-file", "wrong_file",
-                    "--ca-cert-file", "ca_cert_file"
-                    ]
+        argv = [
+            "--hosts", self.crate_host,
+            "--verify-ssl", "false",
+            "--key-file", "wrong_file",
+            "--ca-cert-file", "ca_cert_file"
+        ]
         parser = get_parser()
-
-        # Python 2
-        try:
-            FileNotFoundError
-        except NameError:
-            FileNotFoundError = IOError
-
         with self.assertRaises(FileNotFoundError):
-            parse_args(parser)
+            parser.parse_args(argv)
 
     def test_ssl_params_wrong_permision_file(self):
         tmpdirname = tempfile.mkdtemp()
@@ -734,21 +761,14 @@ class CommandTest(TestCase):
         open(ca_cert_filename, 'a').close()
         os.chmod(ca_cert_filename, 0000)
 
-        sys.argv = ["testcrash",
-                    "--hosts", self.crate_host,
-                    "--verify-ssl", "false",
-                    "--ca-cert-file", ca_cert_filename
-                    ]
+        argv = [
+            "--hosts", self.crate_host,
+            "--verify-ssl", "false",
+            "--ca-cert-file", ca_cert_filename
+        ]
         parser = get_parser()
-
-        # Python 2
-        try:
-            PermissionError
-        except NameError:
-            PermissionError = IOError
-
         with self.assertRaises(PermissionError):
-            parse_args(parser)
+            parser.parse_args(argv)
 
     def test_close_shell(self):
         crash = CrateShell(self.crate_host)

@@ -225,8 +225,8 @@ class CrateShell:
         self.sys_info_cmd = SysInfoCommand(self)
         self.commands = {
             'q': self._quit,
-            'c': self._connect,
-            'connect': self._connect,
+            'c': self._connect_and_print_result,
+            'connect': self._connect_and_print_result,
             'dt': self._show_tables,
             'sysinfo': self.sys_info_cmd.execute,
         }
@@ -249,7 +249,7 @@ class CrateShell:
         # establish connection
         self.cursor = None
         self.connection = None
-        self._do_connect(crate_hosts)
+        self._connect(crate_hosts)
 
     def __enter__(self):
         return self
@@ -330,7 +330,7 @@ class CrateShell:
         return self.connection and \
             self.connection.lowest_server_version != StrictVersion("0.0.0")
 
-    def _do_connect(self, servers):
+    def _connect(self, servers):
         self.last_connected_servers = servers
         if self.cursor or self.connection:
             self.close()  # reset open cursor and connection
@@ -347,16 +347,16 @@ class CrateShell:
         self.cursor = self.connection.cursor()
         self._fetch_session_info()
 
-    def _connect(self, servers):
+    def _connect_and_print_result(self, servers):
         """ connect to the given server, e.g.: \\connect localhost:4200 """
-        self._do_connect(servers.split(' '))
-        self._verify_connection(verbose=True)
+        self._connect(servers.split(' '))
+        self._print_connect_result(verbose=True)
 
     def reconnect(self):
-        """Connect with same configuration and to last connected servers"""
-        self._do_connect(self.last_connected_servers)
+        """Connect with same configuration and to last connected servers."""
+        self._connect(self.last_connected_servers)
 
-    def _verify_connection(self, verbose=False):
+    def _get_server_information(self):
         results = []
         failed = 0
         client = self.connection.client
@@ -372,7 +372,10 @@ class CrateShell:
         # sort by CONNECTED DESC, SERVER_URL
         results.sort(key=itemgetter(3), reverse=True)
         results.sort(key=itemgetter(0))
+        return results, failed
 
+    def _print_connect_result(self, verbose=False):
+        results, failed = self._get_server_information()
         if verbose:
             cols = ['server_url', 'node_name', 'version', 'connected', 'message']
             self.pprint(results, cols)
@@ -588,7 +591,7 @@ def main():
         printer.warn(str(e))
         sys.exit(1)
 
-    cmd._verify_connection(verbose=error_trace)
+    cmd._print_connect_result(verbose=error_trace)
     if not cmd.is_conn_available():
         sys.exit(1)
 

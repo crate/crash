@@ -29,7 +29,7 @@ Result = namedtuple('Result', ['rows', 'cols'])
 SYSINFO_MIN_VERSION = StrictVersion("0.54.0")
 
 
-class SysInfoCommand(object):
+class SysInfoCommand:
 
     CLUSTER_INFO = {
         'shards_query': """
@@ -99,7 +99,7 @@ from sys.nodes
         cols = []
 
         for query in SysInfoCommand.CLUSTER_INFO:
-            success = self.cmd._execute(SysInfoCommand.CLUSTER_INFO[query])
+            success = self.cmd._exec(SysInfoCommand.CLUSTER_INFO[query])
             if success is False:
                 return success
             rows.extend(self.cmd.cursor.fetchall()[0])
@@ -108,7 +108,7 @@ from sys.nodes
         return True
 
     def _nodes_info(self, result):
-        success = self.cmd._execute(SysInfoCommand.NODES_INFO[0])
+        success = self.cmd._exec(SysInfoCommand.NODES_INFO[0])
         if success:
             result.append(Result(self.cmd.cursor.fetchall(),
                                  [c[0] for c in self.cmd.cursor.description]))

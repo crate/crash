@@ -566,7 +566,7 @@ class CommandTest(TestCase):
             cmd.logger = Mock()
             cmd.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
                                                                        error_trace="error trace"))
-            cmd.execute("select invalid statement")
+            cmd._exec_and_print("select invalid statement")
             cmd.logger.critical.assert_any_call("the error message")
             cmd.logger.critical.assert_called_with("\nerror trace")
 
@@ -575,7 +575,7 @@ class CommandTest(TestCase):
             cmd.logger = Mock()
             cmd.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
                                                                        error_trace=None))
-            cmd.execute("select invalid statement")
+            cmd._exec_and_print("select invalid statement")
             # only the message is logged
             cmd.logger.critical.assert_called_once_with("the error message")
 
@@ -681,7 +681,7 @@ class CommandTest(TestCase):
 
     def test_command_timeout(self):
         with CrateShell(self.crate_host) as crash:
-            crash.execute("""
+            crash.process("""
     CREATE FUNCTION fib(long)
     RETURNS LONG
     LANGUAGE javascript AS '
@@ -699,7 +699,7 @@ class CommandTest(TestCase):
                         error_trace=False,
                         timeout=timeout) as crash:
             crash.logger = Mock()
-            crash.execute(slow_query)
+            crash.process(slow_query)
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
         # with verbose
@@ -707,7 +707,7 @@ class CommandTest(TestCase):
                         error_trace=True,
                         timeout=timeout) as crash:
             crash.logger = Mock()
-            crash.execute(slow_query)
+            crash.process(slow_query)
             crash.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.1)")
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 

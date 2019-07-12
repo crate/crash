@@ -277,7 +277,7 @@ class CrateShell:
     def process_iterable(self, stdin):
         any_statement = False
         for statement in _parse_statements(stdin):
-            self.execute(statement)
+            self._exec_and_print(statement)
             any_statement = True
         return any_statement
 
@@ -286,7 +286,7 @@ class CrateShell:
             self._try_exec_cmd(text.lstrip('\\'))
         else:
             for statement in _parse_statements([text]):
-                self.execute(statement)
+                self._exec_and_print(statement)
 
     def exit(self):
         self.close()
@@ -314,7 +314,7 @@ class CrateShell:
         table_filter = \
             " AND table_type = 'BASE TABLE'" if v >= TABLE_TYPE_MIN_VERSION else ""
 
-        self.execute(
+        self._exec_and_print(
             "SELECT format('%s.%s', {schema}, table_name) AS name "
             "FROM information_schema.tables "
             "WHERE {schema} NOT IN ('sys','information_schema', 'pg_catalog')"
@@ -445,7 +445,8 @@ class CrateShell:
                 'Unknown command. Type \\? for a full list of available commands.')
         return False
 
-    def _execute(self, statement):
+    def _exec(self, statement: str) -> bool:
+        """Execute the statement, prints errors if any occurr but no results."""
         try:
             self.cursor.execute(statement)
             return True
@@ -460,9 +461,9 @@ class CrateShell:
                 self.logger.critical('\n' + e.error_trace)
         return False
 
-    def execute(self, statement: str) -> bool:
+    def _exec_and_print(self, statement: str) -> bool:
         """Execute the statement and print the output."""
-        success = self._execute(statement)
+        success = self._exec(statement)
         self.exit_code = self.exit_code or int(not success)
         if not success:
             return False

@@ -132,7 +132,7 @@ class CheckBaseCommand(Command):
     check_name = None
 
     def execute(self, cmd, stmt):
-        success = cmd._execute(stmt)
+        success = cmd._exec(stmt)
         cmd.exit_code = cmd.exit_code or int(not success)
         if not success:
             return False

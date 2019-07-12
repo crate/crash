@@ -60,7 +60,7 @@ class SysInfoTest(TestCase):
         self.patcher.stop()
 
     def test_nodes_info(self):
-        self.cmd._execute.return_value = True
+        self.cmd._exec.return_value = True
         self.cmd.cursor.fetchall.return_value = SysInfoTest.NODES_INFO
         type(self.cmd.cursor).description = \
             PropertyMock(return_value=SysInfoTest.NODES_FIELDS_FETCHED)
@@ -72,7 +72,7 @@ class SysInfoTest(TestCase):
 
     def test_sys_info(self):
         self.cmd.cursor.fetchall.side_effect = self.fetch_all
-        self.cmd._execute.return_value = True
+        self.cmd._exec.return_value = True
         type(self.cmd.cursor).description = PropertyMock(side_effect=self.desc)
         succcess, result = self.sys_info._sys_info()
         self.assertEqual(succcess, True)
@@ -84,7 +84,7 @@ class SysInfoTest(TestCase):
         self.cmd.cursor.fetchall.side_effect = self.fetch_all
         succcess_ = [True] * len(SysInfoCommand.CLUSTER_INFO)
         succcess_.append(False)
-        self.cmd._execute.side_effect = succcess_
+        self.cmd._exec.side_effect = succcess_
         type(self.cmd.cursor).description = PropertyMock(side_effect=self.desc)
 
         succcess, result = self.sys_info._sys_info()
@@ -94,7 +94,7 @@ class SysInfoTest(TestCase):
         self.assertEqual([], result)
 
     def test_cluster_info(self):
-        self.cmd._execute.return_value = True
+        self.cmd._exec.return_value = True
         self.cmd.cursor.fetchall.return_value = SysInfoTest.CLUSTER_INFO
         type(self.cmd.cursor).description = \
             PropertyMock(return_value=SysInfoTest.CLUSTER_FIELDS_FETCHED)
@@ -105,7 +105,7 @@ class SysInfoTest(TestCase):
         self.assertEqual(expected, result[0])
 
     def test_execute_when_nodes_info_fails(self):
-        self.cmd._execute.return_value = False
+        self.cmd._exec.return_value = False
         self.cmd.cursor.fetchall.return_value = SysInfoTest.NODES_INFO
         type(self.cmd.cursor).description = \
             PropertyMock(return_value=SysInfoTest.NODES_FIELDS_FETCHED)
@@ -115,7 +115,7 @@ class SysInfoTest(TestCase):
         self.assertEqual([], result)
 
     def test_exceute_when_nodes_cluster_infos_fails(self):
-        self.cmd._execute.return_value = False
+        self.cmd._exec.return_value = False
         self.cmd.cursor.fetchall.return_value = SysInfoTest.CLUSTER_INFO
         type(self.cmd.cursor).description = \
             PropertyMock(return_value=SysInfoTest.CLUSTER_FIELDS_FETCHED)

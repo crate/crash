@@ -536,20 +536,30 @@ def get_information_schema_query(lowest_server_version):
     return information_schema_query.format(schema=schema_name)
 
 
-def main():
-    is_tty = sys.stdout.isatty()
-    printer = ColorPrinter(is_tty)
-    output_writer = OutputWriter(PrintWrapper(), is_tty)
-
+def _load_conf(printer, output_writer) -> Configuration:
     config = parse_config_path()
-    conf = None
     try:
-        conf = Configuration(config)
+        return Configuration(config)
     except ConfigurationError as e:
         printer.warn(str(e))
         parser = get_parser(output_writer.formats)
         parser.print_usage()
         sys.exit(1)
+
+
+def _resolve_password(is_tty, force_passwd_prompt):
+    if force_passwd_prompt and is_tty:
+        return getpass()
+    elif not force_passwd_prompt:
+        return os.environ.get('CRATEPW', None)
+
+
+def main():
+    is_tty = sys.stdout.isatty()
+    printer = ColorPrinter(is_tty)
+    output_writer = OutputWriter(PrintWrapper(), is_tty)
+
+    conf = _load_conf(printer, output_writer)
     parser = get_parser(output_writer.formats, conf=conf)
     try:
         args = parser.parse_args()
@@ -565,18 +575,7 @@ def main():
     crate_hosts = [host_and_port(h) for h in args.hosts]
     error_trace = args.verbose > 0
 
-    force_passwd_prompt = args.force_passwd_prompt
-    password = None
-
-    # If password prompt is not forced try to get it from env. variable.
-    if not force_passwd_prompt:
-        password = os.environ.get('CRATEPW', None)
-
-    # Prompt for password immediately to avoid that the first time trying to
-    # connect to the server runs into an `Unauthorized` excpetion
-    # is_tty = False
-    if force_passwd_prompt and not password and is_tty:
-        password = getpass()
+    password = _resolve_password(is_tty, args.force_passwd_prompt)
 
     # Tries to create a connection to the server.
     # Prompts for the password automatically if the server only accepts
@@ -586,7 +585,7 @@ def main():
         cmd = _create_shell(crate_hosts, error_trace, output_writer, is_tty,
                             args, password=password)
     except (ProgrammingError, LocationParseError) as e:
-        if '401' in e.message and not force_passwd_prompt:
+        if '401' in e.message and not args.force_passwd_prompt:
             if is_tty:
                 password = getpass()
             try:

@@ -277,7 +277,7 @@ class CrateShell:
     def process_iterable(self, stdin):
         any_statement = False
         for statement in _parse_statements(stdin):
-            self._exec(statement)
+            self.execute(statement)
             any_statement = True
         return any_statement
 
@@ -286,7 +286,7 @@ class CrateShell:
             self._try_exec_cmd(text.lstrip('\\'))
         else:
             for statement in _parse_statements([text]):
-                self._exec(statement)
+                self.execute(statement)
 
     def exit(self):
         self.close()
@@ -314,11 +314,11 @@ class CrateShell:
         table_filter = \
             " AND table_type = 'BASE TABLE'" if v >= TABLE_TYPE_MIN_VERSION else ""
 
-        self._exec("SELECT format('%s.%s', {schema}, table_name) AS name "
-                   "FROM information_schema.tables "
-                   "WHERE {schema} NOT IN ('sys','information_schema', 'pg_catalog')"
-                   "{table_filter}"
-                   .format(schema=schema_name, table_filter=table_filter))
+        self.execute(
+            "SELECT format('%s.%s', {schema}, table_name) AS name "
+            "FROM information_schema.tables "
+            "WHERE {schema} NOT IN ('sys','information_schema', 'pg_catalog')"
+            "{table_filter}".format(schema=schema_name, table_filter=table_filter))
 
     @noargs_command
     def _quit(self, *args):
@@ -445,10 +445,6 @@ class CrateShell:
                 'Unknown command. Type \\? for a full list of available commands.')
         return False
 
-    def _exec(self, line):
-        success = self.execute(line)
-        self.exit_code = self.exit_code or int(not success)
-
     def _execute(self, statement):
         try:
             self.cursor.execute(statement)
@@ -464,8 +460,10 @@ class CrateShell:
                 self.logger.critical('\n' + e.error_trace)
         return False
 
-    def execute(self, statement):
+    def execute(self, statement: str) -> bool:
+        """Execute the statement and print the output."""
         success = self._execute(statement)
+        self.exit_code = self.exit_code or int(not success)
         if not success:
             return False
         cur = self.cursor
@@ -488,9 +486,7 @@ class CrateShell:
 
 
 def stmt_type(statement):
-    """
-    Extract type of statement, e.g. SELECT, INSERT, UPDATE, DELETE, ...
-    """
+    """Extract type of statement, e.g. SELECT, INSERT, UPDATE, DELETE, ..."""
     return re.findall(r'[\w]+', statement)[0].upper()
 
 

@@ -125,24 +125,24 @@ class ShowTablesCommandTest(TestCase):
 
     def test_post_2_0(self):
         cmd = CrateShell()
-        cmd._exec = MagicMock()
+        cmd.execute = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("2.0.0")
         cmd._show_tables()
-        cmd._exec.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') AND table_type = 'BASE TABLE'")
+        cmd.execute.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') AND table_type = 'BASE TABLE'")
 
     def test_post_0_57(self):
         cmd = CrateShell()
-        cmd._exec = MagicMock()
+        cmd.execute = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("0.57.0")
         cmd._show_tables()
-        cmd._exec.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog')")
+        cmd.execute.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog')")
 
     def test_pre_0_57(self):
         cmd = CrateShell()
-        cmd._exec = MagicMock()
+        cmd.execute = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("0.56.4")
         cmd._show_tables()
-        cmd._exec.assert_called_with("SELECT format('%s.%s', schema_name, table_name) AS name FROM information_schema.tables WHERE schema_name NOT IN ('sys','information_schema', 'pg_catalog')")
+        cmd.execute.assert_called_with("SELECT format('%s.%s', schema_name, table_name) AS name FROM information_schema.tables WHERE schema_name NOT IN ('sys','information_schema', 'pg_catalog')")
 
 
 class ChecksCommandTest(TestCase):
@@ -155,7 +155,7 @@ class ChecksCommandTest(TestCase):
             ['loca1', 'check2'],
         ]
         cols = [('Failed Check', ), ('Number of Nodes', )]
-        cmd._execute.return_value = True
+        cmd.execute.return_value = True
         cmd.cursor.fetchall.return_value = rows
         cmd.cursor.description = cols
         cmd.connection.lowest_server_version = StrictVersion("0.56.4")

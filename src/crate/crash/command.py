@@ -29,15 +29,17 @@ import os
 import re
 import sys
 import urllib3
-from getpass import getpass
+
 from appdirs import user_data_dir, user_config_dir
 from argparse import ArgumentParser, ArgumentTypeError
 from collections import namedtuple
 from crate.client import connect
 from crate.client.exceptions import ConnectionError, ProgrammingError
 from distutils.version import StrictVersion
-from urllib3.exceptions import LocationParseError
+from getpass import getpass
+from logging import NullHandler
 from operator import itemgetter
+from urllib3.exceptions import LocationParseError
 
 from .commands import built_in_commands, Command
 from .config import Configuration, ConfigurationError
@@ -47,19 +49,6 @@ from .sysinfo import SysInfoCommand
 from ..crash import __version__ as crash_version
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-
-try:
-    from logging import NullHandler
-except ImportError:
-    from logging import Handler
-
-    class NullHandler(Handler):
-
-        def emit(self, record):
-            pass
-
-
 logging.getLogger('crate').addHandler(NullHandler())
 
 USER_DATA_DIR = user_data_dir("Crate", "Crate")

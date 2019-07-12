@@ -62,6 +62,6 @@ When the CrateDB shell is started with the option ``-v`` debugging information
 will be printed::
 
     cr> select x from y;
-    SQLActionException[TableUnknownException: Table 'doc.y' unknown]
-    SQLActionException: NOT_FOUND 4041 TableUnknownException: Table 'doc.y' unknown
+    SQLActionException[RelationUnknown: Relation 'y' unknown]
+    SQLActionException: 404 Not Found 4041 RelationUnknown: Relation 'y' unknown
     ...

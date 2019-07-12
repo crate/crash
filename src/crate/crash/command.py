@@ -536,13 +536,13 @@ def get_information_schema_query(lowest_server_version):
     return information_schema_query.format(schema=schema_name)
 
 
-def _load_conf(printer, output_writer) -> Configuration:
+def _load_conf(printer, formats) -> Configuration:
     config = parse_config_path()
     try:
         return Configuration(config)
     except ConfigurationError as e:
         printer.warn(str(e))
-        parser = get_parser(output_writer.formats)
+        parser = get_parser(formats)
         parser.print_usage()
         sys.exit(1)
 
@@ -559,7 +559,7 @@ def main():
     printer = ColorPrinter(is_tty)
     output_writer = OutputWriter(PrintWrapper(), is_tty)
 
-    conf = _load_conf(printer, output_writer)
+    conf = _load_conf(printer, output_writer.formats)
     parser = get_parser(output_writer.formats, conf=conf)
     try:
         args = parser.parse_args()
@@ -604,23 +604,25 @@ def main():
     if not cmd.is_conn_available():
         sys.exit(1)
 
-    done = False
-    stdin_data = get_stdin()
+    def save_and_exit():
+        conf.save()
+        sys.exit(cmd.exit())
+
     if args.sysinfo:
         cmd.output_writer.output_format = 'mixed'
         cmd.sys_info_cmd.execute()
-        done = True
+        save_and_exit()
+
     if args.command:
         cmd.process(args.command)
-        done = True
-    elif stdin_data:
-        if cmd.process_iterable(stdin_data):
-            done = True
-    if not done:
-        from .repl import loop
-        loop(cmd, args.history)
-    conf.save()
-    sys.exit(cmd.exit())
+        save_and_exit()
+
+    if cmd.process_iterable(get_stdin()):
+        save_and_exit()
+
+    from .repl import loop
+    loop(cmd, args.history)
+    save_and_exit()
 
 
 def _create_shell(crate_hosts, error_trace, output_writer, is_tty, args,

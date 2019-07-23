@@ -19,8 +19,6 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-from __future__ import absolute_import
-
 import os
 import unittest
 import doctest
@@ -76,6 +74,7 @@ crate_settings = {
 crate_layer = CrateLayer('crate',
                          crate_home=crate_path(),
                          crate_exec=crate_path('bin', 'crate'),
+                         host='127.0.0.1',
                          port=crate_http_port,
                          settings=crate_settings,
                          transport_port=crate_transport_port)

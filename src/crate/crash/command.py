@@ -536,8 +536,8 @@ def get_information_schema_query(lowest_server_version):
     return information_schema_query.format(schema=schema_name)
 
 
-def main():
-    is_tty = sys.stdout.isatty()
+def main(is_tty=None):
+    is_tty = is_tty or sys.stdout.isatty()
     printer = ColorPrinter(is_tty)
     output_writer = OutputWriter(PrintWrapper(), is_tty)
 

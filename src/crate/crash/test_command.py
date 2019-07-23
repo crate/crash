@@ -312,7 +312,7 @@ class CommandTest(TestCase):
                     ]
         with patch('sys.stdout', new_callable=StringIO):
             try:
-                main()
+                main(is_tty=False)
             except SystemExit as e:
                 self.assertEqual(e.code, 0)
 

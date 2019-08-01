@@ -14,7 +14,8 @@ before_install:
   - pip install setuptools==33.1.1  # pin specific version in virtualenv
   - pip freeze --all  # debug
   - sudo add-apt-repository ppa:openjdk-r/ppa -y
-  - sudo apt-get install -y openjdk-11-jre-headless
+  - sudo apt-get update
+  - sudo apt-get install -y openjdk-12-jdk
 
 install:
     - python bootstrap.py

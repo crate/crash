@@ -1,24 +1,54 @@
-# -*- coding: utf-8 -*-
-# vim: set fileencodings=utf-8
-
 import sys
 import os
+import tempfile
 import re
 import ssl
-import tempfile
-from io import TextIOWrapper, StringIO
-from unittest import TestCase
 from unittest.mock import patch, Mock
-from crate.client.exceptions import ProgrammingError
+from io import TextIOWrapper, StringIO
+
+from unittest import TestCase
+from doctest import testfile
 from urllib3.exceptions import LocationParseError
 
-from .command import CrateShell, main, get_stdin, noargs_command, Result, \
-    host_and_port, get_information_schema_query, stmt_type, _create_shell, \
+from crate.client.exceptions import ProgrammingError
+from crate.testing.layer import CrateLayer
+
+from crate.crash.commands import Command
+from crate.crash.printer import ColorPrinter
+from crate.crash.outputs import _val_len as val_len
+from crate.crash.command import (
+    CrateShell,
+    main,
+    get_stdin,
+    noargs_command,
+    host_and_port,
+    _create_shell,
     get_parser
-from .outputs import _val_len as val_len, OutputWriter
-from .printer import ColorPrinter
-from .commands import Command
-from distutils.version import StrictVersion
+)
+
+crate_http_port = 44209
+crate_transport_port = 44309
+crate_settings = {
+    'cluster.name': 'Testing44209',
+    'node.name': 'crate',
+    'psql.port': 45441,
+    'lang.js.enabled': True,
+    'http.port': crate_http_port,
+    'transport.tcp.port': crate_transport_port
+}
+node = CrateLayer(
+    'crate',
+    crate_home=os.path.join(os.path.dirname(__file__), '..', 'parts', 'crate'),
+    settings=crate_settings
+)
+
+
+def setUpModule():
+    node.start()
+
+
+def tearDownModule():
+    node.stop()
 
 
 def fake_stdin(data):
@@ -29,77 +59,13 @@ def fake_stdin(data):
     return stdin
 
 
-class OutputWriterTest(TestCase):
+class DocumentationTest(TestCase):
 
-    def setUp(self):
-        self.ow = OutputWriter(writer=None, is_tty=False)
+    def test_output(self):
+        testfile('../crate/crash/output.txt')
 
-    def test_mixed_format_float_precision(self):
-        expected = 'foo | 152462.70754934277'
-        result = Result(cols=['foo'],
-                        rows=[[152462.70754934277]],
-                        rowcount=1,
-                        duration=1,
-                        output_width=80)
-        self.assertEqual(
-            next(self.ow.mixed(result)).rstrip(), expected)
-
-    def test_mixed_format_utf8(self):
-        expected = 'name | Großvenediger'
-        result = Result(cols=['name'],
-                        rows=[['Großvenediger']],
-                        rowcount=1,
-                        duration=1,
-                        output_width=80)
-        self.assertEqual(
-            next(self.ow.mixed(result)).rstrip(), expected)
-
-    def test_tabular_format_float_precision(self):
-        expected = '152462.70754934277'
-
-        result = Result(cols=['foo'],
-                        rows=[[152462.70754934277]],
-                        rowcount=1,
-                        duration=1,
-                        output_width=80)
-
-        # output is
-        # +---
-        # | header
-        # +----
-        # | value
-        # get the row with the value in it
-        output = self.ow.tabular(result).split('\n')[3]
-        self.assertEqual(
-            output.strip('|').strip(' '), expected)
-
-
-class CommandLineArgumentsTest(TestCase):
-
-    def test_short_hostnames(self):
-        # both host and port are provided
-        self.assertEqual(host_and_port('localhost:4321'), 'localhost:4321')
-        # only host is provided
-        # default port is used
-        self.assertEqual(host_and_port('localhost'), 'localhost:4200')
-        # only port is provided
-        # localhost is used
-        self.assertEqual(host_and_port(':4000'), 'localhost:4000')
-        # neither host nor port are provided
-        # default host and default port are used
-        self.assertEqual(host_and_port(':'), 'localhost:4200')
-
-
-class CommandUtilsTest(TestCase):
-
-    def test_stmt_type(self):
-        # regular multi word statement
-        self.assertEqual(stmt_type('SELECT 1;'), 'SELECT')
-        # regular single word statement
-        self.assertEqual(stmt_type('BEGIN;'), 'BEGIN')
-        # statements with trailing or leading spaces/tabs/linebreaks
-        self.assertEqual(stmt_type(' SELECT 1 ;'), 'SELECT')
-        self.assertEqual(stmt_type('\nSELECT\n1\n;\n'), 'SELECT')
+    def test_connect(self):
+        testfile('../crate/crash/connect.txt')
 
 
 class CommandTest(TestCase):
@@ -109,7 +75,7 @@ class CommandTest(TestCase):
         try:
             sys.argv = ["testcrash",
                         "-c", query,
-                        "--hosts", self.crate_host,
+                        "--hosts", node.http_url,
                         '--format', format
                         ]
             with patch('sys.stdout', new_callable=StringIO) as output:
@@ -228,7 +194,7 @@ class CommandTest(TestCase):
             orig_argv = sys.argv[:]
             tmphistory = tempfile.mkstemp()[1]
             sys.argv = ['testcrash',
-                        '--hosts', self.crate_host,
+                        '--hosts', node.http_url,
                         '--history', tmphistory]
             with patch('sys.stdout', new_callable=StringIO) as output:
                 try:
@@ -258,7 +224,7 @@ class CommandTest(TestCase):
             tmphistory = tempfile.mkstemp()[1]
             sys.argv = ['testcrash',
                         "--command", stmt,
-                        '--hosts', self.crate_host,
+                        '--hosts', node.http_url,
                         '--history', tmphistory]
             with patch('sys.stdout', new_callable=StringIO) as output:
                 try:
@@ -283,7 +249,7 @@ class CommandTest(TestCase):
             tmphistory = tempfile.mkstemp()[1]
             sys.argv = ["testcrash",
                         "-c", "select * from sys.cluster",
-                        "--hosts", self.crate_host, "300.300.300.300:123",
+                        "--hosts", node.http_url, "300.300.300.300:123",
                         '--history', tmphistory,
                         '--format', 'tabular',
                         '-v',
@@ -307,7 +273,7 @@ class CommandTest(TestCase):
 
     def test_cmd_line_sys_info(self):
         sys.argv = ["testcrash",
-                    "--hosts", self.crate_host,
+                    "--hosts", node.http_url,
                     "--sysinfo"
                     ]
         with patch('sys.stdout', new_callable=StringIO):
@@ -554,7 +520,7 @@ class CommandTest(TestCase):
         sys.argv = [
             "testcrash",
             "--command", stmt,
-            '--hosts', self.crate_host
+            '--hosts', node.http_url
         ]
         try:
             main()
@@ -680,7 +646,7 @@ class CommandTest(TestCase):
             _create_shell(crate_hosts, False, None, False, args)
 
     def test_command_timeout(self):
-        with CrateShell(self.crate_host) as crash:
+        with CrateShell(node.http_url) as crash:
             crash.process("""
     CREATE FUNCTION fib(long)
     RETURNS LONG
@@ -695,7 +661,7 @@ class CommandTest(TestCase):
         slow_query = "SELECT fib(35)"
 
         # without verbose
-        with CrateShell(self.crate_host,
+        with CrateShell(node.http_url,
                         error_trace=False,
                         timeout=timeout) as crash:
             crash.logger = Mock()
@@ -703,7 +669,7 @@ class CommandTest(TestCase):
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
         # with verbose
-        with CrateShell(self.crate_host,
+        with CrateShell(node.http_url,
                         error_trace=True,
                         timeout=timeout) as crash:
             crash.logger = Mock()
@@ -712,7 +678,7 @@ class CommandTest(TestCase):
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):
-        with CrateShell(self.crate_host,
+        with CrateShell(node.http_url,
                         username='crate') as crash:
             self.assertEqual(crash.username, "crate")
             self.assertEqual(crash.connection.client.username, "crate")
@@ -727,7 +693,7 @@ class CommandTest(TestCase):
         open(key_filename, 'a').close()
         open(ca_cert_filename, 'a').close()
 
-        with CrateShell(self.crate_host,
+        with CrateShell(node.http_url,
                         verify_ssl=False,
                         cert_file=cert_filename,
                         key_file=key_filename,
@@ -746,7 +712,7 @@ class CommandTest(TestCase):
 
     def test_ssl_params_missing_file(self):
         argv = [
-            "--hosts", self.crate_host,
+            "--hosts", node.http_url,
             "--verify-ssl", "false",
             "--key-file", "wrong_file",
             "--ca-cert-file", "ca_cert_file"
@@ -762,7 +728,7 @@ class CommandTest(TestCase):
         os.chmod(ca_cert_filename, 0000)
 
         argv = [
-            "--hosts", self.crate_host,
+            "--hosts", node.http_url,
             "--verify-ssl", "false",
             "--ca-cert-file", ca_cert_filename
         ]
@@ -771,7 +737,7 @@ class CommandTest(TestCase):
             parser.parse_args(argv)
 
     def test_close_shell(self):
-        crash = CrateShell(self.crate_host)
+        crash = CrateShell(node.http_url)
         self.assertFalse(crash.is_closed())
         self.assertTrue(crash.is_conn_available())
 
@@ -786,7 +752,7 @@ class CommandTest(TestCase):
                          ctx.exception.message)
 
     def test_connect_info(self):
-        with CrateShell(self.crate_host,
+        with CrateShell(node.http_url,
                         username='crate',
                         schema='test') as crash:
             self.assertEqual(crash.connect_info.user, "crate")
@@ -806,29 +772,8 @@ class CommandTest(TestCase):
     @patch.object(CrateShell, "is_conn_available")
     def test_connect_info_not_available(self, is_conn_available):
         is_conn_available.return_value = False
-        with CrateShell(self.crate_host,
+        with CrateShell(node.http_url,
                         username='crate',
                         schema='test') as crash:
             self.assertEqual(crash.connect_info.user, None)
             self.assertEqual(crash.connect_info.schema, None)
-
-
-class TestGetInformationSchemaQuery(TestCase):
-
-    def test_low_version(self):
-        lowest_server_version = StrictVersion("0.56.4")
-        query = get_information_schema_query(lowest_server_version)
-        self.assertEqual(""" select count(distinct(table_name))
-                as number_of_tables
-            from information_schema.tables
-            where schema_name
-            not in ('information_schema', 'sys', 'pg_catalog') """, query)
-
-    def test_high_version(self):
-        lowest_server_version = StrictVersion("1.0.4")
-        query = get_information_schema_query(lowest_server_version)
-        self.assertEqual(""" select count(distinct(table_name))
-                as number_of_tables
-            from information_schema.tables
-            where table_schema
-            not in ('information_schema', 'sys', 'pg_catalog') """, query)

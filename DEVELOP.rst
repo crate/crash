@@ -25,9 +25,9 @@ Then to run your local crash, use::
 Running Tests
 =============
 
-The tests are run using the `zope.testrunner`_::
+The tests are run using the `unittest`_::
 
-    $ ./bin/test
+    $ ./bin/py -m unittest
 
 This will run all tests using the Python interpreter that was used to bootstrap
 buildout.

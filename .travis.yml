@@ -19,11 +19,11 @@ before_install:
 
 install:
     - python bootstrap.py
-    - bin/buildout install scripts crate test linter
+    - bin/buildout install scripts crate linter
 
 script:
     - bin/flake8
-    - bin/coverage run bin/test
+    - bin/coverage run bin/py -m unittest
 
 after_success:
     - PATH=$PATH:bin/ bin/codecov  # codecov executes coverage which needs to be in $PATH

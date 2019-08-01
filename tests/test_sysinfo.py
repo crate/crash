@@ -24,11 +24,12 @@
 from unittest import TestCase
 from unittest.mock import patch, PropertyMock
 
-from .command import CrateShell  # noqa: F401 - required for patch()
-from .sysinfo import SysInfoCommand, Result as Res
+from crate.crash.command import CrateShell
+from crate.crash.sysinfo import SysInfoCommand, Result as Res
 from distutils.version import StrictVersion
 
 CRATE_VERSION = StrictVersion("0.55.2")
+assert CrateShell, "Used for patch"
 
 
 class SysInfoTest(TestCase):

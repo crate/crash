@@ -25,12 +25,17 @@ import tempfile
 
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
-from .commands import ReadFileCommand, \
-    ToggleAutocompleteCommand, ToggleAutoCapitalizeCommand, ToggleVerboseCommand, \
-    NodeCheckCommand, ClusterCheckCommand, CheckCommand
-
-from .command import CrateShell
 from distutils.version import StrictVersion
+from crate.crash.commands import (
+    ReadFileCommand,
+    ToggleAutocompleteCommand,
+    ToggleAutoCapitalizeCommand,
+    ToggleVerboseCommand,
+    NodeCheckCommand,
+    ClusterCheckCommand,
+    CheckCommand
+)
+from crate.crash.command import CrateShell
 
 
 class ReadFileCommandTest(TestCase):

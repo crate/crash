@@ -22,7 +22,7 @@ from prompt_toolkit.document import Document
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.key_binding import KeyBindings
-from .keybinding import bind_keys, _is_start_of_multiline, _line_ends_with_tab
+from crate.crash.keybinding import bind_keys, _is_start_of_multiline, _line_ends_with_tab
 
 
 doc = lambda t: Document(t, len(t))

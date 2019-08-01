@@ -21,13 +21,10 @@
 
 import os
 import tempfile
+import configparser
 from unittest import TestCase
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
-from .config import Configuration, ConfigurationError
-from .command import parse_config_path, CONFIG_PATH
+from crate.crash.config import Configuration, ConfigurationError
+from crate.crash.command import parse_config_path, CONFIG_PATH
 
 
 class ConfigurationTest(TestCase):

@@ -71,10 +71,10 @@ setup(
         ]
     },
     extras_require=dict(
-        test=['crate[test]',
-              'zc.customdoctests',
-              'zope.testing',
-              ],
+        test=[
+            'crate[test]',
+            'zc.customdoctests'
+        ],
         argcompletion=['argcomplete']
     ),
     python_requires='>=3.4',

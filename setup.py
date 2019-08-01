@@ -19,7 +19,7 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-from setuptools import setup, find_packages
+from setuptools import setup
 import os
 import io
 import re
@@ -44,7 +44,7 @@ long_description = (
     read('README.rst')
 )
 
-versionf_content = read(os.path.join('src', 'crate', 'crash', '__init__.py'))
+versionf_content = read(os.path.join('crate', 'crash', '__init__.py'))
 version_rex = r'^__version__ = [\'"]([^\'"]*)[\'"]$'
 m = re.search(version_rex, versionf_content, re.M)
 if m:
@@ -58,13 +58,12 @@ setup(
     url='https://github.com/crate/crash',
     author='Crate.io',
     author_email='office@crate.io',
-    package_dir={'': 'src'},
     description='CrateDB Shell',
     long_description=long_description,
     platforms=['any'],
     license='Apache License 2.0',
     keywords='crate db data client shell',
-    packages=find_packages('src'),
+    packages=['crate.crash'],
     namespace_packages=['crate'],
     entry_points={
         'console_scripts': [

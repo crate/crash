@@ -1,4 +1,4 @@
 include LICENSE
 include *.rst
-recursive-include src *.txt
-recursive-exclude src tests.py
+recursive-include crate *.txt
+recursive-exclude crate tests.py

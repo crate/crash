@@ -50,8 +50,7 @@ class TestShell(CrateShell):
 
 def project_path(*parts):
     return os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        '..', '..', *parts)
+        os.path.dirname(os.path.dirname(__file__)), '..', *parts)
 
 
 def crate_path(*parts):

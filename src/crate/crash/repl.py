@@ -361,6 +361,7 @@ def loop(cmd, history_file):
                 cmd.logger.warn(str(e))
         except KeyboardInterrupt:
             cmd.logger.warn("Query not cancelled. Run KILL <jobId> to cancel it")
+            buf.reset()
         except EOFError:
             cmd.logger.warn('Bye!')
             return

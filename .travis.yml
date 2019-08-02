@@ -19,7 +19,7 @@ before_install:
 
 install:
     - python bootstrap.py
-    - bin/buildout install scripts crate linter
+    - bin/buildout install scripts linter
 
 script:
     - bin/flake8

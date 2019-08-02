@@ -36,9 +36,9 @@ crate_settings = {
     'http.port': crate_http_port,
     'transport.tcp.port': crate_transport_port
 }
-node = CrateLayer(
+node = CrateLayer.from_uri(
+    'https://cdn.crate.io/downloads/releases/crate-4.0.2.tar.gz',
     'crate',
-    crate_home=os.path.join(os.path.dirname(__file__), '..', 'parts', 'crate'),
     settings=crate_settings
 )
 

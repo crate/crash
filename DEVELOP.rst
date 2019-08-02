@@ -5,54 +5,44 @@ Developer Guide
 Setup
 =====
 
-This project uses `buildout`_ to set up the development environment.
+Create a virtualenv and install the project::
 
-To start things off, run::
+    $ python3 -m venv venv
+    $ venv/bin/python -m pip install -U -e ".[test]"
 
-    $ python bootstrap.py
+Afterwards you can launch crash::
 
-Your system python should be Python 3. If it isn't, try running `python3`
-instead. If that doesn't exist, you will have to install Python 3.
-
-Then, run::
-
-    $ ./bin/buildout -N
-
-Then to run your local crash, use::
-
-   $ ./bin/crash
+    $ venv/bin/crash
 
 Running Tests
 =============
 
 The tests are run using the `unittest`_::
 
-    $ ./bin/py -m unittest
+    $ venv/bin/python -m unittest -v
 
-This will run all tests using the Python interpreter that was used to bootstrap
-buildout.
 
-You can run the tests against multiple Python interpreters with tox_::
+If you install tox_, you can also run tests against multiple Python interpreters::
 
-    $ ./bin/tox
+    $ venv/bin/python -m pip install tox
+    $ venv/bin/tox
 
-To do this, you will need (for example) ``python3.3`` (any other interpreters
-you want to test against) as well as ``pypy`` on your ``$PATH``.
+But this requires you to have the python interpreters available in ``$PATH``.
 
 To run against a single interpreter, you can also do::
 
-    $ ./bin/tox -e py33
+    $ venv/bin/tox -e py33
 
 Standalone Executable
 =====================
 
-To build the standalone executable, run::
+To build a standalone executable, you can use shiv_::
 
-    $ ./bin/py devtools/bundle.py crash_standalone
+    $ shiv -p /usr/bin/python -c crash -o crash.pyz crash
 
 Run the executable like so::
 
-    $ ./crash_standalone
+    $ ./crash.pyz
 
 Preparing a Release
 ===================

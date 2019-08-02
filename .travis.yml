@@ -8,22 +8,17 @@ python:
     - nightly
 
 before_install:
-  # clean existing dependencies to avoid clashes
-  - pip freeze | xargs pip uninstall -y
-  - pip uninstall -y setuptools
-  - pip install setuptools==33.1.1  # pin specific version in virtualenv
-  - pip freeze --all  # debug
   - sudo add-apt-repository ppa:openjdk-r/ppa -y
   - sudo apt-get update
   - sudo apt-get install -y openjdk-12-jdk
 
 install:
-    - python bootstrap.py
-    - bin/buildout install scripts linter
+    - pip install ".[test]" urllib3==1.21.1 flake8==2.5.1
+    - pip install coverage flake8
 
 script:
-    - bin/flake8
-    - bin/coverage run bin/py -m unittest
+    - flake8 crate/crash
+    - coverage run -m unittest -v
 
 after_success:
     - PATH=$PATH:bin/ bin/codecov  # codecov executes coverage which needs to be in $PATH

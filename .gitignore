@@ -3,6 +3,7 @@
 .tox/
 .venv/
 venv/
+.coverage
 *.DS_Store
 *.egg-info
 *.iml

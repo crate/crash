@@ -13,7 +13,7 @@ before_install:
   - sudo apt-get install -y openjdk-12-jdk
 
 install:
-    - pip install ".[test]" urllib3==1.21.1 flake8==2.5.1
+    - pip install ".[test]" urllib3==1.21.1
     - pip install coverage flake8
 
 script:

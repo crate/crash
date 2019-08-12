@@ -50,7 +50,7 @@ class HelpCommand(Command):
         out = []
         for k, v in sorted(cmd.commands.items()):
             doc = v.__doc__ and v.__doc__.strip()
-            out.append('\{0:<30} {1}'.format(k, doc))
+            out.append(r'\{0:<30} {1}'.format(k, doc))
         return '\n'.join(out)
 
 
@@ -184,7 +184,7 @@ class NodeCheckCommand(CheckBaseCommand):
 
             self.execute(cmd, stmt)
         else:
-            tmpl = 'Crate {version} does not support the "\check nodes" command.'
+            tmpl = r'Crate {version} does not support the "\check nodes" command.'
             cmd.logger.warn(tmpl.format(version=cmd.connection.lowest_server_version))
 
 
@@ -208,7 +208,7 @@ class ClusterCheckCommand(CheckBaseCommand):
 
 
 class CheckCommand(Command):
-    """ print failed cluster and/or node checks, e.g. \check nodes """
+    """ print failed cluster and/or node checks, e.g. \\check nodes """
 
     CHECKS = OrderedDict([
         ('cluster', ClusterCheckCommand()),

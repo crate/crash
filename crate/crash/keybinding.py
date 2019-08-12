@@ -44,9 +44,9 @@ def _is_start_of_multiline(doc):
 def _line_ends_with_tab(doc):
     trailing_ws = WHITESPACE_RE.findall(doc.current_line_before_cursor)
     return (
-        not doc.get_word_before_cursor() and
-        trailing_ws and
-        len(trailing_ws[0]) % TAB_WIDTH == 0
+        not doc.get_word_before_cursor()
+        and trailing_ws
+        and len(trailing_ws[0]) % TAB_WIDTH == 0
     )
 
 

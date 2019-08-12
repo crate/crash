@@ -2,7 +2,9 @@
 # vim: set fileencodings=utf-8
 
 from unittest import TestCase
+from doctest import testmod
 
+from crate.crash import command
 from crate.crash.command import (
     Result,
     host_and_port,
@@ -105,3 +107,9 @@ class TestGetInformationSchemaQuery(TestCase):
             from information_schema.tables
             where table_schema
             not in ('information_schema', 'sys', 'pg_catalog') """, query)
+
+
+class TestCommandDocs(TestCase):
+
+    def test_docs(self):
+        testmod(command)

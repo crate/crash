@@ -188,15 +188,26 @@ def _parse_statements(lines):
 
     >>> list(_parse_statements(['select * from t1;', '  ']))
     ['select * from t1']
+
+    >>> list(_parse_statements(['CREATE FUNCTION ... { return 1; ', '};']))
+    ['CREATE FUNCTION ... { return 1;\\n}']
     """
     lines = (l.strip() for l in lines if l)
     lines = (l for l in lines if l and not l.startswith('--'))
     parts = []
+    parens = 0
     for line in lines:
-        parts.append(line.rstrip(';'))
-        if line.endswith(';'):
+        for char in line:
+            if char == '{':
+                parens += 1
+            elif char == '}':
+                parens -= 1
+        if parens == 0 and line.endswith(';'):
+            parts.append(line.rstrip(';'))
             yield '\n'.join(parts)
             parts[:] = []
+        else:
+            parts.append(line)
     if parts:
         yield '\n'.join(parts)
 
@@ -285,7 +296,7 @@ class CrateShell:
         if text.startswith('\\'):
             self._try_exec_cmd(text.lstrip('\\'))
         else:
-            for statement in _parse_statements([text]):
+            for statement in _parse_statements(text.split('\n')):
                 self._exec_and_print(statement)
 
     def exit(self):

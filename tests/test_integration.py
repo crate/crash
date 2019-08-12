@@ -249,7 +249,7 @@ class CommandTest(TestCase):
             tmphistory = tempfile.mkstemp()[1]
             sys.argv = ["testcrash",
                         "-c", "select * from sys.cluster",
-                        "--hosts", node.http_url, "300.300.300.300:123",
+                        "--hosts", node.http_url, "127.0.0.1:1",
                         '--history', tmphistory,
                         '--format', 'tabular',
                         '-v',
@@ -262,8 +262,8 @@ class CommandTest(TestCase):
                     self.assertEqual(exception_code, 0)
                     output = output.getvalue()
                     lines = output.split('\n')
-                    self.assertTrue(re.match(r'^\| http://[\d\.:]+. *\| crate .*\| TRUE .*\| OK', lines[3]) is not None, lines[3])
-                    self.assertTrue(re.match(r'^\| http://[\d\.:]+ .*\| NULL .*\| FALSE .*\| Server not available', lines[4]) is not None, lines[4])
+                    self.assertRegex(lines[3], r'^\| http://[\d\.:]+ .*\| NULL .*\| FALSE .*\| Server not available')
+                    self.assertRegex(lines[4], r'^\| http://[\d\.:]+. *\| crate .*\| TRUE .*\| OK')
         finally:
             try:
                 os.remove(tmphistory)

@@ -221,7 +221,14 @@ class CrashBuffer(Buffer):
                 return False
             if doc.text.startswith('\\'):
                 return False
-            return not doc.text.rstrip().endswith(';')
+            parens = 0
+            for line in doc.text:
+                for char in line:
+                    if char == '{':
+                        parens += 1
+                    elif char == '}':
+                        parens -= 1
+            return parens > 0 or not doc.text.rstrip().endswith(';')
 
         super().__init__(*args, multiline=is_multiline, **kwargs)
 

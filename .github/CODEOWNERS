@@ -1,2 +1,2 @@
-*.rst @docs
-docs/ @docs
+*.rst @crate/docs
+docs/ @crate/docs

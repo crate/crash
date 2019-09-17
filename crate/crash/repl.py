@@ -23,15 +23,15 @@
 import os
 import re
 
-from pygments.lexers.sql import SqlLexer
+from pygments.lexers.sql import PostgresLexer
 from pygments.style import Style
 from prompt_toolkit.output.defaults import get_default_output
 from prompt_toolkit.styles.pygments import style_from_pygments_cls
 from pygments.token import (Keyword,
                             Comment,
                             Operator,
+                            Name,
                             Number,
-                            Literal,
                             String,
                             Error,
                             Token)
@@ -74,16 +74,17 @@ def _get_editing_mode():
 
 
 class CrateStyle(Style):
-    default_style = "noinherit"
+    default_style = ""
     styles = {
-        Keyword: 'bold #4b95a3',
-        Comment: '#757265',
-        Operator: '#e83131',
-        Number: '#be61ff',
-        Literal: '#ae81ff',
-        String: '#f4a33d',
-        Error: '#ff3300',
-        Token.Toolbar.Status.Key: '#4b95a3',
+        Keyword: 'bold ansibrightblue',
+        Comment: 'ansigray',
+        Operator: 'ansibrightred',
+        Name.Builtin: 'ansiblue',
+        Number: 'ansimagenta',
+        String: 'ansiyellow',
+        String.Single: 'ansibrightgreen',
+        Error: 'bold ansired',
+        Token.Toolbar.Status.Key: 'ansiblue',
     }
 
 
@@ -316,7 +317,7 @@ def loop(cmd, history_file):
     layout = create_layout(
         buffer=buf,
         multiline=True,
-        lexer=SqlLexer,
+        lexer=PostgresLexer,
         extra_input_processors=[
             ConditionalProcessor(
                 processor=HighlightMatchingBracketProcessor(chars='[](){}'),

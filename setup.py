@@ -27,7 +27,7 @@ import re
 
 requirements = [
     'colorama',
-    'Pygments>=2.0',
+    'Pygments>=2.4',
     'crate>=0.22.0',
     'appdirs>=1.2,<2.0',
     'prompt-toolkit>=2.0,<3.0'

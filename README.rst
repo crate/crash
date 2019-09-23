@@ -50,15 +50,15 @@ To update, run::
 
      $ pip install -U crash
 
-If you are not using Python version 3.4 or above, recent version of `pip`_ will
-only install version 0.23.x. This is because newer versions of this package are
-not compatible with Python 2.7 or 3.3 and below.
+If you are not using Python version 3.5 or above, recent version of `pip`_ will
+install an earlier version of Crash. This is because newer versions of this
+package are not compatible with Python 2.7 or 3.4 and below.
 
 Standalone
 ----------
 
 Crash is also available as a standalone executable that includes all the
-necessary dependencies, and can be run as long as Python (>= 3.4) is available
+necessary dependencies, and can be run as long as Python (>= 3.5) is available
 on your system.
 
 First, download the executable file::

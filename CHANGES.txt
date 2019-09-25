@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+- Added the cluster name to the status bar.
+
 - Sort the output of the ``\dt`` (show tables) command alphabetically.
 
 - Improved the color scheme for the SQL syntax hightlighing.

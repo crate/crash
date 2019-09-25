@@ -153,7 +153,7 @@ class ToolbarTest(TestCase):
         result = _get_toolbar_tokens(
             True,
             ['http://host1:4200', 'https://host2:4200'],
-            ConnectionMeta('crate', 'doc')
+            ConnectionMeta('crate', 'my_schema', 'cr8'),
         )
         self.assertEqual(
             result.token_list,
@@ -161,16 +161,39 @@ class ToolbarTest(TestCase):
              (Token.Toolbar.Status, 'crate'),
              (Token.Toolbar.Status, ' | '),
              (Token.Toolbar.Status.Key, 'SCHEMA: '),
-             (Token.Toolbar.Status, 'doc'),
+             (Token.Toolbar.Status, 'my_schema'),
+             (Token.Toolbar.Status, ' | '),
+             (Token.Toolbar.Status.Key, 'CLUSTER: '),
+             (Token.Toolbar.Status, 'cr8'),
              (Token.Toolbar.Status, ' | '),
              (Token.Toolbar.Status.Key, 'HOSTS: '),
              (Token.Toolbar.Status, 'host1:4200, host2:4200')])
+
+    def test_get_session_tokens_no_info(self):
+        result = _get_toolbar_tokens(
+            True,
+            ['http://localhost:4200'],
+            ConnectionMeta(None, None, None),
+        )
+        self.assertEqual(
+            result.token_list,
+            [(Token.Toolbar.Status.Key, 'USER: '),
+             (Token.Toolbar.Status, '--'),
+             (Token.Toolbar.Status, ' | '),
+             (Token.Toolbar.Status.Key, 'SCHEMA: '),
+             (Token.Toolbar.Status, 'doc'),
+             (Token.Toolbar.Status, ' | '),
+             (Token.Toolbar.Status.Key, 'CLUSTER: '),
+             (Token.Toolbar.Status, '--'),
+             (Token.Toolbar.Status, ' | '),
+             (Token.Toolbar.Status.Key, 'HOSTS: '),
+             (Token.Toolbar.Status, 'localhost:4200')])
 
     def test_get_not_connected_tokens(self):
         result = _get_toolbar_tokens(
             False,
             [],
-            ConnectionMeta(None, None)
+            ConnectionMeta(None, None, None)
         )
         self.assertEqual(
             result.token_list,

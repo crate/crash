@@ -307,6 +307,9 @@ def _get_toolbar_tokens(is_connected, servers, info):
             (Token.Toolbar.Status.Key, 'SCHEMA: '),
             (Token.Toolbar.Status, info.schema or 'doc'),
             (Token.Toolbar.Status, ' | '),
+            (Token.Toolbar.Status.Key, 'CLUSTER: '),
+            (Token.Toolbar.Status, info.cluster or '--'),
+            (Token.Toolbar.Status, ' | '),
             (Token.Toolbar.Status.Key, 'HOSTS: '),
             (Token.Toolbar.Status, hosts)
         ])

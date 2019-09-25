@@ -66,7 +66,7 @@ Result = namedtuple('Result', ['cols',
                                'duration',
                                'output_width'])
 
-ConnectionMeta = namedtuple('ConnectionMeta', ['user', 'schema'])
+ConnectionMeta = namedtuple('ConnectionMeta', ['user', 'schema', 'cluster'])
 
 TABLE_SCHEMA_MIN_VERSION = StrictVersion("0.57.0")
 TABLE_TYPE_MIN_VERSION = StrictVersion("2.0.0")
@@ -398,15 +398,23 @@ class CrateShell:
                 and self.connection.lowest_server_version >= StrictVersion("2.0"):
 
             try:
-                self.cursor.execute('SELECT current_user, current_schema')
-            except ProgrammingError:
-                # current_user is only available in the enterprise edition
-                self.cursor.execute('SELECT NULL, current_schema')
+                self.cursor.execute('SELECT current_user, current_schema, name FROM sys.cluster')
+            except ProgrammingError as e:
+                message = str(e)
+                if "UnsupportedFeatureException" in message:
+                    # `current_user` is only available in the enterprise edition
+                    self.cursor.execute('SELECT NULL, current_schema, name FROM sys.cluster')
+                elif "SchemaUnknownException" in message:
+                    # `name FROM sys.cluster` may faild due to insufficient permissions
+                    self.cursor.execute('SELECT current_user, current_schema, NULL')
+                else:
+                    self.logger.warn("Could not load cluster information: " + message)
+                    self.connect_info = ConnectionMeta(None, None, None)
+                    return
 
-            user, schema = self.cursor.fetchone()
-            self.connect_info = ConnectionMeta(user, schema)
+            self.connect_info = ConnectionMeta(*self.cursor.fetchone())
         else:
-            self.connect_info = ConnectionMeta(None, None)
+            self.connect_info = ConnectionMeta(None, None, None)
 
     def _try_exec_cmd(self, line):
         words = line.split(' ', 1)

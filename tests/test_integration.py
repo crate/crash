@@ -6,7 +6,7 @@ import tempfile
 from doctest import testfile
 from io import StringIO, TextIOWrapper
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import DEFAULT, Mock, patch
 
 from urllib3.exceptions import LocationParseError
 
@@ -56,6 +56,26 @@ def fake_stdin(data):
     stdin.flush()
     stdin.seek(0)
     return stdin
+
+
+class RaiseOnceSideEffect:
+    """
+    A callable class used for mock side_effect.
+
+    The side effect raises an exception once, every subsequent call invokes the
+    original method.
+    """
+
+    def __init__(self, exception, original):
+        self.exception = exception
+        self.original = original
+        self.raised = False
+
+    def __call__(self, *args, **kwargs):
+        if not self.raised:
+            self.raised = True
+            raise self.exception
+        return self.original(*args, **kwargs)
 
 
 class DocumentationTest(TestCase):
@@ -756,17 +776,46 @@ class CommandTest(TestCase):
                         schema='test') as crash:
             self.assertEqual(crash.connect_info.user, "crate")
             self.assertEqual(crash.connect_info.schema, "test")
+            self.assertEqual(crash.connect_info.cluster, "Testing44209")
 
-            self.execute = crash.cursor.execute
-            crash.cursor.execute = self.mock_execute
-            crash._fetch_session_info()
-            self.assertEqual(crash.connect_info.user, None)
-            self.assertEqual(crash.connect_info.schema, "test")
+            with patch.object(
+                crash.cursor,
+                "execute",
+                side_effect=RaiseOnceSideEffect(
+                    ProgrammingError("SQLActionException[UnsupportedFeatureException]"),
+                    crash.cursor.execute,
+                )
+            ):
+                crash._fetch_session_info()
+                self.assertEqual(crash.connect_info.user, None)
+                self.assertEqual(crash.connect_info.schema, "test")
+                self.assertEqual(crash.connect_info.cluster, "Testing44209")
 
-    def mock_execute(self, cmd):
-        if 'current_user' in cmd:
-            raise ProgrammingError()
-        return self.execute(cmd)
+            with patch.object(
+                crash.cursor,
+                "execute",
+                side_effect=RaiseOnceSideEffect(
+                    ProgrammingError("SQLActionException[SchemaUnknownException]"),
+                    crash.cursor.execute,
+                )
+            ):
+                crash._fetch_session_info()
+                self.assertEqual(crash.connect_info.user, "crate")
+                self.assertEqual(crash.connect_info.schema, "test")
+                self.assertEqual(crash.connect_info.cluster, None)
+
+            with patch.object(
+                crash.cursor,
+                "execute",
+                side_effect=RaiseOnceSideEffect(
+                    ProgrammingError("SQLActionException"),
+                    crash.cursor.execute,
+                )
+            ):
+                crash._fetch_session_info()
+                self.assertEqual(crash.connect_info.user, None)
+                self.assertEqual(crash.connect_info.schema, None)
+                self.assertEqual(crash.connect_info.cluster, None)
 
     @patch.object(CrateShell, "is_conn_available")
     def test_connect_info_not_available(self, is_conn_available):

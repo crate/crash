@@ -13,10 +13,10 @@ before_install:
   - sudo apt-get install -y openjdk-12-jdk
 
 install:
-    - pip install ".[test]"
-    - pip install coverage flake8
+    - pip install ".[test,devel]"
 
 script:
+    - isort --recursive --check --diff crate/ tests/ setup.py
     - flake8 crate/crash
     - coverage run -m unittest -v
 

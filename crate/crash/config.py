@@ -23,11 +23,12 @@
 
 
 import os
+from functools import partial
+
 try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
-from functools import partial
 
 
 class ConfigurationError(Exception):

@@ -22,12 +22,11 @@
 
 """Pretty-print tabular data."""
 
-import re
 import io
+import re
 from collections import namedtuple
+from functools import partial, reduce
 from itertools import zip_longest as izip_longest
-from functools import reduce, partial
-
 
 _none_type = type(None)
 _int_type = int

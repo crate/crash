@@ -24,7 +24,6 @@
 from collections import namedtuple
 from distutils.version import StrictVersion
 
-
 Result = namedtuple('Result', ['rows', 'cols'])
 SYSINFO_MIN_VERSION = StrictVersion("0.54.0")
 

@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 # vim: set fileencodings=utf-8
 
+from distutils.version import StrictVersion
 from unittest import TestCase
 
 from crate.crash.command import (
     Result,
+    get_information_schema_query,
     host_and_port,
     stmt_type,
-    get_information_schema_query
 )
 from crate.crash.outputs import OutputWriter
-from distutils.version import StrictVersion
 
 
 class OutputWriterTest(TestCase):

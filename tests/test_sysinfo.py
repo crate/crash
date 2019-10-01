@@ -21,12 +21,12 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 
+from distutils.version import StrictVersion
 from unittest import TestCase
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock, patch
 
 from crate.crash.command import CrateShell
-from crate.crash.sysinfo import SysInfoCommand, Result as Res
-from distutils.version import StrictVersion
+from crate.crash.sysinfo import Result as Res, SysInfoCommand
 
 CRATE_VERSION = StrictVersion("0.55.2")
 assert CrateShell, "Used for patch"

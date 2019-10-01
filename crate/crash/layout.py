@@ -21,35 +21,21 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-from prompt_toolkit.filters import (
-    is_done,
-    has_focus,
-    renderer_height_is_known
-)
+from prompt_toolkit.application import get_app
 from prompt_toolkit.enums import DEFAULT_BUFFER, SEARCH_BUFFER
-from prompt_toolkit.layout import (
-    Layout,
-    Window,
-    WindowAlign,
-    HSplit,
-    VSplit,
-    Float
-)
-from prompt_toolkit.layout.containers import (
-    ConditionalContainer,
-    FloatContainer
-)
+from prompt_toolkit.filters import has_focus, is_done, renderer_height_is_known
+from prompt_toolkit.layout import Float, HSplit, Layout, VSplit, Window, WindowAlign
+from prompt_toolkit.layout.containers import ConditionalContainer, FloatContainer
+from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.dimension import Dimension
-from prompt_toolkit.layout.controls import FormattedTextControl, BufferControl
-from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.layout.margins import ConditionalMargin, PromptMargin
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.layout.processors import (
     ConditionalProcessor,
-    HighlightSearchProcessor
+    HighlightSearchProcessor,
 )
+from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.widgets import SearchToolbar
-from prompt_toolkit.layout.margins import PromptMargin, ConditionalMargin
-from prompt_toolkit.application import get_app
 
 
 def create_layout(buffer,

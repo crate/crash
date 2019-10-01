@@ -2,12 +2,12 @@ import csv
 import json
 import sys
 
-from pygments import highlight
-from pygments.lexers.data import JsonLexer
-from pygments.formatters import TerminalFormatter
 from colorama import Fore, Style
+from pygments import highlight
+from pygments.formatters import TerminalFormatter
+from pygments.lexers.data import JsonLexer
 
-from .tabulate import TableFormat, Line as TabulateLine, DataRow, tabulate, float_format
+from .tabulate import DataRow, Line as TabulateLine, TableFormat, float_format, tabulate
 
 if sys.version_info[:2] == (2, 6):
     OrderedDict = dict

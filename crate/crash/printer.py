@@ -23,7 +23,8 @@
 from __future__ import print_function
 
 import sys
-from colorama import init, Fore, Style
+
+from colorama import Fore, Style, init
 
 init(autoreset=True)
 

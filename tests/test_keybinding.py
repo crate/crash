@@ -18,12 +18,17 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 from unittest import TestCase
-from prompt_toolkit.document import Document
-from prompt_toolkit.keys import Keys
-from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.key_binding import KeyBindings
-from crate.crash.keybinding import bind_keys, _is_start_of_multiline, _line_ends_with_tab
 
+from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.document import Document
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.keys import Keys
+
+from crate.crash.keybinding import (
+    _is_start_of_multiline,
+    _line_ends_with_tab,
+    bind_keys,
+)
 
 doc = lambda t: Document(t, len(t))
 is_start_of_multiline = lambda t: _is_start_of_multiline(doc(t))

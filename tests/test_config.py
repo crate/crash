@@ -19,12 +19,13 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
+import configparser
 import os
 import tempfile
-import configparser
 from unittest import TestCase
+
+from crate.crash.command import CONFIG_PATH, parse_config_path
 from crate.crash.config import Configuration, ConfigurationError
-from crate.crash.command import parse_config_path, CONFIG_PATH
 
 
 class ConfigurationTest(TestCase):

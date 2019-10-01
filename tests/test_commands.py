@@ -22,20 +22,20 @@
 import os
 import shutil
 import tempfile
-
-from unittest import TestCase
-from unittest.mock import patch, MagicMock
 from distutils.version import StrictVersion
-from crate.crash.commands import (
-    ReadFileCommand,
-    ToggleAutocompleteCommand,
-    ToggleAutoCapitalizeCommand,
-    ToggleVerboseCommand,
-    NodeCheckCommand,
-    ClusterCheckCommand,
-    CheckCommand
-)
+from unittest import TestCase
+from unittest.mock import MagicMock, patch
+
 from crate.crash.command import CrateShell
+from crate.crash.commands import (
+    CheckCommand,
+    ClusterCheckCommand,
+    NodeCheckCommand,
+    ReadFileCommand,
+    ToggleAutoCapitalizeCommand,
+    ToggleAutocompleteCommand,
+    ToggleVerboseCommand,
+)
 
 
 class ReadFileCommandTest(TestCase):

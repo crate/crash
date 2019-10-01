@@ -22,8 +22,9 @@
 
 
 import re
-from prompt_toolkit.keys import Keys
+
 from prompt_toolkit.filters import Condition
+from prompt_toolkit.keys import Keys
 
 TAB_WIDTH = 4
 WHITESPACE_RE = re.compile(r'\s+$')

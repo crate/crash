@@ -19,11 +19,11 @@
 # with Crate these terms will supersede the license and you may use the
 # software solely pursuant to the terms of the relevant commercial agreement.
 
-from setuptools import setup
-import os
 import io
+import os
 import re
 
+from setuptools import setup
 
 requirements = [
     'colorama',
@@ -74,6 +74,11 @@ setup(
         test=[
             'crate[test]',
             'zc.customdoctests'
+        ],
+        devel=[
+            'coverage',
+            'flake8',
+            'isort',
         ],
         argcompletion=['argcomplete']
     ),

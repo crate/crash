@@ -22,40 +22,44 @@
 
 import os
 import re
-
-from pygments.lexers.sql import PostgresLexer
-from pygments.style import Style
-from prompt_toolkit.output.defaults import get_default_output
-from prompt_toolkit.styles.pygments import style_from_pygments_cls
-from pygments.token import (Keyword,
-                            Comment,
-                            Operator,
-                            Name,
-                            Number,
-                            String,
-                            Error,
-                            Token)
-
-from prompt_toolkit.completion import Completer, Completion
-from prompt_toolkit.history import FileHistory
-from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.filters import Condition, IsDone, HasFocus
-from prompt_toolkit import Application
-from prompt_toolkit.enums import DEFAULT_BUFFER, EditingMode
-from prompt_toolkit.formatted_text import PygmentsTokens
-from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
-from prompt_toolkit.key_binding.bindings.open_in_editor import load_open_in_editor_bindings
-from prompt_toolkit.layout.processors import (
-    HighlightMatchingBracketProcessor,
-    ConditionalProcessor
-)
-from prompt_toolkit.application import get_app
-from crate.client.exceptions import ProgrammingError
 from getpass import getpass
 
+from prompt_toolkit import Application
+from prompt_toolkit.application import get_app
+from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.enums import DEFAULT_BUFFER, EditingMode
+from prompt_toolkit.filters import Condition, HasFocus, IsDone
+from prompt_toolkit.formatted_text import PygmentsTokens
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
+from prompt_toolkit.key_binding.bindings.open_in_editor import (
+    load_open_in_editor_bindings,
+)
+from prompt_toolkit.layout.processors import (
+    ConditionalProcessor,
+    HighlightMatchingBracketProcessor,
+)
+from prompt_toolkit.output.defaults import get_default_output
+from prompt_toolkit.styles.pygments import style_from_pygments_cls
+from pygments.lexers.sql import PostgresLexer
+from pygments.style import Style
+from pygments.token import (
+    Comment,
+    Error,
+    Keyword,
+    Name,
+    Number,
+    Operator,
+    String,
+    Token,
+)
+
+from crate.client.exceptions import ProgrammingError
+
 from .commands import Command
-from .layout import create_layout
 from .keybinding import bind_keys
+from .layout import create_layout
 
 MAX_HISTORY_LENGTH = 10000
 

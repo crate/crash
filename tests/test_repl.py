@@ -19,12 +19,18 @@
 
 import re
 from unittest import TestCase
+
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
 from pygments.token import Token
 
-from crate.crash.repl import SQLCompleter, Capitalizer, create_buffer, _get_toolbar_tokens
-from crate.crash.command import CrateShell, ConnectionMeta
+from crate.crash.command import ConnectionMeta, CrateShell
+from crate.crash.repl import (
+    Capitalizer,
+    SQLCompleter,
+    _get_toolbar_tokens,
+    create_buffer,
+)
 
 
 class SQLCompleterTest(TestCase):

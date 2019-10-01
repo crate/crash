@@ -1,30 +1,29 @@
-import sys
 import os
-import tempfile
 import re
 import ssl
-from unittest.mock import patch, Mock
-from io import TextIOWrapper, StringIO
-
-from unittest import TestCase
+import sys
+import tempfile
 from doctest import testfile
+from io import StringIO, TextIOWrapper
+from unittest import TestCase
+from unittest.mock import Mock, patch
+
 from urllib3.exceptions import LocationParseError
 
 from crate.client.exceptions import ProgrammingError
-from crate.testing.layer import CrateLayer
-
-from crate.crash.commands import Command
-from crate.crash.printer import ColorPrinter
-from crate.crash.outputs import _val_len as val_len
 from crate.crash.command import (
     CrateShell,
-    main,
-    get_stdin,
-    noargs_command,
-    host_and_port,
     _create_shell,
-    get_parser
+    get_parser,
+    get_stdin,
+    host_and_port,
+    main,
+    noargs_command,
 )
+from crate.crash.commands import Command
+from crate.crash.outputs import _val_len as val_len
+from crate.crash.printer import ColorPrinter
+from crate.testing.layer import CrateLayer
 
 crate_http_port = 44209
 crate_transport_port = 44309

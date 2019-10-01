@@ -19,9 +19,8 @@
 
 import functools
 import os
-
-from distutils.version import StrictVersion
 from collections import OrderedDict
+from distutils.version import StrictVersion
 
 
 class Command(object):

@@ -90,6 +90,12 @@ The ``crash`` executable supports multiple command-line options:
 |                               | This feature is experimental and may be      |
 |                               | removed in future versions.                  |
 +-------------------------------+----------------------------------------------+
+| | ``-b`` ,                    | Enable console beeping upon the completion   |
+| | ``--beep``                  | of SQL queries.                              |
+|                               |                                              |
+|                               | This can be useful when the user wants to be |
+|                               | notified at the end of a long running query. |
++-------------------------------+----------------------------------------------+
 | ``--verify-ssl``              | Force the verification of the server SSL     |
 |                               | certificate.                                 |
 +-------------------------------+----------------------------------------------+

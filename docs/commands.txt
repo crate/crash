@@ -64,3 +64,8 @@ Every command starts with a ``\`` character.
 |                        |                                                     |
 |                        | Works as a toggle.                                  |
 +------------------------+-----------------------------------------------------+
+| ``\beep``              | Turn on console beeping upon the completion of SQL  |
+|                        | queries.                                            |
+|                        |                                                     |
+|                        | Works as a toggle.                                  |
++------------------------+-----------------------------------------------------+

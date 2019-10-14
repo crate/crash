@@ -226,6 +226,17 @@ class CheckCommand(Command):
             cmd.logger.warn('No check for {}'.format(check_name))
 
 
+class ToggleBeepCommand(Command):
+    """ toggle beep upon completion of SQL queries """
+
+    @noargs_command
+    def __call__(self, cmd, *args, **kwargs):
+        cmd._beep = not cmd._beep
+        return 'Beep {0}'.format(
+            cmd._beep and 'ON' or 'OFF'
+        )
+
+
 built_in_commands = {
     '?': HelpCommand(),
     'r': ReadFileCommand(),
@@ -234,4 +245,5 @@ built_in_commands = {
     'autocapitalize': ToggleAutoCapitalizeCommand(),
     'verbose': ToggleVerboseCommand(),
     'check': CheckCommand(),
+    'beep': ToggleBeepCommand()
 }

@@ -34,6 +34,7 @@ from crate.crash.commands import (
     ReadFileCommand,
     ToggleAutoCapitalizeCommand,
     ToggleAutocompleteCommand,
+    ToggleBeepCommand,
     ToggleVerboseCommand,
 )
 
@@ -124,6 +125,18 @@ class ToggleVerboseCommandTest(TestCase):
         output = command(fake_cmd)
         self.assertEqual(output, 'Verbose ON')
         self.assertEqual(fake_cmd.reconnect.call_count, 1)
+
+
+class ToggleBeepCommandTest(TestCase):
+
+    @patch('crate.crash.command.CrateShell')
+    def test_toggle_output(self, fake_cmd):
+        fake_cmd._beep = True
+        command = ToggleBeepCommand()
+        output = command(fake_cmd)
+        self.assertEqual(output, 'Beep OFF')
+        output = command(fake_cmd)
+        self.assertEqual(output, 'Beep ON')
 
 
 class ShowTablesCommandTest(TestCase):

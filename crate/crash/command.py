@@ -118,6 +118,10 @@ def get_parser(output_formats=[], conf=None):
                         dest='autocapitalize',
                         default=False,
                         help='enable automatic capitalization of SQL keywords while typing')
+    parser.add_argument('-b', '--beep', action='store_true',
+                        dest='beep',
+                        default=False,
+                        help='enable console beep upon conclusion of SQL queries')
     parser.add_argument('-U', '--username', type=str, metavar='USERNAME',
                         help='Authenticate as USERNAME.')
     parser.add_argument('-W', '--password', action='store_true',
@@ -211,6 +215,7 @@ class CrateShell:
                  is_tty=True,
                  autocomplete=True,
                  autocapitalize=True,
+                 beep=False,
                  verify_ssl=True,
                  cert_file=None,
                  key_file=None,
@@ -238,6 +243,7 @@ class CrateShell:
         self.error_trace = error_trace
         self._autocomplete = autocomplete
         self._autocapitalize = autocapitalize
+        self._beep = beep
         self.verify_ssl = verify_ssl
         self.cert_file = cert_file
         self.key_file = key_file
@@ -266,6 +272,9 @@ class CrateShell:
 
     def should_autocapitalize(self):
         return self._autocapitalize
+
+    def should_beep(self):
+        return self._beep
 
     def pprint(self, rows, cols):
         result = Result(cols,
@@ -478,6 +487,8 @@ class CrateShell:
         else:
             tmpl = '{command} OK, {rowcount} row{s} affected {duration}'
         self.logger.info(tmpl.format(**print_vars))
+        if self.should_beep():
+            sys.stdout.write('\a')
         return True
 
 
@@ -626,6 +637,7 @@ def _create_shell(crate_hosts, error_trace, output_writer, is_tty, args,
                       is_tty=is_tty,
                       autocomplete=args.autocomplete,
                       autocapitalize=args.autocapitalize,
+                      beep=args.beep,
                       verify_ssl=args.verify_ssl,
                       cert_file=args.cert_file,
                       key_file=args.key_file,

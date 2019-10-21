@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+- Sort the output of the ``\dt`` (show tables) command alphabetically.
+
 - Improved the color scheme for the SQL syntax hightlighing.
 
 - Dropped support for Python 3.4 and added official support for Python 3.7

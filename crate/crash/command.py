@@ -319,7 +319,8 @@ class CrateShell:
             "SELECT format('%s.%s', {schema}, table_name) AS name "
             "FROM information_schema.tables "
             "WHERE {schema} NOT IN ('sys','information_schema', 'pg_catalog')"
-            "{table_filter}".format(schema=schema_name, table_filter=table_filter))
+            "{table_filter} "
+            "ORDER BY 1".format(schema=schema_name, table_filter=table_filter))
 
     @noargs_command
     def _quit(self, *args):

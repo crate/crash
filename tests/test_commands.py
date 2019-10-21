@@ -133,21 +133,21 @@ class ShowTablesCommandTest(TestCase):
         cmd._exec_and_print = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("2.0.0")
         cmd._show_tables()
-        cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') AND table_type = 'BASE TABLE'")
+        cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') AND table_type = 'BASE TABLE' ORDER BY 1")
 
     def test_post_0_57(self):
         cmd = CrateShell()
         cmd._exec_and_print = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("0.57.0")
         cmd._show_tables()
-        cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog')")
+        cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') ORDER BY 1")
 
     def test_pre_0_57(self):
         cmd = CrateShell()
         cmd._exec_and_print = MagicMock()
         cmd.connection.lowest_server_version = StrictVersion("0.56.4")
         cmd._show_tables()
-        cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', schema_name, table_name) AS name FROM information_schema.tables WHERE schema_name NOT IN ('sys','information_schema', 'pg_catalog')")
+        cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', schema_name, table_name) AS name FROM information_schema.tables WHERE schema_name NOT IN ('sys','information_schema', 'pg_catalog') ORDER BY 1")
 
 
 class ChecksCommandTest(TestCase):

@@ -28,12 +28,14 @@ import logging
 import os
 import re
 import sys
+import time
 from argparse import ArgumentParser, ArgumentTypeError
 from collections import namedtuple
 from distutils.version import StrictVersion
 from getpass import getpass
 from logging import NullHandler
 from operator import itemgetter
+from threading import Thread
 
 import urllib3
 from appdirs import user_config_dir, user_data_dir
@@ -70,6 +72,26 @@ ConnectionMeta = namedtuple('ConnectionMeta', ['user', 'schema', 'cluster'])
 
 TABLE_SCHEMA_MIN_VERSION = StrictVersion("0.57.0")
 TABLE_TYPE_MIN_VERSION = StrictVersion("2.0.0")
+
+
+class Heartbeat(Thread):
+
+    def __init__(self, connection, interval, **kwargs):
+        self.connection = connection
+        self.interval = interval
+        super().__init__(**kwargs)
+
+    def run(self):
+        cursor = self.connection.cursor()
+        while not self.connection._closed:
+            try:
+                cursor.execute("SELECT 1 AS heartbeat")
+            except ConnectionError:
+                pass
+            time.sleep(self.interval)
+
+    def stop(self):
+        self.join(timeout=0)
 
 
 def parse_config_path(args=sys.argv):
@@ -250,6 +272,7 @@ class CrateShell:
         # establish connection
         self.cursor = None
         self.connection = None
+        self.heartbeat = None
         self._connect(crate_hosts)
 
     def __enter__(self):
@@ -302,6 +325,9 @@ class CrateShell:
         if self.connection:
             self.connection.close()
         self.connection = None
+        if self.heartbeat:
+            self.heartbeat.stop()
+        self.heartbeat = None
 
     def is_closed(self):
         return not (self.cursor and self.connection)
@@ -334,8 +360,8 @@ class CrateShell:
 
     def _connect(self, servers):
         self.last_connected_servers = servers
-        if self.cursor or self.connection:
-            self.close()  # reset open cursor and connection
+        if self.heartbeat or self.cursor or self.connection:
+            self.close()  # reset heartbeat, open cursor and connection
         self.connection = connect(servers,
                                   error_trace=self.error_trace,
                                   verify_ssl_cert=self.verify_ssl,
@@ -347,6 +373,7 @@ class CrateShell:
                                   schema=self.schema,
                                   timeout=self.timeout)
         self.cursor = self.connection.cursor()
+        self.heartbeat = self._start_heartbeat()
         self._fetch_session_info()
 
     def _connect_and_print_result(self, servers):
@@ -415,6 +442,11 @@ class CrateShell:
             self.connect_info = ConnectionMeta(*self.cursor.fetchone())
         else:
             self.connect_info = ConnectionMeta(None, None, None)
+
+    def _start_heartbeat(self):
+        heartbeat = Heartbeat(self.connection, 5, daemon=True)
+        heartbeat.start()
+        return heartbeat
 
     def _try_exec_cmd(self, line):
         words = line.split(' ', 1)

@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+- Added official support for Python 3.8.
+
 - Added the cluster name to the status bar.
 
 - Sort the output of the ``\dt`` (show tables) command alphabetically.

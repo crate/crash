@@ -114,11 +114,8 @@ For example:
 Because this project has not yet had a major release, as of yet, there are no
 major releases before ``0`` to include in this list.
 
-Sometimes you might find that there are multiple older releases that need to be
-archived.
-
-You can archive releases by selecting *Edit*, unselecting the *Active*
-checkbox, and then saving.
+To make changes to the RTD configuration (e.g., to activate or deactivate a
+release version), please contact the `@crate/docs`_ team.
 
 Standalone Deployment
 =====================
@@ -142,6 +139,7 @@ The output can then be found in the ``out/html`` directory.
 The docs are automatically built from Git by `Read the Docs`_ and there is
 nothing special you need to do to get the live docs to update.
 
+.. _@crate/docs: https://github.com/orgs/crate/teams/docs
 .. _buildout: https://pypi.python.org/pypi/zc.buildout
 .. _Jenkins: http://jenkins-ci.org/
 .. _PyPI: https://pypi.python.org/pypi

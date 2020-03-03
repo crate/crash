@@ -2,9 +2,9 @@
 The CrateDB Shell
 =================
 
-.. image:: https://travis-ci.org/crate/crash.svg?branch=master
-    :target: https://travis-ci.org/crate/crash
-    :alt: Travis CI
+.. image:: https://github.com/crate/crash/workflows/test/badge.svg
+    :target: https://github.com/crate/crash/actions
+    :alt: Github Actions
 
 .. image:: https://badge.fury.io/py/crash.svg
     :target: http://badge.fury.io/py/crash

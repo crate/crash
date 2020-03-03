@@ -1,6 +1,5 @@
 ---
 name: test
-
 on: push
 
 jobs:
@@ -34,3 +33,22 @@ jobs:
           isort --recursive --check --diff crate/ tests/ setup.py
           flake8 crate/crash
           coverage run -m unittest -v
+
+  release:
+    name: Create Release on Github
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Create Release
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: false

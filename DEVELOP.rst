@@ -59,41 +59,12 @@ To create a new release, you must:
 
 - Create a tag by running ``./devtools/create_tag.sh``
 
-- Deploy to PyPI (see below)
+- Pushing a tag triggers a Github Workflow which creates a new `Release
+  <https://github.com/crate/crash/releases>`_. Publish this release to trigger
+  a deployment to PyPi and to generate a standalone crash bundle.
 
 - Archive docs for old releases (see below)
 
-PyPI Deployment
----------------
-
-To create the package use::
-
-    $ bin/py setup.py sdist bdist_wheel
-
-Then, use twine_ to upload the package to `PyPI`_::
-
-    $ bin/twine upload dist/*
-
-For this to work, you will need a personal PyPI account that is set up as a
-project admin.
-
-You'll also need to create a ``~/.pypirc`` file, like so::
-
-    [distutils]
-    index-servers =
-      pypi
-
-    [pypi]
-    repository=https://upload.pypi.org/legacy/
-    username=<USERNAME>
-    password=<PASSWORD>
-
-Here, ``<USERNAME>`` and ``<PASSWORD>`` should be replaced with your username
-and password, respectively.
-
-If you want to check the PyPI description before uploading, run::
-
-    $ bin/py setup.py check --strict --restructuredtext
 
 Archiving Docs Versions
 -----------------------
@@ -120,7 +91,8 @@ release version), please contact the `@crate/docs`_ team.
 Standalone Deployment
 =====================
 
-The standalone executable is built and deployed by a `Jenkins`_ job.
+The standalone executable is built by a Github Workflow.
+
 
 Writing Documentation
 =====================
@@ -141,7 +113,6 @@ nothing special you need to do to get the live docs to update.
 
 .. _@crate/docs: https://github.com/orgs/crate/teams/docs
 .. _buildout: https://pypi.python.org/pypi/zc.buildout
-.. _Jenkins: http://jenkins-ci.org/
 .. _PyPI: https://pypi.python.org/pypi
 .. _Read the Docs: http://readthedocs.org
 .. _ReStructuredText: http://docutils.sourceforge.net/rst.html

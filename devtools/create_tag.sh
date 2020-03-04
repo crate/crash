@@ -48,7 +48,7 @@ fi
 
 # check if tag to create has already been created
 SCRIPT_DIR=`dirname $0`
-VERSION=`$SCRIPT_DIR/../bin/py setup.py --version`
+VERSION=`python setup.py --version`
 EXISTS=`git tag | grep $VERSION`
 
 if [ "$VERSION" == "$EXISTS" ]

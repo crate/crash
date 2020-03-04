@@ -2,10 +2,8 @@
 Changes for crash
 =================
 
-Unreleased
-==========
-
-- Added official support for Python 3.8.
+2020/03/04 0.25.0
+=================
 
 - Added the cluster name to the status bar.
 
@@ -13,7 +11,8 @@ Unreleased
 
 - Improved the color scheme for the SQL syntax hightlighing.
 
-- Dropped support for Python 3.4 and added official support for Python 3.7
+- Dropped support for Python 3.4 and added official support for Python 3.7 and
+  Python 3.8.
 
 2018/10/04 0.24.2
 =================

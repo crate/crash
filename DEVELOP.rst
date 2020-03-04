@@ -59,9 +59,8 @@ To create a new release, you must:
 
 - Create a tag by running ``./devtools/create_tag.sh``
 
-- Pushing a tag triggers a Github Workflow which creates a new `Release
-  <https://github.com/crate/crash/releases>`_. Publish this release to trigger
-  a deployment to PyPi and to generate a standalone crash bundle.
+- ``create_tag.sh`` pushes a new tag to Github, that triggers a Github action
+  which releases the new version to PyPi.
 
 - Archive docs for old releases (see below)
 
@@ -91,7 +90,7 @@ release version), please contact the `@crate/docs`_ team.
 Standalone Deployment
 =====================
 
-The standalone executable is built by a Github Workflow.
+The standalone executable is built and deployed by a `Jenkins`_ job.
 
 
 Writing Documentation
@@ -112,7 +111,7 @@ The docs are automatically built from Git by `Read the Docs`_ and there is
 nothing special you need to do to get the live docs to update.
 
 .. _@crate/docs: https://github.com/orgs/crate/teams/docs
-.. _buildout: https://pypi.python.org/pypi/zc.buildout
+.. _Jenkins: http://jenkins-ci.org/
 .. _PyPI: https://pypi.python.org/pypi
 .. _Read the Docs: http://readthedocs.org
 .. _ReStructuredText: http://docutils.sourceforge.net/rst.html

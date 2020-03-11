@@ -36,6 +36,7 @@ from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 from prompt_toolkit.key_binding.bindings.open_in_editor import (
     load_open_in_editor_bindings,
 )
+from prompt_toolkit.layout.controls import SearchBufferControl
 from prompt_toolkit.layout.processors import (
     ConditionalProcessor,
     HighlightMatchingBracketProcessor,
@@ -368,8 +369,11 @@ def loop(cmd, history_file):
             else:
                 cmd.logger.warn(str(e))
         except KeyboardInterrupt:
-            cmd.logger.warn("Query not cancelled. Run KILL <jobId> to cancel it")
-            buf.reset()
+            if isinstance(app.layout.current_control, SearchBufferControl):
+                app.layout.current_control = app.layout.previous_control
+            else:
+                cmd.logger.warn("Query not cancelled. Run KILL <jobId> to cancel it")
+                buf.reset()
         except EOFError:
             cmd.logger.warn('Bye!')
             return

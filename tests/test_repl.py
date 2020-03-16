@@ -60,7 +60,7 @@ class AutoCapitalizeTest(TestCase):
 
     def setUp(self):
         cmd = CrateShell()
-        self.capitalizer = Capitalizer(cmd)
+        self.capitalizer = Capitalizer(cmd, SQLCompleter(cmd))
 
     def test_capitalize(self):
         buffer = Buffer()

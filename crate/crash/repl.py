@@ -111,83 +111,55 @@ class TruncatedFileHistory(FileHistory):
 
 
 class SQLCompleter(Completer):
-    keywords = [
-        "abs", "absolute", "action", "add", "after", "alias", "all", "allocate",
-        "alter", "always", "analyzer", "and", "any", "are", "array", "array_agg",
-        "array_max_cardinality", "as", "asc", "asensitive", "assertion",
-        "asymmetric", "at", "atomic", "authorization", "avg", "before", "begin",
-        "begin_frame", "begin_partition", "between", "bigint", "binary", "bit",
-        "bit_length", "blob", "boolean", "both", "breadth", "by", "byte", "call",
-        "called", "cardinality", "cascade", "cascaded", "case", "cast",
-        "catalog", "catalogs", "ceil", "ceiling", "char", "char_filters",
-        "char_length", "character", "character_length", "check", "clob", "close",
-        "clustered", "coalesce", "collate", "collation", "collect", "column",
-        "columns", "commit", "condition", "connect", "connection", "constraint",
-        "constraints", "constructor", "contains", "continue", "convert", "copy",
-        "corr", "corresponding", "count", "covar_pop", "covar_samp", "create",
-        "cross", "cube", "cume_dist", "current", "current_catalog",
-        "current_date", "current_path", "current_role", "current_row",
-        "current_schema", "current_time", "current_timestamp", "current_user",
-        "cursor", "cycle", "data", "date", "day", "deallocate", "dec", "decimal",
-        "declare", "default", "deferrable", "deferred", "delete", "deny", "dense_rank",
-        "depth", "deref", "desc", "describe", "descriptor", "deterministic",
-        "diagnostics", "directory", "disconnect", "distinct", "distributed",
-        "do", "domain", "double", "drop", "duplicate", "dynamic", "each",
-        "element", "else", "elseif", "end", "end_exec", "end_frame",
-        "end_partition", "equals", "escape", "every", "except", "exception",
-        "exec", "execute", "exists", "exit", "explain", "extends", "external",
-        "extract", "false", "fetch", "filter", "first", "first_value", "float",
-        "for", "foreign", "format", "found", "frame_row", "free", "from", "full",
-        "fulltext", "function", "functions", "fusion", "general", "generated",
-        "geo_point", "geo_shape", "get", "global", "go", "goto", "grant",
-        "group", "grouping", "groups", "handler", "having", "hold", "hour",
-        "identity", "if", "ignored", "immediate", "in", "index", "indicator",
-        "initially", "inner", "inout", "input", "insensitive", "insert", "int",
-        "integer", "intersect", "intersection", "interval", "into", "ip", "is",
-        "isolation", "iterate", "join", "key", "kill", "language", "large",
-        "last", "last_value", "lateral", "lead", "leading", "leave", "left",
-        "level", "like", "like_regex", "limit", "ln", "local", "localtime",
-        "localtimestamp", "locator", "long", "loop", "lower", "map", "match",
-        "max", "member", "merge", "method", "min", "minute", "mod", "modifies",
-        "module", "month", "multiset", "names", "national", "natural", "nchar",
-        "nclob", "new", "next", "no", "none", "normalize", "not", "nth_value",
-        "ntile", "null", "nullif", "nulls", "numeric", "object", "octet_length",
-        "of", "off", "offset", "old", "on", "only", "open", "optimize", "option",
-        "or", "order", "ordinality", "out", "outer", "output", "over",
-        "overlaps", "overlay", "pad", "parameter", "partial", "partition",
-        "partitioned", "partitions", "path", "percent", "percent_rank",
-        "percentile_cont", "percentile_disc", "period", "persistent", "plain",
-        "portion", "position", "position_regex", "power", "precedes",
-        "preceding", "precision", "prepare", "preserve", "primary",
-        "primary key", "prior", "privileges", "procedure", "public", "range",
-        "rank", "read", "reads", "real", "recursive", "ref", "references",
-        "referencing", "refresh", "regr_avgx", "regr_avgy", "regr_count",
-        "regr_intercept", "regr_r2", "regr_slope", "regr_sxx",
-        "regr_sxyregr_syy", "relative", "release", "rename", "repeat", "repository",
-        "reset", "resignal", "restore", "restrict", "result", "return",
-        "returns", "revoke", "right", "role", "rollback", "rollup", "routine",
-        "row", "row_number", "rows", "savepoint", "schema", "schemas", "scope",
-        "scroll", "search", "second", "section", "select", "sensitive",
-        "session", "session_user", "set", "sets", "shards", "short", "show",
-        "signal", "similar", "size", "smallint", "snapshot", "some", "space",
-        "specific", "specifictype", "sql", "sqlcode", "sqlerror", "sqlexception",
-        "sqlstate", "sqlwarning", "sqrt", "start", "state", "static",
-        "stddev_pop", "stddev_samp", "stratify", "stratify", "strict", "string",
-        "submultiset", "substring", "substring_regex", "succeedsblob", "sum",
-        "symmetric", "system", "system_time", "system_user", "table", "tables",
-        "tablesample", "temporary", "text", "then", "time", "timestamp",
-        "timezone_hour", "timezone_minute", "to", "token_filters", "tokenizer",
-        "trailing", "transaction", "transient", "translate", "translate_regex",
-        "translation", "treat", "trigger", "trim", "trim_array", "true",
-        "truncate", "try_cast", "type", "uescape", "unbounded", "under", "undo",
-        "union", "unique", "unknown", "unnest", "until", "update", "upper",
-        "usage", "user", "using", "value", "value_of", "values", "var_pop",
-        "var_samp", "varbinary", "varchar", "varying", "versioning", "view",
-        "when", "whenever", "where", "while", "width_bucket", "window", "with",
-        "within", "without", "work", "write", "year", "zone"]
+
+    fallback_keywords = [
+        "add", "alias", "all", "allocate", "alter", "always", "analyze",
+        "analyzer", "and", "any", "array", "artifacts", "as", "asc", "at",
+        "begin", "bernoulli", "between", "blob", "boolean", "both", "by",
+        "byte", "called", "cancel", "case", "cast", "catalogs", "char_filters",
+        "characteristics", "close", "cluster", "clustered", "column", "columns",
+        "commit", "committed", "conflict", "constraint", "copy", "create",
+        "cross", "current", "current_date", "current_schema", "current_time",
+        "current_timestamp", "current_user", "dangling", "day", "deallocate",
+        "decommission", "default", "deferrable", "delete", "deny", "desc",
+        "describe", "directory", "distinct", "distributed", "do", "double",
+        "drop", "duplicate", "dynamic", "else", "end", "escape", "except",
+        "exists", "explain", "extends", "extract", "failed", "false", "filter",
+        "first", "float", "following", "for", "format", "from", "full",
+        "fulltext", "function", "functions", "gc", "generated", "geo_point",
+        "geo_shape", "global", "grant", "graphviz", "group", "having", "hour",
+        "if", "ignored", "ilike", "in", "index", "inner", "input", "insert",
+        "int", "integer", "intersect", "interval", "into", "ip", "is",
+        "isolation", "join", "key", "kill", "language", "last", "leading",
+        "left", "level", "license", "like", "limit", "local", "logical",
+        "long", "match", "materialized", "minute", "month", "move", "natural",
+        "not", "nothing", "null", "nulls", "object", "off", "offset", "on",
+        "only", "open", "optimize", "or", "order", "outer", "over", "partition",
+        "partitioned", "partitions", "persistent", "plain", "preceding", "precision",
+        "prepare", "privileges", "promote", "range", "read", "recursive", "refresh",
+        "rename", "repeatable", "replace", "replica", "repository", "reroute",
+        "reset", "restore", "retry", "return", "returns", "revoke", "right",
+        "row", "rows", "schema", "schemas", "second", "select", "serializable",
+        "session", "session_user", "set", "shard", "shards", "short", "show",
+        "snapshot", "some", "storage", "stratify", "strict", "string",
+        "substring", "summary", "swap", "system", "table", "tables",
+        "tablesample", "text", "then", "time", "timestamp", "to",
+        "token_filters", "tokenizer", "trailing", "transaction",
+        "transaction_isolation", "transient", "trim", "true", "try_cast",
+        "type", "unbounded", "uncommitted", "union", "update", "user", "using",
+        "values", "view", "when", "where", "window", "with", "without", "work",
+        "write", "year", "zone"]
 
     def __init__(self, cmd):
         self.cmd = cmd
+        self.keywords = self._populate_keywords()
+
+    def _populate_keywords(self):
+        success = self.cmd._exec("SELECT word FROM pg_catalog.pg_get_keywords()")
+        if success:
+            return [i[0] for i in self.cmd.cursor.fetchall()]
+        else:
+            return self.fallback_keywords
 
     def get_command_completions(self, line):
         if ' ' not in line:
@@ -236,9 +208,10 @@ class Capitalizer:
 
     KEYWORD_RE = r'(?:"\w+)|(?:\'\w+)|\w+'
 
-    def __init__(self, cmd):
+    def __init__(self, cmd, completer):
         self.cmd = cmd
         self.last_changed = None
+        self.completer = completer
 
     def apply_capitalization(self, buffer):
         if not self.cmd.should_autocapitalize():
@@ -264,7 +237,7 @@ class Capitalizer:
             self.last_changed = current_line[:cursor_position]
 
     def keyword_replacer(self, match):
-        if match.group(0).lower() in SQLCompleter.keywords:
+        if match.group(0).lower() in self.completer.keywords:
             return match.group(0).upper()
         else:
             return match.group(0)
@@ -279,13 +252,14 @@ def create_buffer(cmd, history_file):
         return True
 
     history = TruncatedFileHistory(history_file, max_length=MAX_HISTORY_LENGTH)
+    completer = SQLCompleter(cmd)
     buffer = CrashBuffer(
         name=DEFAULT_BUFFER,
         history=history,
-        completer=SQLCompleter(cmd),
+        completer=completer,
         enable_history_search=True,
         accept_handler=accept,
-        on_text_insert=Capitalizer(cmd).apply_capitalization,
+        on_text_insert=Capitalizer(cmd, completer).apply_capitalization,
         tempfile_suffix=lambda: '.sql'
     )
     buffer.complete_while_typing = lambda cli=None: cmd.should_autocomplete()

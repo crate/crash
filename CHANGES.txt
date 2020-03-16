@@ -7,6 +7,9 @@ Unreleased
 
 - Fixed issue where cancelling a ctrl-r search would not return focus.
 
+- Added feature to dynamically load keywords (for syntax highlighting) from
+  ``pg_catalog.pg_get_keywords()``.
+
 2020/03/04 0.25.0
 =================
 

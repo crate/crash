@@ -56,7 +56,7 @@ from pygments.token import (
     Token,
 )
 
-from crate.client.exceptions import ProgrammingError
+from crate.client.exceptions import ConnectionError, ProgrammingError
 
 from .commands import Command
 from .keybinding import bind_keys
@@ -155,10 +155,10 @@ class SQLCompleter(Completer):
         self.keywords = self._populate_keywords()
 
     def _populate_keywords(self):
-        success = self.cmd._exec("SELECT word FROM pg_catalog.pg_get_keywords()")
-        if success:
+        try:
+            self.cmd.cursor.execute("SELECT word FROM pg_catalog.pg_get_keywords()")
             return [i[0] for i in self.cmd.cursor.fetchall()]
-        else:
+        except (ProgrammingError, ConnectionError):
             return self.fallback_keywords
 
     def get_command_completions(self, line):

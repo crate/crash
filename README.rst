@@ -10,10 +10,6 @@ The CrateDB Shell
     :target: http://badge.fury.io/py/crash
     :alt: Version
 
-.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
-    :target: https://crate.io/docs/reference/crash/
-    :alt: Documentation
-
 .. image:: https://coveralls.io/repos/github/crate/crash/badge.svg?branch=master
     :target: https://coveralls.io/github/crate/crash?branch=master
     :alt: Coverage

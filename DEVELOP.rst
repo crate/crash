@@ -151,7 +151,9 @@ To make changes to the RTD configuration (e.g., to activate or deactivate a
 release version), please contact the `@crate/tech-writing`_ team.
 
 
-... _@crate/tech-writing: https://github.com/orgs/crate/teams/tech-writing
+.. _@crate/tech-writing: https://github.com/orgs/crate/teams/tech-writing
+.. _configured: https://github.com/crate/crash/blob/master/.travis.yml
+.. _fswatch: https://github.com/emcrisostomo/fswatch
 .. _Jenkins: http://jenkins-ci.org/
 .. _PyPI: https://pypi.python.org/pypi
 .. _Read the Docs: http://readthedocs.org/
@@ -161,8 +163,6 @@ release version), please contact the `@crate/tech-writing`_ team.
 .. _twine: https://pypi.python.org/pypi/twine
 .. _versions: https://readthedocs.org/projects/crash/versions/
 .. _zope.testrunner: https://pypi.python.org/pypi/zope.testrunner/4.4.1
-.. _fswatch: https://github.com/emcrisostomo/fswatch
-.. _configured: https://github.com/crate/crash/blob/master/.travis.yml
 
 
 .. |build| image:: https://img.shields.io/endpoint.svg?color=blue&url=https%3A%2F%2Fraw.githubusercontent.com%2Fcrate%2Fcrash%2Fmaster%2Fdocs%2Fbuild.json

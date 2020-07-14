@@ -1,9 +1,10 @@
+.coverage
+.crate-docs-build
 .idea/
 .installed.cfg
+.mypy_cache/
 .tox/
 .venv/
-venv/
-.coverage
 *.DS_Store
 *.egg-info
 *.iml
@@ -16,5 +17,4 @@ dist/
 eggs/
 out/
 parts/
-.mypy_cache/
-
+venv/

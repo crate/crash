@@ -88,8 +88,6 @@ For help, run:
 
       check   Build, test, and lint the documentation
 
-      delint  Remove any `*.lint` files
-
       reset   Reset the build cache
 
 You must install `fswatch`_ to use the ``dev`` target.

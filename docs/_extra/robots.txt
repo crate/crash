@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+Sitemap: https://crate.io/docs/crash/crash/en/latest/sitemap.xml

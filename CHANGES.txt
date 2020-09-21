@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2020/09/21 0.26.0
+=================
+
 - Fixed issue where cancelling a ctrl-r search would not return focus.
 
 - Added feature to dynamically load keywords (for syntax highlighting) from

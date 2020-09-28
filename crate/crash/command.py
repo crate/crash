@@ -345,7 +345,11 @@ class CrateShell:
                                   username=self.username,
                                   password=self.password,
                                   schema=self.schema,
-                                  timeout=self.timeout)
+                                  timeout=self.timeout,
+                                  socket_keepalive=True,
+                                  socket_tcp_keepidle=120,
+                                  socket_tcp_keepintvl=30,
+                                  socket_tcp_keepcnt=8)
         self.cursor = self.connection.cursor()
         self._fetch_session_info()
 

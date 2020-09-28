@@ -5,6 +5,12 @@ Changes for crash
 Unreleased
 ==========
 
+Changes
+=======
+
+- Upgraded the CrateDB python driver to 0.26.0 in order to enable TCP keepalive
+  on the socket level.
+
 2020/09/21 0.26.0
 =================
 

@@ -28,7 +28,7 @@ from setuptools import setup
 requirements = [
     'colorama',
     'Pygments>=2.4',
-    'crate>=0.22.0',
+    'crate>=0.26.0',
     'appdirs>=1.2,<2.0',
     'prompt-toolkit>=2.0,<3.0'
 ]

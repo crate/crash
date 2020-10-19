@@ -38,6 +38,10 @@ def mk_filter(buf, fn):
     return call_fn
 
 
+def _is_empty_line(doc):
+    return not doc.text
+
+
 def _is_start_of_multiline(doc):
     return doc.text and not doc.get_word_before_cursor()
 
@@ -55,7 +59,7 @@ def bind_keys(buf, key_bindings):
 
     handle = key_bindings.add
 
-    @handle('c-d')
+    @handle('c-d', filter=mk_filter(buf, _is_empty_line))
     def exit_(event):
         event.app.exit(exception=EOFError, style='class:exiting')
 

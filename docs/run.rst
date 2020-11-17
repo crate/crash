@@ -241,6 +241,6 @@ In both instances:
 .. _jq: http://stedolan.github.io/jq/
 .. _pipe: https://www.wikiwand.com/en/Pipeline_(Unix)
 .. _piping: https://www.wikiwand.com/en/Pipeline_(Unix)
-.. _redirecting: https://www.tldp.org/LDP/abs/html/io-redirection.html
+.. _redirecting: https://tldp.org/LDP/abs/html/io-redirection.html
 .. _STDOUT: https://en.wikipedia.org/wiki/Standard_streams
 .. _user configuration directory: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html

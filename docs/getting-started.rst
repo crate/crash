@@ -145,7 +145,7 @@ You should see something like this:
 .. _CrateDB REST Endpoint: https://crate.io/docs/current/sql/rest.html
 .. _CrateDB: https://crate.io/products/cratedb/
 .. _PATH: https://en.wikipedia.org/wiki/PATH_(variable)
-.. _pip: https://pypi.python.org/pypi/pip
+.. _pip: https://pypi.org/project/pip/
 .. _PyPI overview: https://pypi.python.org/pypi/crash/
 .. _Running CrateDB: https://crate.io/docs/crate/reference/en/latest/run.html
 .. _shell: https://en.wikipedia.org/wiki/Shell_(computing)

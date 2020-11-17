@@ -74,9 +74,9 @@ Consult the following table for CrateDB compatibility notes:
 +----------------+-----------------+-------------------------------------------+
 
 .. _array constructors: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#array-constructor
-.. _client library: https://crate.io/docs/crate/getting-started/en/latest/start-building/index.html
+.. _client library: https://crate.io/docs/crate/clients-tools/en/latest/
 .. _CrateDB REST endpoint: https://crate.io/docs/crate/reference/en/latest/interfaces/http.html
 .. _create your own users: https://crate.io/docs/crate/reference/en/latest/admin/user-management.html
-.. _enterprise edition: https://crate.io/products/cratedb-enterprise/
+.. _enterprise edition: https://crate.io/docs/crate/reference/en/latest/editions.html#enterprise-features
 .. _object literals: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#object-literals
-.. _pip: https://pypi.python.org/pypi/pip
+.. _pip: https://pypi.org/project/pip/

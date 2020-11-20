@@ -1,0 +1,15 @@
+---
+pull_request_rules:
+  - actions:
+      merge:
+        method: rebase
+        rebase_fallback: null
+        strict: true
+    conditions:
+      - label=ready-to-merge
+      - '#approved-reviews-by>=1'
+      - status-success~=Test python
+      - status-success~=Build & publish package to pypi
+      - status-success~=Build docs
+      - status-success~=docs/readthedocs.org
+    name: default

@@ -26,8 +26,8 @@
 DOCS_DIR      := docs
 TOP_DIR       := ..
 BUILD_JSON    := build.json
-BUILD_REPO    := https://github.com/crate/crate-docs-build.git
-CLONE_DIR     := .crate-docs-build
+BUILD_REPO    := https://github.com/crate/crate-docs.git
+CLONE_DIR     := .crate-docs
 SRC_DIR       := $(CLONE_DIR)/src
 SELF_SRC      := $(TOP_DIR)/src
 SELF_MAKEFILE := $(SELF_SRC)/rules.mk

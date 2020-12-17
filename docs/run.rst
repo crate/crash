@@ -238,7 +238,7 @@ In both instances:
   cluster
 
 .. _command-line: https://en.wikipedia.org/wiki/Command-line_interface
-.. _jq: http://stedolan.github.io/jq/
+.. _jq: https://stedolan.github.io/jq/
 .. _pipe: https://www.wikiwand.com/en/Pipeline_(Unix)
 .. _piping: https://www.wikiwand.com/en/Pipeline_(Unix)
 .. _redirecting: https://tldp.org/LDP/abs/html/io-redirection.html

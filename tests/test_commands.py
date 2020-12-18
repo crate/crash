@@ -24,7 +24,7 @@ import shutil
 import tempfile
 from distutils.version import StrictVersion
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 from crate.crash.command import CrateShell
 from crate.crash.commands import (
@@ -217,3 +217,28 @@ class ChecksCommandTest(TestCase):
 
         command(cmd, 'nodes')
         cmd.logger.info.assert_called_with('NODE CHECK OK')
+
+
+class SQLMultilineTest(TestCase):
+
+    def test_multiline_fails_sql(self):
+        cmd = CrateShell()
+        cmd._exec_and_print = MagicMock()
+        cmd.process("SELECT 1;\nSELECT 1;")
+        cmd._exec_and_print.assert_called_once_with("SELECT 1;\nSELECT 1")
+
+    def test_multiline_fails_remark(self):
+        cmd = CrateShell()
+        cmd._exec_and_print = MagicMock()
+        cmd.process("-- Remark\nSELECT 1;\nSELECT 1;")
+        cmd._exec_and_print.assert_not_called()
+
+    def test_multiline_succeeds(self):
+        cmd = CrateShell()
+        cmd.multiline = True
+        cmd._exec_and_print = MagicMock()
+        cmd.process("-- Remark\nSELECT 1;\nSELECT 1;")
+        cmd._exec_and_print.assert_has_calls([
+            call("SELECT 1"),
+            call("SELECT 1"),
+        ])

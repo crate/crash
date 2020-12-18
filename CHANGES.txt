@@ -10,7 +10,15 @@ Changes
 
 - Upgrade the CrateDB python driver to 0.26.0 in order to enable TCP keepalive
   on the socket level.
-- Make ctrl-d only quit program on empty command line, like any other shell
+- Make ctrl-d only quit program on empty command line, like any other shell.
+- Add optional ``--multiline`` command line argument.
+
+  When running with that option enabled, ``crash`` will accept pasting
+  multiline SQL statements on the REPL.
+
+  Multiline SQL statements in this context mean that multiple statements
+  separated by ``;<CR>`` will be accepted and will get invoked subsequently.
+  A single SQL statement is still allowed to span multiple lines as well.
 
 2020/09/21 0.26.0
 =================

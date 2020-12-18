@@ -156,6 +156,10 @@ def get_parser(output_formats=[], conf=None):
                         default=_conf_or_default('format', 'tabular'),
                         choices=output_formats, metavar='FORMAT',
                         help='the output FORMAT of the SQL response')
+    parser.add_argument('--multiline', action='store_true',
+                        dest='multiline',
+                        default=_conf_or_default('multiline', False),
+                        help='enable multiline support')
     parser.add_argument('--version', action='store_true', default=False,
                         help='print the Crash version and exit')
 
@@ -211,6 +215,7 @@ class CrateShell:
                  is_tty=True,
                  autocomplete=True,
                  autocapitalize=True,
+                 multiline=False,
                  verify_ssl=True,
                  cert_file=None,
                  key_file=None,
@@ -238,6 +243,7 @@ class CrateShell:
         self.error_trace = error_trace
         self._autocomplete = autocomplete
         self._autocapitalize = autocapitalize
+        self.multiline = multiline
         self.verify_ssl = verify_ssl
         self.cert_file = cert_file
         self.key_file = key_file
@@ -286,7 +292,11 @@ class CrateShell:
         if text.startswith('\\'):
             self._try_exec_cmd(text.lstrip('\\'))
         else:
-            for statement in _parse_statements([text]):
+            if self.multiline:
+                statements = text.split('\n')
+            else:
+                statements = [text]
+            for statement in _parse_statements(statements):
                 self._exec_and_print(statement)
 
     def exit(self):
@@ -639,6 +649,7 @@ def _create_shell(crate_hosts, error_trace, output_writer, is_tty, args,
                       is_tty=is_tty,
                       autocomplete=args.autocomplete,
                       autocapitalize=args.autocapitalize,
+                      multiline=args.multiline,
                       verify_ssl=args.verify_ssl,
                       cert_file=args.cert_file,
                       key_file=args.key_file,

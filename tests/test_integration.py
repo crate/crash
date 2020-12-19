@@ -3,6 +3,7 @@ import re
 import ssl
 import sys
 import tempfile
+import unittest
 from doctest import testfile
 from io import StringIO, TextIOWrapper
 from unittest import TestCase
@@ -24,6 +25,9 @@ from crate.crash.commands import Command
 from crate.crash.outputs import _val_len as val_len
 from crate.crash.printer import ColorPrinter
 from crate.testing.layer import CrateLayer
+
+if sys.platform != "linux":
+    raise unittest.SkipTest("Integration tests only supported on Linux")
 
 crate_http_port = 44209
 crate_transport_port = 44309

@@ -1,12 +1,11 @@
 import os
-import re
 import ssl
 import sys
 import tempfile
 from doctest import testfile
 from io import StringIO, TextIOWrapper
-from unittest import TestCase
-from unittest.mock import DEFAULT, Mock, patch
+from unittest import SkipTest, TestCase
+from unittest.mock import Mock, patch
 
 from urllib3.exceptions import LocationParseError
 
@@ -24,6 +23,9 @@ from crate.crash.commands import Command
 from crate.crash.outputs import _val_len as val_len
 from crate.crash.printer import ColorPrinter
 from crate.testing.layer import CrateLayer
+
+if sys.platform != "linux":
+    raise SkipTest("Integration tests only supported on Linux")
 
 crate_http_port = 44209
 crate_transport_port = 44309

@@ -8,6 +8,7 @@ Unreleased
 Changes
 =======
 
+- Added support for Python 3.9.
 - Upgrade the CrateDB python driver to 0.26.0 in order to enable TCP keepalive
   on the socket level.
 - Make ctrl-d only quit program on empty command line, like any other shell

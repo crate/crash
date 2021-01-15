@@ -4,15 +4,27 @@ The CrateDB Shell
 
 .. image:: https://github.com/crate/crash/workflows/test/badge.svg
     :target: https://github.com/crate/crash/actions
-    :alt: Github Actions
+    :alt: Outcome of CI
 
-.. image:: https://badge.fury.io/py/crash.svg
-    :target: http://badge.fury.io/py/crash
-    :alt: Version
+.. image:: https://img.shields.io/pypi/v/crash.svg
+    :target: https://pypi.python.org/pypi/crash
+    :alt: Most recent version on PyPI
 
 .. image:: https://coveralls.io/repos/github/crate/crash/badge.svg?branch=master
     :target: https://coveralls.io/github/crate/crash?branch=master
-    :alt: Coverage
+    :alt: Code coverage
+
+.. image:: https://img.shields.io/pypi/dm/crash.svg
+    :target: https://pypi.org/project/crash/
+    :alt: Number of downloads per month
+
+.. image:: https://img.shields.io/pypi/pyversions/crash.svg
+    :target: https://pypi.python.org/pypi/crash
+    :alt: Supported Python versions
+
+.. image:: https://img.shields.io/github/license/crate/crash
+    :target: https://github.com/crate/crash/blob/master/LICENSE
+    :alt: License
 
 |
 

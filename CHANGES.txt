@@ -5,13 +5,15 @@ Changes for crash
 Unreleased
 ==========
 
-Changes
-=======
+2021/01/20 0.27.0
+=================
 
 - Added support for Python 3.9.
-- Upgrade the CrateDB python driver to 0.26.0 in order to enable TCP keepalive
+
+- Upgraded the CrateDB python driver to 0.26.0 in order to enable TCP keepalive
   on the socket level.
-- Make ctrl-d only quit program on empty command line, like any other shell
+
+- Made ctrl-d only quit program on empty command line, like any other shell.
 
 2020/09/21 0.26.0
 =================

@@ -38,6 +38,12 @@ Screenshot
 .. image:: https://raw.githubusercontent.com/crate/crash/master/docs/query.png
     :alt: A screenshot of Crash
 
+
+Documentation
+=============
+The official documentation is available at `CrateDB shell documentation`_.
+
+
 Installation
 ============
 
@@ -95,10 +101,8 @@ See the `developer docs`_ and the `contribution docs`_ for more information.
 Help
 ====
 
-Looking for more help?
+Looking for more help? Check out our `support channels`_.
 
-- Read the `project docs`_
-- Check out our `support channels`_
 
 .. _command-line interface: https://en.wikipedia.org/wiki/Command-line_interface
 .. _contribution docs: CONTRIBUTING.rst
@@ -106,5 +110,5 @@ Looking for more help?
 .. _developer docs: DEVELOP.rst
 .. _PATH: https://en.wikipedia.org/wiki/PATH_(variable)
 .. _pip: https://pypi.python.org/pypi/pip
-.. _project docs: https://crate.io/docs/reference/crash/
+.. _CrateDB shell documentation: https://crate.io/docs/crate/crash/
 .. _support channels: https://crate.io/support/

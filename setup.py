@@ -60,6 +60,7 @@ setup(
     author_email='office@crate.io',
     description='CrateDB Shell',
     long_description=long_description,
+    long_description_content_type='text/x-rst',
     platforms=['any'],
     license='Apache License 2.0',
     keywords='crate db data client shell',

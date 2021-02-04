@@ -10,6 +10,7 @@ pull_request_rules:
       - '#approved-reviews-by>=1'
       - status-success~=Test python
       - status-success~=Build & publish package to pypi
-      - status-success~=Build docs
+      - status-success~=Build docs on ubuntu-latest
+      - status-success~=Build docs on macos-latest
       - status-success~=docs/readthedocs.org
     name: default

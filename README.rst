@@ -10,10 +10,6 @@ The CrateDB Shell
     :target: https://pypi.python.org/pypi/crash
     :alt: Most recent version on PyPI
 
-.. image:: https://coveralls.io/repos/github/crate/crash/badge.svg?branch=master
-    :target: https://coveralls.io/github/crate/crash?branch=master
-    :alt: Code coverage
-
 .. image:: https://img.shields.io/pypi/dm/crash.svg
     :target: https://pypi.org/project/crash/
     :alt: Number of downloads per month

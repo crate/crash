@@ -65,18 +65,11 @@ Consult the following table for CrateDB compatibility notes:
 |                |                 |                                           |
 |                |                 | The default CrateDB user is ``crate`` and |
 |                |                 | has no password is set.                   |
-|                |                 |                                           |
-|                |                 | The `enterprise edition`_ of CrateDB      |
-|                |                 | allows you to `create your own users`_.   |
-|                |                 |                                           |
-|                |                 | Prior versions of CrateDB do not support  |
-|                |                 | this feature.                             |
 +----------------+-----------------+-------------------------------------------+
 
-.. _array constructors: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#array-constructor
+.. _array constructors: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#data-types-array-literals
 .. _client library: https://crate.io/docs/crate/clients-tools/en/latest/
 .. _CrateDB REST endpoint: https://crate.io/docs/crate/reference/en/latest/interfaces/http.html
 .. _create your own users: https://crate.io/docs/crate/reference/en/latest/admin/user-management.html
-.. _enterprise edition: https://crate.io/docs/crate/reference/en/latest/editions.html#enterprise-features
-.. _object literals: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#object-literals
+.. _object literals: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#data-types-object-literals
 .. _pip: https://pypi.org/project/pip/

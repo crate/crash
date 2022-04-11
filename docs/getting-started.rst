@@ -127,7 +127,7 @@ This is an interactive `shell`_. You can type any CrateDB SQL query at the
 Queries are autocompleted as you type:
 
 .. image:: autocomplete.png
-    :alt: A screenshot of Crash after executing a query
+    :alt: A screenshot of Crash while typing a query
 
 Once you have entered your query, hit :kbd:`Enter` to run.
 

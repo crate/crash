@@ -29,7 +29,7 @@ If you install tox_, you can also run tests against multiple Python interpreters
     $ venv/bin/python -m pip install tox
     $ venv/bin/tox
 
-But this requires you to have the python interpreters available in ``$PATH``.
+This requires you to have the python interpreters available in ``$PATH``.
 
 To run against a single interpreter, you can also do::
 

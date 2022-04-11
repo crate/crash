@@ -32,7 +32,6 @@ from argparse import ArgumentParser, ArgumentTypeError
 from collections import namedtuple
 from distutils.version import StrictVersion
 from getpass import getpass
-from logging import NullHandler
 from operator import itemgetter
 
 import urllib3
@@ -50,7 +49,7 @@ from .printer import ColorPrinter, PrintWrapper
 from .sysinfo import SysInfoCommand
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-logging.getLogger('crate').addHandler(NullHandler())
+logging.getLogger('crate').addHandler(logging.NullHandler())
 
 USER_DATA_DIR = user_data_dir("Crate", "Crate")
 HISTORY_FILE_NAME = 'crash_history'

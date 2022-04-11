@@ -64,7 +64,7 @@ class ConfigurationTest(TestCase):
         conf = Configuration(path)
         self.assertTrue(os.path.exists(path))
         self.assertTrue(os.path.exists(conf.path))
-        self.assertTrue('crash' in conf.cfg.sections())
+        self.assertIn('crash', conf.cfg.sections())
 
     def test_init_doesnt_override(self):
         path = os.path.join(self.tmp_dir, 'bar.cfg')

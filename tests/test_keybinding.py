@@ -61,5 +61,5 @@ class TabIndentTest(TestCase):
         kb = KeyBindings()
         bind_keys(Buffer(), kb)
 
-        self.assertTrue('on_backspace' in handlers_for_key(kb, Keys.Backspace))
-        self.assertTrue('on_tab' in handlers_for_key(kb, Keys.Tab))
+        self.assertIn('on_backspace', handlers_for_key(kb, Keys.Backspace))
+        self.assertIn('on_tab', handlers_for_key(kb, Keys.Tab))

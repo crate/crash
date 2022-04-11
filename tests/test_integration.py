@@ -122,8 +122,8 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertTrue('| name         |' in output)
-            self.assertTrue('| Testing44209 |' in output)
+            self.assertIn('| name         |', output)
+            self.assertIn('| Testing44209 |', output)
         self._output_format('tabular', assert_func)
 
     def test_json_output(self):
@@ -131,7 +131,7 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertTrue('"name": "Testing44209"' in output)
+            self.assertIn('"name": "Testing44209"', output)
         self._output_format('json', assert_func)
 
     def test_json_row_output(self):
@@ -141,7 +141,7 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertTrue('{"table_name": "cluster"}' in output)
+            self.assertIn('{"table_name": "cluster"}', output)
         self._output_format('json_row', assert_func, query)
 
     def test_csv_obj_output(self):
@@ -151,7 +151,7 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertTrue("""crate,'{"http": 44209, "psql": 45441, "transport": 44309}'""" in output)
+            self.assertIn("""crate,'{"http": 44209, "psql": 45441, "transport": 44309}'""", output)
 
         self._output_format('csv', assert_func, query)
 
@@ -162,7 +162,7 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertTrue('["/dev/' in output)
+            self.assertIn('["/dev/', output)
 
         self._output_format('csv', assert_func, query)
 
@@ -171,10 +171,10 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertTrue('"duration":' in output)
-            self.assertTrue('"rowcount":' in output)
-            self.assertTrue('"rows":' in output)
-            self.assertTrue('"cols":' in output)
+            self.assertIn('"duration":', output)
+            self.assertIn('"rowcount":', output)
+            self.assertIn('"rows":', output)
+            self.assertIn('"cols":', output)
         self._output_format('raw', assert_func)
 
     def test_mixed_output(self):
@@ -182,7 +182,7 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertTrue("name | Testing44209" in output)
+            self.assertIn("name | Testing44209", output)
         self._output_format('mixed', assert_func)
 
     def test_pprint_duplicate_keys(self):
@@ -224,7 +224,7 @@ class CommandTest(TestCase):
                     exception_code = e.code
                 self.assertEqual(exception_code, 0)
                 output = output.getvalue()
-                self.assertTrue('via-stdin' in output)
+                self.assertIn('via-stdin', output)
         finally:
             try:
                 os.remove(tmphistory)
@@ -254,8 +254,8 @@ class CommandTest(TestCase):
                     exception_code = e.code
                 self.assertEqual(exception_code, 0)
                 output = output.getvalue()
-                self.assertTrue('via-command' in output)
-                self.assertFalse('via-stdin' in output)
+                self.assertIn('via-command', output)
+                self.assertNotIn('via-stdin', output)
         finally:
             try:
                 os.remove(tmphistory)

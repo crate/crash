@@ -6,6 +6,8 @@ Unreleased
 ==========
 
 - Added support for Python 3.10.
+- Fixed tabular output with rows containing only whitespace or other
+  non-printable characters by upgrading to upstream ``tabulate`` package.
 
 2021/01/20 0.27.0
 =================

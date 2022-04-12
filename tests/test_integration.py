@@ -27,6 +27,7 @@ from crate.testing.layer import CrateLayer
 if sys.platform != "linux":
     raise SkipTest("Integration tests only supported on Linux")
 
+crate_version = os.getenv("CRATEDB_VERSION", "4.7.1")
 crate_http_port = 44209
 crate_transport_port = 44309
 crate_settings = {
@@ -38,7 +39,7 @@ crate_settings = {
     'transport.tcp.port': crate_transport_port
 }
 node = CrateLayer.from_uri(
-    'https://cdn.crate.io/downloads/releases/crate-4.7.1.tar.gz',
+    f'https://cdn.crate.io/downloads/releases/crate-{crate_version}.tar.gz',
     'crate',
     settings=crate_settings
 )

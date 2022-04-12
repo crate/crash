@@ -19,10 +19,14 @@ Afterwards you can launch crash::
 Running Tests
 =============
 
-The tests are run using the `unittest`_::
+The tests are run using the `unittest`_ module::
 
     $ venv/bin/python -m unittest -v
 
+In order to adjust the CrateDB version used for running the tests, amend the
+environment variable ``CRATEDB_VERSION`` like::
+
+    $ export CRATEDB_VERSION=4.8.0
 
 If you install tox_, you can also run tests against multiple Python interpreters::
 

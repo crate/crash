@@ -6,8 +6,12 @@ from colorama import Fore, Style
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers.data import JsonLexer
+from tabulate import tabulate
 
-from .tabulate import DataRow, Line as TabulateLine, TableFormat, float_format, tabulate
+from .tabulate import monkeypatch as monkeypatch_tabulate
+
+monkeypatch_tabulate()
+
 
 if sys.version_info[:2] == (2, 6):
     OrderedDict = dict
@@ -18,15 +22,6 @@ else:
 NULL = 'NULL'
 TRUE = 'TRUE'
 FALSE = 'FALSE'
-
-crate_fmt = TableFormat(lineabove=TabulateLine("+", "-", "+", "+"),
-                        linebelowheader=TabulateLine("+", "-", "+", "+"),
-                        linebetweenrows=None,
-                        linebelow=TabulateLine("+", "-", "+", "+"),
-                        headerrow=DataRow("|", "|", "|"),
-                        datarow=DataRow("|", "|", "|"),
-                        padding=1,
-                        with_header_hide=None)
 
 
 def _val_len(v):
@@ -108,8 +103,10 @@ class OutputWriter(object):
         rows = [list(map(_transform_field, row)) for row in result.rows]
         return tabulate(rows,
                         headers=result.cols,
-                        tablefmt=crate_fmt,
+                        tablefmt="cratedb",
                         floatfmt="",
+                        numalign="decimal",
+                        stralign="left",
                         missingval=NULL)
 
     def mixed(self, result):
@@ -171,7 +168,7 @@ class OutputWriter(object):
             lines = [lines[0]] + [' ' * padding + ' |' + l for l in lines[1:]]
             value = '\n'.join(lines)
         elif isinstance(value, float):
-            value = float_format(value)
+            value = str(value)
         elif isinstance(value, int):
             value = str(value)
         return value + '\n'

@@ -202,7 +202,7 @@ class CommandTest(TestCase):
         expected = "\n".join(["+---------+",
                               "| version |",
                               "+---------+",
-                              "| 0.50    |",
+                              "|    0.50 |",
                               "+---------+\n"])
         with CrateShell() as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:

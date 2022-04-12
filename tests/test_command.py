@@ -57,6 +57,32 @@ class OutputWriterTest(TestCase):
         self.assertEqual(
             output.strip('|').strip(' '), expected)
 
+    def test_tabular_format_content_trimming(self):
+        """
+        Proof that tabular output renders all records, even if some cells are
+        empty or only made of whitespace or other non-printable characters.
+        """
+        records = [[""], [" "], ["\t"]]
+
+        result = Result(cols=['foo'],
+                        rows=records,
+                        rowcount=len(records),
+                        duration=1,
+                        output_width=80)
+
+        # Render in tabular format.
+        output = self.ow.tabular(result)
+
+        # Separate by newlines and remove header and footer, essentially
+        # keeping all "record" lines.
+        lines = [line for line in output.split("\n")[3:]
+                 if line.startswith("|")]
+
+        # Check.
+        self.assertEqual(
+            len(records), len(lines),
+            msg="Tabular format does not reflect correct number of records")
+
 
 class CommandLineArgumentsTest(TestCase):
 

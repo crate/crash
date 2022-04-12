@@ -198,7 +198,7 @@ class CommandTest(TestCase):
                 self.assertEqual(expected, output.getvalue())
 
     def test_pprint_dont_guess_type(self):
-        "Output: table with duplicate keys"
+        "Output: Numeric looking strings should still be processed as strings"
         expected = "\n".join(["+---------+",
                               "| version |",
                               "+---------+",
@@ -376,7 +376,7 @@ class CommandTest(TestCase):
 
     def test_multiline_header(self):
         """
-        Create another column with a non-string value and FALSE.
+        Create a column with newline characters.
         """
         rows = [['FALSE'], [1]]
         expected = "\n".join(['+-------+',
@@ -393,8 +393,9 @@ class CommandTest(TestCase):
 
     def test_multiline_row(self):
         """
-        Create ta column that holds rows with multiline text.
+        Create a column that holds rows with multiline text.
         """
+        self.maxDiff = None
         rows = [['create table foo (\n  id integer,\n  name string\n)', 'foo\nbar', 1]]
         expected = "\n".join(['+-----------------------+-----+---+',
                               '| show create table foo | a   | b |',

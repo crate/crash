@@ -4,12 +4,17 @@ on: push
 
 jobs:
   test:
-    name: Test python-${{ matrix.python-version }} on ${{ matrix.os }}
+    name: Python ${{ matrix.python-version }}, CrateDB ${{ matrix.cratedb-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-2019]
         python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        cratedb-version: ['4.7.1']
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+      CRATEDB_VERSION: ${{ matrix.cratedb-version }}
 
     steps:
       - uses: actions/checkout@v2

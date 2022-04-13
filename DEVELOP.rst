@@ -125,7 +125,12 @@ To create a new release, you must:
 - Create a tag by running ``./devtools/create_tag.sh``
 
 - ``create_tag.sh`` pushes a new tag to Github, that triggers a Github action
-  which releases the new version to PyPi.
+  which releases the new version to PyPI.
+
+- Designate the new release on GitHub at https://github.com/crate/crash/releases
+
+- Run the ``crash_standalone`` job on Jenkins in order to produce and publish
+  a self-contained executable to https://cdn.crate.io/downloads/releases/
 
 - Archive docs for old releases (see below)
 

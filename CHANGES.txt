@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+- Dropped support for Python < 3.7.
+
 2022/04/13 0.28.0
 =================
 

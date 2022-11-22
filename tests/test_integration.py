@@ -24,6 +24,8 @@ from crate.crash.outputs import _val_len as val_len
 from crate.crash.printer import ColorPrinter
 from crate.testing.layer import CrateLayer
 
+from tests import ftouch
+
 if sys.platform != "linux":
     raise SkipTest("Integration tests only supported on Linux")
 
@@ -712,9 +714,9 @@ class CommandTest(TestCase):
         key_filename = os.path.join(tmpdirname, "key_file")
         ca_cert_filename = os.path.join(tmpdirname, "ca_cert_file")
 
-        open(cert_filename, 'a').close()
-        open(key_filename, 'a').close()
-        open(ca_cert_filename, 'a').close()
+        ftouch(cert_filename)
+        ftouch(key_filename)
+        ftouch(ca_cert_filename)
 
         with CrateShell(node.http_url,
                         verify_ssl=False,
@@ -747,7 +749,7 @@ class CommandTest(TestCase):
     def test_ssl_params_wrong_permision_file(self):
         tmpdirname = tempfile.mkdtemp()
         ca_cert_filename = os.path.join(tmpdirname, "ca_cert_file")
-        open(ca_cert_filename, 'a').close()
+        ftouch(ca_cert_filename)
         os.chmod(ca_cert_filename, 0000)
 
         argv = [

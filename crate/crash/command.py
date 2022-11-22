@@ -649,7 +649,8 @@ def _create_shell(crate_hosts, error_trace, output_writer, is_tty, args,
 
 
 def file_with_permissions(path):
-    open(path, 'r').close()
+    f = open(path, 'r')
+    f.close()
     return path
 
 

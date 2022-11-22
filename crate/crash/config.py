@@ -56,11 +56,11 @@ class Configuration(object):
     def __init__(self, path):
         self.type_mapping = {
             str: partial(self._get_or_set,
-                         transform_from=lambda x: str(x),
-                         transform_to=lambda x: str(x)),
+                         transform_from=str,
+                         transform_to=str),
             int: partial(self._get_or_set,
-                         transform_from=lambda x: int(x),
-                         transform_to=lambda x: str(x)),
+                         transform_from=int,
+                         transform_to=str),
             bool: partial(self._get_or_set,
                           transform_from=Configuration.bwc_bool_transform_from,
                           transform_to=lambda x: str(int(x))),

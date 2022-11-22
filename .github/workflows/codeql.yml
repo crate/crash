@@ -8,6 +8,14 @@ on:
   schedule:
     - cron: "50 19 * * 6"
 
+  # Allow job to be triggered manually.
+  workflow_dispatch:
+
+# Cancel in-progress jobs when pushing to the same branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
     name: Analyze
@@ -32,8 +40,9 @@ jobs:
           languages: ${{ matrix.language }}
           queries: +security-and-quality
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+      - name: Install project
+        run: |
+          pip install --editable=.
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

@@ -6,3 +6,10 @@ query-filters:
   # https://codeql.github.com/codeql-query-help/python/py-empty-except/
   - exclude:
       id: py/empty-except
+
+  # Quite a few functions don't explicitly return values, but
+  # instead implicitly return `None`, when falling through.
+  # TODO: May be improved.
+  # https://codeql.github.com/codeql-query-help/python/py-mixed-returns/
+  - exclude:
+      id: py/mixed-returns

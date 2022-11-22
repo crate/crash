@@ -1,0 +1,8 @@
+# Suppress some CodeQL warnings.
+query-filters:
+
+  # A few occurrences of try/except clauses without naming a specific exception type.
+  # TODO: May be improved.
+  # https://codeql.github.com/codeql-query-help/python/py-empty-except/
+  - exclude:
+      id: py/empty-except

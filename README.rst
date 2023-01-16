@@ -24,7 +24,6 @@ The CrateDB Shell
 
 |
 
-
 The CrateDB Shell (aka *Crash*) is an interactive `command-line interface`_
 (CLI) tool for interacting with CrateDB.
 
@@ -50,15 +49,15 @@ Crash is available as a `pip`_ package.
 
 To install, run::
 
-    $ pip install crash
+    pip install crash
 
 Now, run it::
 
-    $ crash
+    crash
 
 To update, run::
 
-     $ pip install -U crash
+    pip install -U crash
 
 If you are not using Python version 3.5 or above, recent version of `pip`_ will
 install an earlier version of Crash. This is because newer versions of this
@@ -73,15 +72,15 @@ on your system.
 
 First, download the executable file::
 
-    $ curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_latest
+    curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_latest
 
 Then, set the executable bit::
 
-    $ chmod +x crash
+    chmod +x crash
 
 Now, run it::
 
-    $ ./crash
+    ./crash
 
 If you would like to run ``crash`` from any directory, and without the leading
 ``./``, the file has to be in a directory that is on your `PATH`_.
@@ -102,7 +101,7 @@ Looking for more help? Check out our `support channels`_.
 
 .. _command-line interface: https://en.wikipedia.org/wiki/Command-line_interface
 .. _contribution docs: CONTRIBUTING.rst
-.. _Crate.io: http://crate.io/
+.. _Crate.io: https://crate.io/
 .. _developer docs: DEVELOP.rst
 .. _PATH: https://en.wikipedia.org/wiki/PATH_(variable)
 .. _pip: https://pypi.python.org/pypi/pip

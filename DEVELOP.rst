@@ -1,3 +1,5 @@
+.. highlight:: sh
+
 ===============
 Developer Guide
 ===============
@@ -8,12 +10,13 @@ Setup
 
 Create a virtualenv and install the project::
 
-    $ python3 -m venv venv
-    $ venv/bin/python -m pip install -U -e ".[test]"
+    python3 -m venv .venv
+    source .ven/bin/activate
+    pip install --upgrade --editable=".[test,devel]"
 
 Afterwards you can launch crash::
 
-    $ venv/bin/crash
+    crash
 
 
 Running Tests
@@ -21,23 +24,23 @@ Running Tests
 
 The tests are run using the `unittest`_ module::
 
-    $ venv/bin/python -m unittest -v
+    python -m unittest -v
 
 In order to adjust the CrateDB version used for running the tests, amend the
 environment variable ``CRATEDB_VERSION`` like::
 
-    $ export CRATEDB_VERSION=4.8.0
+    export CRATEDB_VERSION=4.8.0
 
 If you install tox_, you can also run tests against multiple Python interpreters::
 
-    $ venv/bin/python -m pip install tox
-    $ venv/bin/tox
+    pip install tox
+    tox
 
 This requires you to have the python interpreters available in ``$PATH``.
 
 To run against a single interpreter, you can also do::
 
-    $ venv/bin/tox -e py33
+    tox -e py33
 
 
 Standalone Executable
@@ -45,11 +48,11 @@ Standalone Executable
 
 To build a standalone executable, you can use shiv_::
 
-    $ shiv -p /usr/bin/python -c crash -o crash.pyz crash
+    shiv -p /usr/bin/python -c crash -o crash.pyz crash
 
 Run the executable like so::
 
-    $ ./crash.pyz
+    ./crash.pyz
 
 
 Standalone Deployment
@@ -69,17 +72,13 @@ Working on the documentation
 
 Python 3.7 is required.
 
-Change into the ``docs`` directory:
+Change into the ``docs`` directory::
 
-.. code-block:: console
+    cd docs
 
-    $ cd docs
+For help, run::
 
-For help, run:
-
-.. code-block:: console
-
-    $ make
+    make
 
     Crate Docs Build
 
@@ -161,12 +160,12 @@ release version), please contact the `@crate/tech-writing`_ team.
 .. _@crate/tech-writing: https://github.com/orgs/crate/teams/tech-writing
 .. _configured: https://github.com/crate/crash/blob/master/.travis.yml
 .. _fswatch: https://github.com/emcrisostomo/fswatch
-.. _Jenkins: http://jenkins-ci.org/
+.. _Jenkins: https://jenkins-ci.org/
 .. _PyPI: https://pypi.python.org/pypi
-.. _Read the Docs: http://readthedocs.org/
-.. _ReStructuredText: http://docutils.sourceforge.net/rst.html
-.. _Sphinx: http://sphinx-doc.org/
-.. _tox: http://testrun.org/tox/latest/
+.. _Read the Docs: https://readthedocs.org/
+.. _ReStructuredText: https://docutils.sourceforge.net/rst.html
+.. _Sphinx: https://sphinx-doc.org/
+.. _tox: https://testrun.org/tox/latest/
 .. _twine: https://pypi.python.org/pypi/twine
 .. _versions: https://readthedocs.org/projects/crash/versions/
 .. _zope.testrunner: https://pypi.python.org/pypi/zope.testrunner/4.4.1

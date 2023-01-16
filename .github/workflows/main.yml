@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: ['ubuntu-20.04', 'macos-latest', 'windows-2019']
         python-version: ['3.6', '3.7', '3.8', '3.9', '3.10', '3.11']
-        cratedb-version: ['4.8.4', '5.1.1']
+        cratedb-version: ['4.8.4', '5.2.0']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}

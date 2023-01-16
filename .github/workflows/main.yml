@@ -33,7 +33,7 @@ jobs:
 
       - name: Test
         run: |
-          isort --recursive --check --diff crate/ tests/ setup.py
+          isort --check --diff crate/ tests/ setup.py
           flake8 crate/crash
           coverage run -m unittest -v
 

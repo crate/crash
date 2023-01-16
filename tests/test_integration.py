@@ -23,7 +23,6 @@ from crate.crash.commands import Command
 from crate.crash.outputs import _val_len as val_len
 from crate.crash.printer import ColorPrinter
 from crate.testing.layer import CrateLayer
-
 from tests import ftouch
 
 if sys.platform != "linux":

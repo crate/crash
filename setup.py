@@ -26,8 +26,8 @@ import re
 from setuptools import setup
 
 requirements = [
-    'colorama',
-    'Pygments>=2.4',
+    'colorama<1',
+    'Pygments>=2.4,<3',
     'crate>=0.26.0',
     'appdirs>=1.2,<2.0',
     'prompt-toolkit>=2.0,<3.0',
@@ -75,11 +75,11 @@ setup(
     extras_require=dict(
         test=[
             'crate[test]',
-            'zc.customdoctests'
+            'zc.customdoctests<2'
         ],
         devel=[
-            'coverage',
-            'flake8',
+            'coverage<8',
+            'flake8<7',
             'isort<6',
         ],
         argcompletion=['argcomplete']

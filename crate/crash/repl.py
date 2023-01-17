@@ -41,7 +41,7 @@ from prompt_toolkit.layout.processors import (
     ConditionalProcessor,
     HighlightMatchingBracketProcessor,
 )
-from prompt_toolkit.output.defaults import get_default_output
+from prompt_toolkit.output import create_output
 from prompt_toolkit.styles.pygments import style_from_pygments_cls
 from pygments.lexers.sql import PostgresLexer
 from pygments.style import Style
@@ -308,7 +308,7 @@ def loop(cmd, history_file):
         get_bottom_toolbar_tokens=lambda: get_toolbar_tokens(cmd),
         get_prompt_tokens=lambda: [('class:prompt', 'cr> ')]
     )
-    output = get_default_output()
+    output = create_output()
     app = Application(
         layout=layout,
         style=style_from_pygments_cls(CrateStyle),

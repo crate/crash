@@ -35,7 +35,7 @@ from getpass import getpass
 from operator import itemgetter
 
 import urllib3
-from appdirs import user_config_dir, user_data_dir
+from platformdirs import user_config_dir, user_data_dir
 from urllib3.exceptions import LocationParseError
 
 from crate.client import connect

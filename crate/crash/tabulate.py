@@ -1,4 +1,3 @@
-import tabulate
 from tabulate import DataRow, Line as TabulateLine, TableFormat, _strip_ansi
 
 crate_fmt = TableFormat(lineabove=TabulateLine("+", "-", "+", "+"),
@@ -52,6 +51,7 @@ def _format(val, valtype, floatfmt, intfmt="", missingval="", has_invisible=True
 
 
 def monkeypatch():
+    import tabulate
 
     # Register custom table format.
     tabulate._table_formats["cratedb"] = crate_fmt

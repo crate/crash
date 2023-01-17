@@ -31,7 +31,7 @@ requirements = [
     'crate>=0.26.0',
     'appdirs>=1.2,<2.0',
     'prompt-toolkit>=2.0,<3.0',
-    'tabulate>=0.8,<0.9',
+    'tabulate>=0.9,<0.10',
 ]
 
 

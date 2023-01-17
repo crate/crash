@@ -1,12 +1,5 @@
 import tabulate
-from tabulate import (
-    DataRow,
-    Line as TabulateLine,
-    TableFormat,
-    _binary_type,
-    _strip_invisible,
-    _text_type,
-)
+from tabulate import DataRow, Line as TabulateLine, TableFormat, _strip_ansi
 
 crate_fmt = TableFormat(lineabove=TabulateLine("+", "-", "+", "+"),
                         linebelowheader=TabulateLine("+", "-", "+", "+"),
@@ -18,7 +11,7 @@ crate_fmt = TableFormat(lineabove=TabulateLine("+", "-", "+", "+"),
                         with_header_hide=None)
 
 
-def _format(val, valtype, floatfmt, missingval="", has_invisible=True):
+def _format(val, valtype, floatfmt, intfmt="", missingval="", has_invisible=True):
     """Format a value according to its type.
 
     Unicode is supported:
@@ -33,19 +26,19 @@ def _format(val, valtype, floatfmt, missingval="", has_invisible=True):
     if val is None:
         return missingval
 
-    if valtype in [int, _text_type]:
+    if valtype is (int, str):
         return "{0}".format(val)
-    elif valtype is _binary_type:
+    elif valtype is bytes:
         try:
-            return _text_type(val, "ascii")
+            return str(val, "ascii")
         except TypeError:
-            return _text_type(val)
+            return str(val)
     elif valtype is float:
         is_a_colored_number = has_invisible and isinstance(
-            val, (_text_type, _binary_type)
+            val, (str, bytes)
         )
         if is_a_colored_number:
-            raw_val = _strip_invisible(val)
+            raw_val = _strip_ansi(val)
             formatted_val = format(float(raw_val), floatfmt)
             return val.replace(raw_val, formatted_val)
         # PATCH: Preserve string formatting even for numeric looking values.

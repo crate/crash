@@ -2,6 +2,10 @@
 name: test
 on: push
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Python ${{ matrix.python-version }}, CrateDB ${{ matrix.cratedb-version }} on ${{ matrix.os }}

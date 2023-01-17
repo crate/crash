@@ -43,7 +43,7 @@ jobs:
 
       - name: Install project
         run: |
-          pip install --editable=.
+          pip install --editable=. --verbose
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

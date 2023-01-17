@@ -59,10 +59,6 @@ To update, run::
 
     pip install -U crash
 
-If you are not using Python version 3.5 or above, recent version of `pip`_ will
-install an earlier version of Crash. This is because newer versions of this
-package are not compatible with Python 2.7 or 3.4 and below.
-
 Standalone
 ----------
 

@@ -63,8 +63,7 @@ Standalone
 ----------
 
 Crash is also available as a standalone executable that includes all the
-necessary dependencies, and can be run as long as Python (>= 3.5) is available
-on your system.
+necessary dependencies.
 
 First, download the executable file::
 

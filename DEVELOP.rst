@@ -123,7 +123,7 @@ To create a new release, you must:
 
 - Create a tag by running ``./devtools/create_tag.sh``.
   It will push a new tag to GitHub, which in turn will trigger a GitHub action
-  that releases the new version to PyPI.
+  that releases the new version to PyPI at https://pypi.org/project/crash/
 
 - Designate the new release on GitHub at https://github.com/crate/crash/releases
 

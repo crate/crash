@@ -113,7 +113,7 @@ Preparing a Release
 
 To create a new release, you must:
 
-- Update ``__version__`` in ``src/crate/crash/__init__.py``
+- Update ``__version__`` in ``crate/crash/__init__.py``
 
 - Add a section for the new version in the ``CHANGES.txt`` file
 
@@ -121,10 +121,9 @@ To create a new release, you must:
 
 - Push to origin
 
-- Create a tag by running ``./devtools/create_tag.sh``
-
-- ``create_tag.sh`` pushes a new tag to Github, that triggers a Github action
-  which releases the new version to PyPI.
+- Create a tag by running ``./devtools/create_tag.sh``.
+  It will push a new tag to GitHub, which in turn will trigger a GitHub action
+  that releases the new version to PyPI.
 
 - Designate the new release on GitHub at https://github.com/crate/crash/releases
 

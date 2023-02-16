@@ -22,10 +22,10 @@
 import os
 import shutil
 import tempfile
-from distutils.version import StrictVersion
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+from crate.client._pep440 import Version
 from crate.crash.command import CrateShell
 from crate.crash.commands import (
     CheckCommand,
@@ -131,21 +131,21 @@ class ShowTablesCommandTest(TestCase):
     def test_post_2_0(self):
         cmd = CrateShell()
         cmd._exec_and_print = MagicMock()
-        cmd.connection.lowest_server_version = StrictVersion("2.0.0")
+        cmd.connection.lowest_server_version = Version("2.0.0")
         cmd._show_tables()
         cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') AND table_type = 'BASE TABLE' ORDER BY 1")
 
     def test_post_0_57(self):
         cmd = CrateShell()
         cmd._exec_and_print = MagicMock()
-        cmd.connection.lowest_server_version = StrictVersion("0.57.0")
+        cmd.connection.lowest_server_version = Version("0.57.0")
         cmd._show_tables()
         cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') ORDER BY 1")
 
     def test_pre_0_57(self):
         cmd = CrateShell()
         cmd._exec_and_print = MagicMock()
-        cmd.connection.lowest_server_version = StrictVersion("0.56.4")
+        cmd.connection.lowest_server_version = Version("0.56.4")
         cmd._show_tables()
         cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', schema_name, table_name) AS name FROM information_schema.tables WHERE schema_name NOT IN ('sys','information_schema', 'pg_catalog') ORDER BY 1")
 
@@ -163,14 +163,14 @@ class ChecksCommandTest(TestCase):
         cmd._exec.return_value = True
         cmd.cursor.fetchall.return_value = rows
         cmd.cursor.description = cols
-        cmd.connection.lowest_server_version = StrictVersion("0.56.4")
+        cmd.connection.lowest_server_version = Version("0.56.4")
 
         NodeCheckCommand()(cmd)
         cmd.pprint.assert_called_with(rows, [c[0] for c in cols])
 
     @patch('crate.crash.command.CrateShell')
     def test_node_check_for_not_supported_version(self, cmd):
-        cmd.connection.lowest_server_version = StrictVersion("0.52.3")
+        cmd.connection.lowest_server_version = Version("0.52.3")
         NodeCheckCommand()(cmd)
         excepted = 'Crate 0.52.3 does not support the "\check nodes" command.'
         cmd.logger.warn.assert_called_with(excepted)
@@ -186,14 +186,14 @@ class ChecksCommandTest(TestCase):
         cmd._exec.return_value = True
         cmd.cursor.fetchall.return_value = rows
         cmd.cursor.description = cols
-        cmd.connection.lowest_server_version = StrictVersion("0.53.1")
+        cmd.connection.lowest_server_version = Version("0.53.1")
 
         ClusterCheckCommand()(cmd)
         cmd.pprint.assert_called_with(rows, [c[0] for c in cols])
 
     @patch('crate.crash.command.CrateShell')
     def test_cluster_check_for_not_supported_version(self, cmd):
-        cmd.connection.lowest_server_version = StrictVersion("0.49.4")
+        cmd.connection.lowest_server_version = Version("0.49.4")
         ClusterCheckCommand()(cmd)
         excepted = 'Crate 0.49.4 does not support the cluster "check" command.'
         cmd.logger.warn.assert_called_with(excepted)
@@ -203,7 +203,7 @@ class ChecksCommandTest(TestCase):
         command = CheckCommand()
         cmd._exec.return_value = True
         cmd.cursor.fetchall.return_value = []
-        cmd.connection.lowest_server_version = StrictVersion("0.56.1")
+        cmd.connection.lowest_server_version = Version("0.56.1")
 
         command(cmd, 'cluster')
         cmd.logger.info.assert_called_with('CLUSTER CHECK OK')
@@ -213,7 +213,7 @@ class ChecksCommandTest(TestCase):
         command = CheckCommand()
         cmd._exec.return_value = True
         cmd.cursor.fetchall.return_value = []
-        cmd.connection.lowest_server_version = StrictVersion("0.56.1")
+        cmd.connection.lowest_server_version = Version("0.56.1")
 
         command(cmd, 'nodes')
         cmd.logger.info.assert_called_with('NODE CHECK OK')

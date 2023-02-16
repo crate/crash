@@ -20,7 +20,8 @@
 import functools
 import os
 from collections import OrderedDict
-from distutils.version import StrictVersion
+
+from crate.client._pep440 import Version
 
 
 class Command(object):
@@ -176,7 +177,7 @@ class NodeCheckCommand(CheckBaseCommand):
     check_name = None
 
     def __call__(self, cmd, **kwargs):
-        if cmd.connection.lowest_server_version >= StrictVersion("0.56.0"):
+        if cmd.connection.lowest_server_version >= Version("0.56.0"):
             startup = kwargs.get('startup', False)
             stmt = startup and self.STARTUP_STMT or self.DEFAULT_STMT
             self.check_name = startup and "TYPES OF NODE CHECK" or "NODE CHECK"
@@ -199,7 +200,7 @@ class ClusterCheckCommand(CheckBaseCommand):
     check_name = "CLUSTER CHECK"
 
     def __call__(self, cmd, **kwargs):
-        if cmd.connection.lowest_server_version >= StrictVersion("0.52.0"):
+        if cmd.connection.lowest_server_version >= Version("0.52.0"):
             self.execute(cmd, self.STMT)
         else:
             tmpl = 'Crate {version} does not support the cluster "check" command.'

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # vim: set fileencodings=utf-8
 
-from distutils.version import StrictVersion
 from unittest import TestCase
 
+from crate.client._pep440 import Version
 from crate.crash.command import (
     Result,
     get_information_schema_query,
@@ -115,7 +115,7 @@ class CommandUtilsTest(TestCase):
 class TestGetInformationSchemaQuery(TestCase):
 
     def test_low_version(self):
-        lowest_server_version = StrictVersion("0.56.4")
+        lowest_server_version = Version("0.56.4")
         query = get_information_schema_query(lowest_server_version)
         self.assertEqual(""" select count(distinct(table_name))
                 as number_of_tables
@@ -124,7 +124,7 @@ class TestGetInformationSchemaQuery(TestCase):
             not in ('information_schema', 'sys', 'pg_catalog') """, query)
 
     def test_high_version(self):
-        lowest_server_version = StrictVersion("1.0.4")
+        lowest_server_version = Version("1.0.4")
         query = get_information_schema_query(lowest_server_version)
         self.assertEqual(""" select count(distinct(table_name))
                 as number_of_tables

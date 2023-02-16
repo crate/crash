@@ -30,7 +30,6 @@ import re
 import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from collections import namedtuple
-from distutils.version import StrictVersion
 from getpass import getpass
 from operator import itemgetter
 
@@ -39,6 +38,7 @@ from platformdirs import user_config_dir, user_data_dir
 from urllib3.exceptions import LocationParseError
 
 from crate.client import connect
+from crate.client._pep440 import Version
 from crate.client.exceptions import ConnectionError, ProgrammingError
 
 from ..crash import __version__ as crash_version
@@ -67,8 +67,8 @@ Result = namedtuple('Result', ['cols',
 
 ConnectionMeta = namedtuple('ConnectionMeta', ['user', 'schema', 'cluster'])
 
-TABLE_SCHEMA_MIN_VERSION = StrictVersion("0.57.0")
-TABLE_TYPE_MIN_VERSION = StrictVersion("2.0.0")
+TABLE_SCHEMA_MIN_VERSION = Version("0.57.0")
+TABLE_TYPE_MIN_VERSION = Version("2.0.0")
 
 
 def parse_config_path(args=sys.argv):
@@ -329,7 +329,7 @@ class CrateShell:
 
     def is_conn_available(self):
         return self.connection and \
-            self.connection.lowest_server_version != StrictVersion("0.0.0")
+            self.connection.lowest_server_version != Version("0.0.0")
 
     def _connect(self, servers):
         self.last_connected_servers = servers
@@ -398,7 +398,7 @@ class CrateShell:
 
     def _fetch_session_info(self):
         if self.is_conn_available() \
-                and self.connection.lowest_server_version >= StrictVersion("2.0"):
+                and self.connection.lowest_server_version >= Version("2.0"):
 
             try:
                 self.cursor.execute('SELECT current_user, current_schema, name FROM sys.cluster')

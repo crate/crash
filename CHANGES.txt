@@ -5,10 +5,15 @@ Changes for crash
 Unreleased
 ==========
 
+2023/02/16 0.29.0
+=================
+
 - Add support for Python 3.11, and drop support for Python 3.5 and 3.6.
 
 - Fix compatibility issue with ``crate-0.30.0`` in the area of comparing
   server version numbers.
+
+- Dependencies: Update to tabulate 0.9, platformdirs, and prompt-toolkit v3.
 
 2022/04/13 0.28.0
 =================

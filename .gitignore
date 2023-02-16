@@ -4,7 +4,7 @@
 .installed.cfg
 .mypy_cache/
 .tox/
-.venv/
+.venv*/
 *.DS_Store
 *.egg-info
 *.iml

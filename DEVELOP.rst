@@ -11,7 +11,7 @@ Setup
 Create a virtualenv and install the project::
 
     python3 -m venv .venv
-    source .ven/bin/activate
+    source .venv/bin/activate
     pip install --upgrade --editable=".[test,devel]"
 
 Afterwards you can launch crash::

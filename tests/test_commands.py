@@ -229,16 +229,24 @@ SELECT 1;
 -- Another SELECT statement.
 SELECT 2;
 -- Yet another SELECT statement with an inline comment.
--- Other than the regular comments, it gets passed through to the database server.
+-- Comments get passed through to the database server.
 SELECT /* this is a comment */ 3;
+SELECT /* this is a multi-line
+comment */ 4;
 """
         cmd = CrateShell()
         cmd._exec_and_print = MagicMock()
         cmd.process_iterable(sql.splitlines())
-        cmd._exec_and_print.assert_has_calls([
-            call("SELECT 1"),
-            call("SELECT 2"),
-            call("SELECT /* this is a comment */ 3"),
+        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+            call("-- Just a dummy SELECT statement.\nSELECT 1;"),
+            call("-- Another SELECT statement.\nSELECT 2;"),
+            call('\n'.join([
+                    "-- Yet another SELECT statement with an inline comment.",
+                    "-- Comments get passed through to the database server.",
+                    "SELECT /* this is a comment */ 3;"
+                ])
+            ),
+            call('SELECT /* this is a multi-line\ncomment */ 4;')
         ])
 
     def test_js_comments(self):
@@ -262,3 +270,112 @@ SELECT /* this is a comment */ 3;
         cmd.process(sql)
         self.assertEqual(1, cmd._exec_and_print.call_count)
         self.assertIn("CREATE FUNCTION", cmd._exec_and_print.mock_calls[0].args[0])
+
+
+class MultipleStatementsTest(TestCase):
+
+    def test_single_line_multiple_sql_statements(self):
+        cmd = CrateShell()
+        cmd._exec_and_print = MagicMock()
+        cmd.process("SELECT 1; SELECT 2; SELECT 3;")
+        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+            call("SELECT 1;"),
+            call("SELECT 2;"),
+            call("SELECT 3;"),
+        ])
+
+    def test_multiple_lines_multiple_sql_statements(self):
+        cmd = CrateShell()
+        cmd._exec_and_print = MagicMock()
+        cmd.process("SELECT 1;\nSELECT 2; SELECT 3;\nSELECT\n4;")
+        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+            call("SELECT 1;"),
+            call("SELECT 2;"),
+            call("SELECT 3;"),
+            call("SELECT\n4;"),
+        ])
+
+    def test_single_sql_statement_multiple_lines(self):
+        """When processing single SQL statements, new lines are preserved."""
+
+        cmd = CrateShell()
+        cmd._exec_and_print = MagicMock()
+        cmd.process("\nSELECT\n1\nWHERE\n2\n=\n3\n;\n")
+        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+            call("SELECT\n1\nWHERE\n2\n=\n3\n;"),
+        ])
+
+    def test_multiple_commands_no_sql(self):
+        cmd = CrateShell()
+        cmd._try_exec_cmd = MagicMock()
+        cmd._exec_and_print = MagicMock()
+        cmd.process("\\?\n\\connect 127.0.0.1")
+        cmd._try_exec_cmd.assert_has_calls([
+            call("?"),
+            call("connect 127.0.0.1")
+        ])
+        cmd._exec_and_print.assert_not_called()
+
+    def test_commands_and_multiple_sql_statements_interleaved(self):
+        """Combine all test cases above to be sure everything integrates well."""
+
+        cmd = CrateShell()
+        mock_manager = MagicMock()
+
+        cmd._try_exec_cmd = mock_manager.cmd
+        cmd._exec_and_print = mock_manager.sql
+
+        cmd.process("""
+    \\?
+    SELECT 1
+        WHERE 2 = 3; SELECT 4;
+    \\connect 127.0.0.1
+    SELECT 5
+        WHERE 6 = 7;
+    \\check
+        """)
+
+        self.assertListEqual(mock_manager.mock_calls, [
+            call.cmd("?"),
+            call.sql('SELECT 1\nWHERE 2 = 3;'),
+            call.sql('SELECT 4;'),
+            call.cmd("connect 127.0.0.1"),
+            call.sql('SELECT 5\nWHERE 6 = 7;'),
+            call.cmd("check"),
+        ])
+
+    def test_comments_along_multiple_statements(self):
+        """Test multiple types of comments along multi-statement input."""
+
+        cmd = CrateShell()
+        cmd._exec_and_print = MagicMock()
+
+        cmd.process("""
+-- Multiple statements and comments on same line
+
+SELECT /* inner comment */ 1; /* this is a single-line comment */ SELECT /* inner comment */ 2;
+
+-- Multiple statements on multiple lines with multi-line comments between them
+
+SELECT /* inner comment */ 3; /* this is a
+multi-line comment */ SELECT /* inner comment */ 4;
+
+-- Multiple statements on multiple lines with multi-line comments between and inside them
+
+SELECT /* inner multi-line
+comment */ 5 /* this is a multi-line
+comment before statement end */; /* this is another multi-line
+comment */ SELECT /* inner multi-line
+comment */ 6;
+        """)
+
+        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+            call('-- Multiple statements and comments on same line\n\nSELECT /* inner comment */ 1;'),
+            call('/* this is a single-line comment */ SELECT /* inner comment */ 2;'),
+
+            call('-- Multiple statements on multiple lines with multi-line comments between them\n\nSELECT /* inner comment */ 3;'),
+            call('/* this is a\nmulti-line comment */ SELECT /* inner comment */ 4;'),
+
+            call('-- Multiple statements on multiple lines with multi-line comments between and inside them\n\nSELECT /* inner multi-line\ncomment */ 5 /* this is a multi-line\ncomment before statement end */;'),
+            call('/* this is another multi-line\ncomment */ SELECT /* inner multi-line\ncomment */ 6;')
+        ])

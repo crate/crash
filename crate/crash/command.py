@@ -33,6 +33,7 @@ from collections import namedtuple
 from getpass import getpass
 from operator import itemgetter
 
+import sqlparse
 import urllib3
 from platformdirs import user_config_dir, user_data_dir
 from urllib3.exceptions import LocationParseError
@@ -176,31 +177,6 @@ def noargs_command(fn):
     return inner_fn
 
 
-def _parse_statements(lines):
-    """Return a generator of statements
-
-    Args: A list of strings that can contain one or more statements.
-          Statements are separated using ';' at the end of a line
-          Everything after the last ';' will be treated as the last statement.
-
-    >>> list(_parse_statements(['select * from ', 't1;', 'select name']))
-    ['select * from\\nt1', 'select name']
-
-    >>> list(_parse_statements(['select * from t1;', '  ']))
-    ['select * from t1']
-    """
-    lines = (l.strip() for l in lines if l)
-    lines = (l for l in lines if l and not l.startswith('--'))
-    parts = []
-    for line in lines:
-        parts.append(line.rstrip(';'))
-        if line.endswith(';'):
-            yield '\n'.join(parts)
-            parts[:] = []
-    if parts:
-        yield '\n'.join(parts)
-
-
 class CrateShell:
 
     def __init__(self,
@@ -274,19 +250,28 @@ class CrateShell:
                         self.get_num_columns())
         self.output_writer.write(result)
 
-    def process_iterable(self, stdin):
-        any_statement = False
-        for statement in _parse_statements(stdin):
-            self._exec_and_print(statement)
-            any_statement = True
-        return any_statement
+    def process_iterable(self, iterable):
+        self._process_lines([line for text in iterable for line in text.split('\n')])
 
     def process(self, text):
-        if text.startswith('\\'):
-            self._try_exec_cmd(text.lstrip('\\'))
-        else:
-            for statement in _parse_statements([text]):
-                self._exec_and_print(statement)
+        self._process_lines(text.split('\n'))
+
+    def _process_lines(self, lines):
+        sql_lines = []
+        for line in lines:
+            line = line.strip()
+            if line.startswith('\\'):
+                self._process_sql('\n'.join(sql_lines))
+                self._try_exec_cmd(line.lstrip('\\'))
+                sql_lines = []
+            else:
+                sql_lines.append(line)
+        self._process_sql('\n'.join(sql_lines))
+
+    def _process_sql(self, text):
+        sql = sqlparse.format(text, strip_comments=False)
+        for statement in sqlparse.split(sql):
+            self._exec_and_print(statement)
 
     def exit(self):
         self.close()
@@ -498,14 +483,15 @@ def stmt_type(statement):
     return re.findall(r'[\w]+', statement)[0].upper()
 
 
-def get_stdin():
+def get_lines_from_stdin():
     """
-    Get data from stdin, if any
+    Get data line by line from stdin, if any
     """
-    if not sys.stdin.isatty():
-        for line in sys.stdin:
-            yield line
-    return
+    if sys.stdin.isatty():
+        return
+
+    for line in sys.stdin:
+        yield line
 
 
 def host_and_port(host_or_port):
@@ -622,7 +608,8 @@ def main():
         cmd.process(args.command)
         save_and_exit()
 
-    if cmd.process_iterable(get_stdin()):
+    if not sys.stdin.isatty():
+        cmd.process_iterable(get_lines_from_stdin())
         save_and_exit()
 
     from .repl import loop

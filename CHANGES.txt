@@ -6,6 +6,8 @@ Unreleased
 ==========
 
 - Fix inconsistent spacing around printed runtime. Thank you, @hammerhead.
+- Add support for multi-line input of commands and SQL statements for both
+  copy-pasting inside the crash shell and input pipes into crash.
 
 2023/02/16 0.29.0
 =================

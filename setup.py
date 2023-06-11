@@ -32,6 +32,7 @@ requirements = [
     'platformdirs<4',
     'prompt-toolkit>=3.0,<4',
     'tabulate>=0.9,<0.10',
+    'sqlparse>=0.4.4,<0.5.0'
 ]
 
 

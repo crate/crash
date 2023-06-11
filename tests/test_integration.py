@@ -13,8 +13,8 @@ from crate.client.exceptions import ProgrammingError
 from crate.crash.command import (
     CrateShell,
     _create_shell,
+    get_lines_from_stdin,
     get_parser,
-    get_stdin,
     host_and_port,
     main,
     noargs_command,
@@ -315,7 +315,7 @@ class CommandTest(TestCase):
 
         Newlines must be replaced with whitespaces
         """
-        stmt = ''.join(list(get_stdin())).replace('\n', ' ')
+        stmt = ''.join(list(get_lines_from_stdin())).replace('\n', ' ')
         expected = ("create table test( d string ) "
                     "clustered into 2 shards "
                     "with (number_of_replicas=0)")
@@ -334,7 +334,7 @@ class CommandTest(TestCase):
 
         Newlines must be replaced with whitespaces
         """
-        stmt = ''.join(list(get_stdin())).replace('\n', ' ')
+        stmt = ''.join(list(get_lines_from_stdin())).replace('\n', ' ')
         expected = ("create table test( d string ) "
                     "clustered into 2 shards "
                     "with (number_of_replicas=0);")

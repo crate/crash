@@ -25,7 +25,7 @@ def _format(val, valtype, floatfmt, intfmt="", missingval="", has_invisible=True
     if val is None:
         return missingval
 
-    if valtype is (int, str):
+    if valtype in (int, str):
         return "{0}".format(val)
     elif valtype is bytes:
         try:

@@ -228,6 +228,9 @@ class CommentsTest(TestCase):
 SELECT 1;
 -- Another SELECT statement.
 SELECT 2;
+-- Yet another SELECT statement with an inline comment.
+-- Other than the regular comments, it gets passed through to the database server.
+SELECT /* this is a comment */ 3;
 """
         cmd = CrateShell()
         cmd._exec_and_print = MagicMock()
@@ -235,6 +238,7 @@ SELECT 2;
         cmd._exec_and_print.assert_has_calls([
             call("SELECT 1"),
             call("SELECT 2"),
+            call("SELECT /* this is a comment */ 3"),
         ])
 
     def test_js_comments(self):

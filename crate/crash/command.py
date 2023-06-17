@@ -488,7 +488,7 @@ class CrateShell:
             self.pprint(cur.fetchall(), [c[0] for c in cur.description])
             tmpl = '{command} {rowcount} row{s} in set{duration}'
         else:
-            tmpl = '{command} OK, {rowcount} row{s} affected {duration}'
+            tmpl = '{command} OK, {rowcount} row{s} affected{duration}'
         self.logger.info(tmpl.format(**print_vars))
         return True
 

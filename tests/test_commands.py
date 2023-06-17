@@ -21,9 +21,10 @@
 
 import os
 import shutil
+import sys
 import tempfile
-from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest import SkipTest, TestCase
+from unittest.mock import MagicMock, call, patch
 
 from crate.client._pep440 import Version
 from crate.crash.command import CrateShell
@@ -217,3 +218,43 @@ class ChecksCommandTest(TestCase):
 
         command(cmd, 'nodes')
         cmd.logger.info.assert_called_with('NODE CHECK OK')
+
+
+class CommentsTest(TestCase):
+
+    def test_sql_comments(self):
+        sql = """
+-- Just a dummy SELECT statement.
+SELECT 1;
+-- Another SELECT statement.
+SELECT 2;
+"""
+        cmd = CrateShell()
+        cmd._exec_and_print = MagicMock()
+        cmd.process_iterable(sql.splitlines())
+        cmd._exec_and_print.assert_has_calls([
+            call("SELECT 1"),
+            call("SELECT 2"),
+        ])
+
+    def test_js_comments(self):
+        if sys.version_info < (3, 8):
+            raise SkipTest("Test case does not work on Python 3.7")
+
+        sql = """
+    CREATE FUNCTION fib(long)
+    RETURNS LONG
+    LANGUAGE javascript AS '
+        // A comment with a semicolon;
+        /* Another comment with a semicolon; */
+        function fib(n) {
+          if (n < 2) return 1;
+          return fib(n - 1) + fib(n - 2);
+        }';
+        """
+
+        cmd = CrateShell()
+        cmd._exec_and_print = MagicMock()
+        cmd.process(sql)
+        self.assertEqual(1, cmd._exec_and_print.call_count)
+        self.assertIn("CREATE FUNCTION", cmd._exec_and_print.mock_calls[0].args[0])

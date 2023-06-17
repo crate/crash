@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+- Fix inconsistent spacing around printed runtime. Thank you, @hammerhead.
+
 2023/02/16 0.29.0
 =================
 

@@ -18,9 +18,25 @@ Afterwards you can launch crash::
 
     crash
 
+Continuous Integration
+======================
+
+You can run all CI steps using::
+
+    ./devtools/ci.sh
+
+Individual steps are described below.
+
+Linting
+-------
+
+You can check if your code is compliant to the project's standard using::
+
+    isort --check --diff crate/ tests/ setup.py
+    flake8 crate/crash
 
 Running Tests
-=============
+-------------
 
 The tests are run using the `unittest`_ module::
 
@@ -41,7 +57,6 @@ This requires you to have the python interpreters available in ``$PATH``.
 To run against a single interpreter, you can also do::
 
     tox -e py33
-
 
 Standalone Executable
 =====================

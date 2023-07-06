@@ -5,7 +5,12 @@ Changes for crash
 Unreleased
 ==========
 
+
+2023/07/06 0.30.0
+=================
+
 - Fix inconsistent spacing around printed runtime. Thank you, @hammerhead.
+
 - Add support for multi-line input of commands and SQL statements for both
   copy-pasting inside the crash shell and input pipes into crash.
 

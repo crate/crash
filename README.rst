@@ -2,17 +2,13 @@
 The CrateDB Shell
 =================
 
-.. image:: https://github.com/crate/crash/workflows/test/badge.svg
-    :target: https://github.com/crate/crash/actions
+.. image:: https://github.com/crate/crash/actions/workflows/main.yml/badge.svg
+    :target: https://github.com/crate/crash/actions/workflows/main.yml
     :alt: Outcome of CI
 
 .. image:: https://img.shields.io/pypi/v/crash.svg
     :target: https://pypi.python.org/pypi/crash
     :alt: Most recent version on PyPI
-
-.. image:: https://img.shields.io/pypi/dm/crash.svg
-    :target: https://pypi.org/project/crash/
-    :alt: Number of downloads per month
 
 .. image:: https://img.shields.io/pypi/pyversions/crash.svg
     :target: https://pypi.python.org/pypi/crash
@@ -21,6 +17,10 @@ The CrateDB Shell
 .. image:: https://img.shields.io/github/license/crate/crash
     :target: https://github.com/crate/crash/blob/master/LICENSE
     :alt: License
+
+.. image:: https://static.pepy.tech/badge/crash/month
+    :target: https://www.pepy.tech/projects/crash
+    :alt: Number of downloads per month
 
 |
 

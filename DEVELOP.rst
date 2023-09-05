@@ -85,7 +85,7 @@ The documentation is written using `Sphinx`_ and `ReStructuredText`_.
 Working on the documentation
 ----------------------------
 
-Python 3.7 is required.
+Python 3.7 or higher is required.
 
 Change into the ``docs`` directory::
 

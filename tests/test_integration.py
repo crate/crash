@@ -28,7 +28,7 @@ from tests import ftouch
 if sys.platform != "linux":
     raise SkipTest("Integration tests only supported on Linux")
 
-crate_version = os.getenv("CRATEDB_VERSION", "5.2.2")
+crate_version = os.getenv("CRATEDB_VERSION", "5.4.5")
 crate_http_port = 44209
 crate_transport_port = 44309
 crate_settings = {
@@ -40,7 +40,7 @@ crate_settings = {
     'transport.tcp.port': crate_transport_port
 }
 node = CrateLayer.from_uri(
-    f'https://cdn.crate.io/downloads/releases/crate-{crate_version}.tar.gz',
+    f'https://cdn.crate.io/downloads/releases/cratedb/x64_linux/crate-{crate_version}.tar.gz',
     'crate',
     settings=crate_settings
 )

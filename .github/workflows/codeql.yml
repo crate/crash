@@ -5,11 +5,13 @@ on:
   push:
     branches:
       - master
-  schedule:
-    - cron: "50 19 * * 6"
 
   # Allow job to be triggered manually.
   workflow_dispatch:
+
+  # Run job as nightly recurrent job.
+  schedule:
+    - cron: '0 2 * * *'
 
 # Cancel in-progress jobs when pushing to the same branch.
 concurrency:

@@ -1,3 +1,4 @@
+import logging
 import os
 import ssl
 import sys
@@ -7,6 +8,8 @@ from io import StringIO, TextIOWrapper
 from unittest import SkipTest, TestCase
 from unittest.mock import Mock, patch
 
+from cratedb_toolkit.testing.testcontainers.cratedb import CrateDBTestAdapter
+from cratedb_toolkit.util.common import setup_logging
 from urllib3.exceptions import LocationParseError
 
 from crate.client.exceptions import ProgrammingError
@@ -22,32 +25,34 @@ from crate.crash.command import (
 from crate.crash.commands import Command
 from crate.crash.outputs import _val_len as val_len
 from crate.crash.printer import ColorPrinter
-from crate.testing.layer import CrateLayer
 from tests import ftouch
 
-if sys.platform != "linux":
-    raise SkipTest("Integration tests only supported on Linux")
 
-crate_version = os.getenv("CRATEDB_VERSION", "5.5.0")
-crate_http_port = 44209
-crate_transport_port = 44309
-crate_settings = {
-    'cluster.name': 'Testing44209',
-    'node.name': 'crate',
-    'psql.port': 45441,
-    'lang.js.enabled': True,
-    'http.port': crate_http_port,
-    'transport.tcp.port': crate_transport_port
-}
-node = CrateLayer.from_uri(
-    f'https://cdn.crate.io/downloads/releases/cratedb/x64_linux/crate-{crate_version}.tar.gz',
-    'crate',
-    settings=crate_settings
-)
+class EntrypointOpts:
+    version = os.getenv("CRATEDB_VERSION", "5.4.5")
+    psql_port = 45441
+    http_port = 44209
+    transport_port = 44309
+    settings = {
+        "cluster.name": "Testing44209",
+        "node.name": "crate",
+        "lang.js.enabled": True,
+        "psql.port": psql_port,
+        "http.port": http_port,
+        "transport.tcp.port": transport_port,
+    }
 
+
+node = CrateDBTestAdapter(crate_version=EntrypointOpts.version)
 
 def setUpModule():
-    node.start()
+    node.start(
+        cmd_opts=EntrypointOpts.settings,
+        # all ports inside container to be bound to the randomly generated ports on the host
+        ports={EntrypointOpts.http_port: None,
+               EntrypointOpts.psql_port: None,
+               EntrypointOpts.transport_port: None})
+    node.reset()
 
 
 def tearDownModule():
@@ -60,7 +65,6 @@ def fake_stdin(data):
     stdin.flush()
     stdin.seek(0)
     return stdin
-
 
 class RaiseOnceSideEffect:
     """
@@ -92,6 +96,8 @@ class DocumentationTest(TestCase):
 
 
 class CommandTest(TestCase):
+    def setUp(self):
+        node.reset()
 
     def _output_format(self, format, func, query="select name from sys.cluster"):
         orig_argv = sys.argv[:]
@@ -286,7 +292,7 @@ class CommandTest(TestCase):
                     output = output.getvalue()
                     lines = output.split('\n')
                     self.assertRegex(lines[3], r'^\| http://[\d\.:]+ .*\| NULL .*\| FALSE .*\| Server not available')
-                    self.assertRegex(lines[4], r'^\| http://[\d\.:]+. *\| crate .*\| TRUE .*\| OK')
+                    self.assertRegex(lines[4], r'^\| http://.*@?localhost:\d+ *\| crate .*\| TRUE .*\| OK')
         finally:
             try:
                 os.remove(tmphistory)
@@ -699,7 +705,14 @@ class CommandTest(TestCase):
                         timeout=timeout) as crash:
             crash.logger = Mock()
             crash.process(slow_query)
-            crash.logger.warn.assert_any_call("No more Servers available, exception from last server: HTTPConnectionPool(host='127.0.0.1', port=44209): Read timed out. (read timeout=0.1)")
+
+            # Get randomly generated host port bound to the predefined HTTP Interface port inside container
+            node.cratedb._container.reload()
+            host_port = node.cratedb._container.ports.get("{}/tcp".format(EntrypointOpts.http_port), [])[0].get("HostPort")
+
+            crash.logger.warn.assert_any_call(
+                "No more Servers available, exception from last server: "
+                "HTTPConnectionPool(host='localhost', port={}): Read timed out. (read timeout=0.1)".format(host_port))
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):
@@ -831,3 +844,6 @@ class CommandTest(TestCase):
                         schema='test') as crash:
             self.assertEqual(crash.connect_info.user, None)
             self.assertEqual(crash.connect_info.schema, None)
+
+
+setup_logging(level=logging.INFO)

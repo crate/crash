@@ -77,7 +77,9 @@ setup(
     extras_require=dict(
         test=[
             'crate[test]',
-            'zc.customdoctests<2'
+            'zc.customdoctests<2',
+            # FIXME once tested and merged, fix the name
+            'cratedb-toolkit[test] @ git+https://github.com/pilosus/cratedb-toolkit@tech/18-adapt-testcontainers-to-unittest',
         ],
         devel=[
             'coverage<8',

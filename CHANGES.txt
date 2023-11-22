@@ -5,6 +5,7 @@ Changes for crash
 Unreleased
 ==========
 
+- Remove QA support for Python 3.7. Thanks, @pilosus.
 
 2023/07/06 0.30.0
 =================

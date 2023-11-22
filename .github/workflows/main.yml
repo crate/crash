@@ -55,4 +55,4 @@ jobs:
           python -m pip install ".[test,devel]"
 
       - name: Lint & test
-        run: ./devtools/ci.sh 
+        run: ./devtools/ci.sh

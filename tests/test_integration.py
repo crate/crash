@@ -28,7 +28,7 @@ from tests import ftouch
 if sys.platform != "linux":
     raise SkipTest("Integration tests only supported on Linux")
 
-crate_version = os.getenv("CRATEDB_VERSION", "5.4.5")
+crate_version = os.getenv("CRATEDB_VERSION", "5.5.0")
 crate_http_port = 44209
 crate_transport_port = 44309
 crate_settings = {

@@ -155,7 +155,8 @@ def get_parser(output_formats=[], conf=None):
     parser.add_argument('--format', type=str,
                         default=_conf_or_default('format', 'tabular'),
                         choices=output_formats, metavar='FORMAT',
-                        help='the output FORMAT of the SQL response')
+                        help=f'the output FORMAT of the SQL response.\n'
+                             f'choose one of: {", ".join(output_formats)}')
     parser.add_argument('--version', action='store_true', default=False,
                         help='print the Crash version and exit')
 

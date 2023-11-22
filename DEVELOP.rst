@@ -45,7 +45,7 @@ The tests are run using the `unittest`_ module::
 In order to adjust the CrateDB version used for running the tests, amend the
 environment variable ``CRATEDB_VERSION`` like::
 
-    export CRATEDB_VERSION=5.2.2
+    export CRATEDB_VERSION=5.5.0
 
 If you install tox_, you can also run tests against multiple Python interpreters::
 

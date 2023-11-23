@@ -5,7 +5,11 @@ Changes for crash
 Unreleased
 ==========
 
-- CLI: Added possible output format choices for ``--format`` argument to
+2023/11/23 0.30.1
+=================
+
+- Added support for Python 3.12.
+- Added possible output format choices for ``--format`` argument to
   ``crash --help``. Thanks, @mfussenegger.
 
 2023/07/06 0.30.0

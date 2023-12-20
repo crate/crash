@@ -620,6 +620,7 @@ class CommandTest(TestCase):
             '\\connect                        connect to the given server, e.g.: \\connect localhost:4200',
             '\\dt                             print the existing tables within the \'doc\' schema',
             '\\format                         switch output format',
+            '\\pager                          set an external pager. Use without argument to reset to internal paging',
             '\\q                              quit crash',
             '\\r                              read and execute statements from a file',
             '\\sysinfo                        print system and cluster info',

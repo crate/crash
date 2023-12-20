@@ -93,6 +93,13 @@ class SwitchFormatCommand(Command):
             fmt, ', '.join(cmd.output_writer.formats))
 
 
+class SetPager(Command):
+    """ set an external pager. Use without argument to reset to internal paging """
+
+    def __call__(self, cmd, pager=None):
+        cmd.output_writer.pager = pager
+
+
 class ToggleAutocompleteCommand(Command):
     """ toggle autocomplete """
 
@@ -235,4 +242,5 @@ built_in_commands = {
     'autocapitalize': ToggleAutoCapitalizeCommand(),
     'verbose': ToggleVerboseCommand(),
     'check': CheckCommand(),
+    'pager': SetPager(),
 }

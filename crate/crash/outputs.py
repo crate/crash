@@ -1,5 +1,6 @@
 import csv
 import json
+import subprocess
 import sys
 
 from colorama import Fore, Style
@@ -51,6 +52,7 @@ class OutputWriter(object):
         self._json_lexer = JsonLexer()
         self._formatter = TerminalFormatter()
         self.writer = writer
+        self.pager = None
         self._output_format = 'tabular'
         self._formats = {
             'tabular': self.tabular,
@@ -84,11 +86,29 @@ class OutputWriter(object):
 
     def write(self, result):
         output_f = self._formats[self.output_format]
-        output = output_f(result)
-        if output:
-            for line in output:
-                self.writer.write(line)
-        self.writer.write('\n')
+        if self.pager:
+            # Change tty to avoid colorizing output for pager
+            tty = self.is_tty
+            self.is_tty = False
+            try:
+                output = output_f(result)
+                if output:
+                    with subprocess.Popen(self.pager, shell=True, stdin=subprocess.PIPE) as p:
+                        encoding = "utf-8"
+                        for line in output:
+                            p.stdin.write(line.encode(encoding, "replace"))
+                        p.stdin.write("\n".encode(encoding))
+                        p.stdin.close()
+                else:
+                    self.writer.write('\n')
+            finally:
+                self.is_tty = tty
+        else:
+            output = output_f(result)
+            if output:
+                for line in output:
+                    self.writer.write(line)
+            self.writer.write('\n')
 
     def raw(self, result):
         duration = result.duration

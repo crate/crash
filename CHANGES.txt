@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+- Added support for setting an external pager via ``\pager <executable>``
+
 - Added ROLE keyword for autocomplete & autocapitalize
 
 2023/11/23 0.30.1

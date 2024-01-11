@@ -49,6 +49,9 @@ Every command starts with a ``\`` character.
 |                        | - ``nodes`` (query for failing node checks)         |
 |                        | - ``cluster`` (query for failing cluster checks)    |
 +------------------------+-----------------------------------------------------+
+| ``\pager``             | Use apps like ``jless`` or ``pspg`` to              |
+|                        | view the result sets. See also :ref:`use-pager`.    |
++------------------------+-----------------------------------------------------+
 | ``\r <FILENAME>``      | Reads statements from ``<FILENAME>`` and execute    |
 |                        | them.                                               |
 +------------------------+-----------------------------------------------------+

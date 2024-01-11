@@ -238,10 +238,34 @@ In both instances:
 - ``<DURATION>`` is the total number of seconds the query took to execute on the
   cluster
 
+
+.. _use-pager:
+
+Using a pager program
+=====================
+
+You can use applications like the `jless`_ JSON exploration tool or the
+`pspg`_ pager program to view the result sets, by utilizing the ``\pager``
+command.
+
+.. figure:: https://github.com/crate/crash/assets/38700/e7281ca0-4736-4127-9628-16126b5ea67c
+
+Example
+-------
+Use those instructions to drill down into the results of your query by
+exploring it using ``jless``, like outlined within the screencast above::
+
+    cr> \pager jless
+    cr> \format json
+    cr> SELECT * FROM sys.nodes;
+
+
 .. _command-line: https://en.wikipedia.org/wiki/Command-line_interface
+.. _jless: https://jless.io/
 .. _jq: https://stedolan.github.io/jq/
 .. _pipe: https://www.wikiwand.com/en/Pipeline_(Unix)
 .. _piping: https://www.wikiwand.com/en/Pipeline_(Unix)
+.. _pspg: https://github.com/okbob/pspg
 .. _redirecting: https://tldp.org/LDP/abs/html/io-redirection.html
 .. _STDOUT: https://en.wikipedia.org/wiki/Standard_streams
 .. _user configuration directory: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html

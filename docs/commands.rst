@@ -44,10 +44,10 @@ Every command starts with a ``\`` character.
 |                        |                                                     |
 |                        | ``TYPE`` can be one of the following:               |
 |                        |                                                     |
-|                        |  - not set (query for failing cluster and node      |
-|                        |    checks)                                          |
-|                        |  - ``nodes`` (query for failing node checks)        |
-|                        |  - ``cluster`` (query for failing cluster checks)   |
+|                        | - not set (query for failing cluster and node       |
+|                        |   checks)                                           |
+|                        | - ``nodes`` (query for failing node checks)         |
+|                        | - ``cluster`` (query for failing cluster checks)    |
 +------------------------+-----------------------------------------------------+
 | ``\r <FILENAME>``      | Reads statements from ``<FILENAME>`` and execute    |
 |                        | them.                                               |

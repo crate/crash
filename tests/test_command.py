@@ -7,6 +7,8 @@ from verlib2 import Version
 
 from crate.crash.command import (
     Result,
+    _decode_timeout,
+    _decode_timeouts,
     get_information_schema_query,
     host_and_port,
     stmt_type,
@@ -111,6 +113,35 @@ class CommandUtilsTest(TestCase):
         # statements with trailing or leading spaces/tabs/linebreaks
         self.assertEqual(stmt_type(' SELECT 1 ;'), 'SELECT')
         self.assertEqual(stmt_type('\nSELECT\n1\n;\n'), 'SELECT')
+
+    def test_decode_timeout_success(self):
+        self.assertEqual(_decode_timeout(None), None)
+        self.assertEqual(_decode_timeout(-1), None)
+        self.assertEqual(_decode_timeout(42.42), 42.42)
+        self.assertEqual(_decode_timeout("42.42"), 42.42)
+
+    def test_decode_timeouts_success(self):
+        # `_decode_timeouts` returns an urllib3.Timeout instance.
+        self.assertEqual(str(_decode_timeouts(None)), 'Timeout(connect=None, read=None, total=None)')
+        self.assertEqual(str(_decode_timeouts(-1)), 'Timeout(connect=None, read=None, total=None)')
+        self.assertEqual(str(_decode_timeouts("-1")), 'Timeout(connect=None, read=None, total=None)')
+        self.assertEqual(str(_decode_timeouts(42.42)), 'Timeout(connect=42.42, read=None, total=None)')
+        self.assertEqual(str(_decode_timeouts("42.42")), 'Timeout(connect=42.42, read=None, total=None)')
+        self.assertEqual(str(_decode_timeouts((42.42, 84.84))), 'Timeout(connect=42.42, read=84.84, total=None)')
+        self.assertEqual(str(_decode_timeouts('42.42, 84.84')), 'Timeout(connect=42.42, read=84.84, total=None)')
+        self.assertEqual(str(_decode_timeouts((-1, 42.42))), 'Timeout(connect=None, read=42.42, total=None)')
+        self.assertEqual(str(_decode_timeouts("-1, 42.42")), 'Timeout(connect=None, read=42.42, total=None)')
+
+    def test_decode_timeouts_failure(self):
+        with self.assertRaises(TypeError) as ecm:
+            _decode_timeouts({})
+        self.assertEqual(str(ecm.exception), "Cannot decode timeout value from type `<class 'dict'>`, "
+                                             "expected format `<connect_sec>,<read_sec>`")
+
+        with self.assertRaises(ValueError) as ecm:
+            _decode_timeouts([])
+        self.assertEqual(str(ecm.exception), "Cannot decode timeout `[]`, "
+                                             "expected format `<connect_sec>,<read_sec>`")
 
 
 class TestGetInformationSchemaQuery(TestCase):

@@ -139,6 +139,9 @@ def get_parser(output_formats=[], conf=None):
     parser.add_argument('--hosts', type=str, nargs='*',
                         default=_conf_or_default('hosts', ['localhost:4200']),
                         help='connect to HOSTS.', metavar='HOSTS')
+    parser.add_argument('--timeout', type=str, metavar='TIMEOUT',
+                        help='Configure network timeout in "<connect_sec>" or "<connect_sec>,<read_sec>" format. '
+                             'Defaults to "5,-1" where "-1" means infinite timeout.', default="5")
     parser.add_argument(
         '--verify-ssl',
         choices=(True, False),
@@ -618,8 +621,62 @@ def main():
     save_and_exit()
 
 
+INFINITE_TIMEOUT = -1
+INFINITE_TIMEOUTS = [None, INFINITE_TIMEOUT, str(INFINITE_TIMEOUT)]
+
+
+def _decode_timeout(value):
+    """
+    Decode single timeout value, respecting the `INFINITE_TIMEOUT` surrogate.
+    """
+    if value in INFINITE_TIMEOUTS:
+        return None
+    else:
+        return float(value)
+
+
+def _decode_timeouts(timeout):
+    """
+    Decode connect/read timeout values from tuple or string.
+
+    Variant 1: (connect, read)
+    Variant 2: connect,read
+    """
+
+    if timeout is None:
+        timeouts = (INFINITE_TIMEOUT, INFINITE_TIMEOUT)
+    elif isinstance(timeout, (int, float)):
+        timeouts = (timeout, INFINITE_TIMEOUT)
+    elif isinstance(timeout, str):
+        timeouts = timeout.split(",")
+    elif isinstance(timeout, (list, tuple)):
+        timeouts = timeout
+    else:
+        raise TypeError(f"Cannot decode timeout value from type `{type(timeout)}`, "
+                        f"expected format `<connect_sec>,<read_sec>`")
+
+    if len(timeouts) == 1:
+        connect_timeout, read_timeout = timeouts[0], INFINITE_TIMEOUT
+    elif len(timeouts) == 2:
+        connect_timeout, read_timeout = timeouts[0], timeouts[1]
+    else:
+        raise ValueError(f"Cannot decode timeout `{timeout}`, "
+                         f"expected format `<connect_sec>,<read_sec>`")
+
+    return urllib3.Timeout(connect=_decode_timeout(connect_timeout), read=_decode_timeout(read_timeout))
+
+
 def _create_shell(crate_hosts, error_trace, output_writer, is_tty, args,
                   timeout=None, password=None):
+
+    # Explicit "timeout" function argument takes precedence.
+    if timeout is not None:
+        timeout = _decode_timeouts(timeout)
+
+    # Probe `--timeout`` command line argument second.
+    elif args.timeout is not None:
+        timeout = _decode_timeouts(args.timeout)
+
     return CrateShell(crate_hosts,
                       error_trace=error_trace,
                       output_writer=output_writer,

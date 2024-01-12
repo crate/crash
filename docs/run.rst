@@ -57,6 +57,13 @@ The ``crash`` executable supports multiple command-line options:
 |                               | command will succeed if at least one         |
 |                               | connection is successful.                    |
 +-------------------------------+----------------------------------------------+
+| ``--timeout <TIMEOUT>``       | Configure network timeout in "<connect_sec>" |
+|                               | or "<connect_sec>,<read_sec>" format.        |
+|                               |                                              |
+|                               | The default value is "5,-1", configuring a   |
+|                               | connect timeout of five seconds with         |
+|                               | infinite read timeout.                       |
++-------------------------------+----------------------------------------------+
 | ``--history <FILENAME>``      | Use ``<FILENAME>`` as a history file.        |
 |                               |                                              |
 |                               | Defaults to the ``crash_history`` file in    |

@@ -21,7 +21,7 @@ import functools
 import os
 from collections import OrderedDict
 
-from crate.client._pep440 import Version
+from verlib2 import Version
 
 
 class Command(object):

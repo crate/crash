@@ -3,7 +3,8 @@
 
 from unittest import TestCase
 
-from crate.client._pep440 import Version
+from verlib2 import Version
+
 from crate.crash.command import (
     Result,
     get_information_schema_query,

@@ -26,7 +26,8 @@ import tempfile
 from unittest import SkipTest, TestCase
 from unittest.mock import MagicMock, call, patch
 
-from crate.client._pep440 import Version
+from verlib2 import Version
+
 from crate.crash.command import CrateShell
 from crate.crash.commands import (
     CheckCommand,

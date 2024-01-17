@@ -37,9 +37,9 @@ import sqlparse
 import urllib3
 from platformdirs import user_config_dir, user_data_dir
 from urllib3.exceptions import LocationParseError
+from verlib2 import Version
 
 from crate.client import connect
-from crate.client._pep440 import Version
 from crate.client.exceptions import ConnectionError, ProgrammingError
 
 from ..crash import __version__ as crash_version

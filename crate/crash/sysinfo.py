@@ -23,7 +23,7 @@
 
 from collections import namedtuple
 
-from crate.client._pep440 import Version
+from verlib2 import Version
 
 Result = namedtuple('Result', ['rows', 'cols'])
 SYSINFO_MIN_VERSION = Version("0.54.0")

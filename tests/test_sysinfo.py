@@ -24,7 +24,8 @@
 from unittest import TestCase
 from unittest.mock import PropertyMock, patch
 
-from crate.client._pep440 import Version
+from verlib2 import Version
+
 from crate.crash.command import CrateShell
 from crate.crash.sysinfo import Result as Res, SysInfoCommand
 

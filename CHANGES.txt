@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+- Use Python Testcontainers for integration testing
+
 2024/02/08 0.31.2
 =================
 

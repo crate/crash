@@ -79,7 +79,7 @@ setup(
             'crate[test]',
             'zc.customdoctests<2',
             # FIXME once tested and merged, fix the name
-            'cratedb-toolkit[test] @ git+https://github.com/pilosus/cratedb-toolkit@tech/18-adapt-testcontainers-to-unittest',
+            'cratedb-toolkit[test] @ git+https://github.com/crate-workbench/cratedb-toolkit@main',
         ],
         devel=[
             'coverage<8',

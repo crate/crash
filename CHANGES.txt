@@ -4,6 +4,10 @@ Changes for crash
 
 Unreleased
 ==========
+
+2024/01/29 0.31.0
+=================
+
 - Added command-line argument ``--timeout``, to configure network timeout
   values in seconds. The default connect timeout is five seconds now,
   the default read timeout is the default setting of the ``socket`` module,

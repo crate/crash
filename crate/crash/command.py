@@ -580,9 +580,8 @@ def main():
                             args, password=password)
     except (ProgrammingError, LocationParseError) as e:
         msg = getattr(e, 'message', str(e))
-        if '401' in msg and not args.force_passwd_prompt:
-            if is_tty:
-                password = getpass()
+        if '401' in msg and not args.force_passwd_prompt and is_tty:
+            password = getpass()
             try:
                 cmd = _create_shell(crate_hosts, error_trace, output_writer,
                                     is_tty, args, password=password)
@@ -590,7 +589,8 @@ def main():
                 printer.warn(str(ex))
                 sys.exit(1)
         else:
-            raise e
+            printer.warn(str(e))
+            sys.exit(1)
     except Exception as e:
         printer.warn(str(e))
         sys.exit(1)

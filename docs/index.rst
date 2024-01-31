@@ -30,6 +30,7 @@ The CrateDB Shell (aka *Crash*) is an interactive `command-line interface`_
    getting-started
    run
    commands
+   troubleshooting
    appendices/index
 
 .. _command-line interface: https://en.wikipedia.org/wiki/Command-line_interface

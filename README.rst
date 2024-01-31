@@ -80,6 +80,13 @@ Now, run it::
 If you would like to run ``crash`` from any directory, and without the leading
 ``./``, the file has to be in a directory that is on your `PATH`_.
 
+Troubleshooting
+===============
+
+The documentation section about `troubleshooting connection errors`_ provides
+support and guidelines how to debug and resolve problems when connecting to
+`CrateDB`_ or `CrateDB Cloud`_.
+
 Contributing
 ============
 
@@ -104,3 +111,4 @@ Looking for more help? Check out our `support channels`_.
 .. _PATH: https://en.wikipedia.org/wiki/PATH_(variable)
 .. _pip: https://pypi.python.org/pypi/pip
 .. _support channels: https://cratedb.com/support/
+.. _troubleshooting connection errors: https://cratedb.com/docs/crate/crash/en/latest/troubleshooting.html

@@ -67,9 +67,9 @@ Consult the following table for CrateDB compatibility notes:
 |                |                 | has no password is set.                   |
 +----------------+-----------------+-------------------------------------------+
 
-.. _array constructors: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#data-types-array-literals
-.. _client library: https://crate.io/docs/crate/clients-tools/en/latest/
-.. _CrateDB REST endpoint: https://crate.io/docs/crate/reference/en/latest/interfaces/http.html
-.. _create your own users: https://crate.io/docs/crate/reference/en/latest/admin/user-management.html
-.. _object literals: https://crate.io/docs/crate/reference/en/latest/general/ddl/data-types.html#data-types-object-literals
+.. _array constructors: https://cratedb.com/docs/crate/reference/en/latest/general/ddl/data-types.html#data-types-array-literals
+.. _client library: https://cratedb.com/docs/crate/clients-tools/en/latest/
+.. _CrateDB REST endpoint: https://cratedb.com/docs/crate/reference/en/latest/interfaces/http.html
+.. _create your own users: https://cratedb.com/docs/crate/reference/en/latest/admin/user-management.html
+.. _object literals: https://cratedb.com/docs/crate/reference/en/latest/general/ddl/data-types.html#data-types-object-literals
 .. _pip: https://pypi.org/project/pip/

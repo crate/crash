@@ -96,9 +96,11 @@ Looking for more help? Check out our `support channels`_.
 
 .. _command-line interface: https://en.wikipedia.org/wiki/Command-line_interface
 .. _contribution docs: CONTRIBUTING.rst
-.. _Crate.io: https://crate.io/
+.. _Crate.io: https://cratedb.com/
+.. _CrateDB: https://github.com/crate/crate
+.. _CrateDB Cloud: https://console.cratedb.cloud
+.. _CrateDB shell documentation: https://cratedb.com/docs/crate/crash/
 .. _developer docs: DEVELOP.rst
 .. _PATH: https://en.wikipedia.org/wiki/PATH_(variable)
 .. _pip: https://pypi.python.org/pypi/pip
-.. _CrateDB shell documentation: https://crate.io/docs/crate/crash/
-.. _support channels: https://crate.io/support/
+.. _support channels: https://cratedb.com/support/

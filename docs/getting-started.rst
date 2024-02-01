@@ -140,13 +140,13 @@ You should see something like this:
 
    For more help, see :ref:`commands` or :ref:`formats`.
 
-.. _Command Line Arguments: https://crate.io/docs/projects/crash/en/stable/cli.html
+.. _Command Line Arguments: https://cratedb.com/docs/projects/crash/en/stable/cli.html
 .. _crate-python: https://pypi.python.org/pypi/crate/
-.. _CrateDB REST Endpoint: https://crate.io/docs/current/sql/rest.html
-.. _CrateDB: https://crate.io/products/cratedb/
+.. _CrateDB REST Endpoint: https://cratedb.com/docs/current/sql/rest.html
+.. _CrateDB: https://cratedb.com/products/cratedb/
 .. _PATH: https://en.wikipedia.org/wiki/PATH_(variable)
 .. _pip: https://pypi.org/project/pip/
 .. _PyPI overview: https://pypi.python.org/pypi/crash/
-.. _Running CrateDB: https://crate.io/docs/crate/reference/en/latest/run.html
+.. _Running CrateDB: https://cratedb.com/docs/crate/reference/en/latest/run.html
 .. _shell: https://en.wikipedia.org/wiki/Shell_(computing)
 .. _STDOUT: https://en.wikipedia.org/wiki/Standard_streams

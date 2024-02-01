@@ -161,6 +161,6 @@ Example::
     ---------------------------------------------------------------
 
 .. _comma separated values: https://en.wikipedia.org/wiki/Comma-separated_values
-.. _COPY FROM: https://crate.io/docs/crate/reference/en/latest/general/dml.html#import-and-export
+.. _COPY FROM: https://cratedb.com/docs/crate/reference/en/latest/general/dml.html#import-and-export
 .. _JSON: https://www.json.org/
-.. _the CrateDB Python client library: https://crate.io/docs/python/en/latest/
+.. _the CrateDB Python client library: https://cratedb.com/docs/python/en/latest/

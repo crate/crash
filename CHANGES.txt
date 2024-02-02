@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2024/02/02 0.31.1
+=================
+
 - Better catch unauthorized errors when forcing a password prompt.
 
 2024/01/29 0.31.0

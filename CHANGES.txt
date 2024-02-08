@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2024/02/08 0.31.2
+=================
+
 - Update to crate>=0.35.2. It is needed to accompany the recent
   improvements about ``--timeout``.
 

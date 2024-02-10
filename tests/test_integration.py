@@ -223,7 +223,7 @@ class CommandTest(TestCase):
                               "| name | name |",
                               "+------+------+",
                               "+------+------+\n"])
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([], ['name', 'name'])
                 self.assertEqual(expected, output.getvalue())
@@ -235,7 +235,7 @@ class CommandTest(TestCase):
                               "+---------+",
                               "|    0.50 |",
                               "+---------+\n"])
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([["0.50"]], ['version'])
                 self.assertEqual(expected, output.getvalue())
@@ -384,7 +384,7 @@ class CommandTest(TestCase):
                               '|    1 |',
                               '| NULL |',
                               '+------+\n'])
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['x'])
                 self.assertEqual(expected, output.getvalue())
@@ -400,7 +400,7 @@ class CommandTest(TestCase):
                               '| FALSE |',
                               '| 1     |',
                               '+-------+\n'])
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['x'])
                 self.assertEqual(expected, output.getvalue())
@@ -417,7 +417,7 @@ class CommandTest(TestCase):
                               '| FALSE |',
                               '| 1     |',
                               '+-------+\n'])
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['x\ny'])
                 self.assertEqual(expected, output.getvalue())
@@ -436,7 +436,7 @@ class CommandTest(TestCase):
                               '|   name string         |     |   |',
                               '| )                     |     |   |',
                               '+-----------------------+-----+---+\n'])
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['show create table foo', 'a', 'b'])
                 self.assertEqual(expected, output.getvalue())
@@ -458,7 +458,7 @@ class CommandTest(TestCase):
                               '|                                    | Planet      |',
                               '+------------------------------------+-------------+\n'])
 
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['min(name)', 'kind'])
                 # assert 0
@@ -481,7 +481,7 @@ class CommandTest(TestCase):
                               '| Galactic Sector QQ7 Active J Gamma | Galaxy      |',
                               '+------------------------------------+-------------+\n'])
 
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['min(name)', 'kind'])
                 self.assertEqual(expected, output.getvalue())
@@ -505,7 +505,7 @@ class CommandTest(TestCase):
                               '| Alpha Centauri      | Alpha - Centauri      |',
                               '+---------------------+-----------------------+\n'])
 
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['name', 'replaced'])
                 self.assertEqual(expected, output.getvalue())
@@ -527,7 +527,7 @@ class CommandTest(TestCase):
                               '| Features and conformance views | FALSE        | 3              | SQL_LANGUAGES view |',
                               '+--------------------------------+--------------+----------------+--------------------+\n'])
 
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['feature_name', 'is_supported', 'sub_feature_id', 'sub_feature_name'])
                 self.assertEqual(expected, output.getvalue())
@@ -563,7 +563,7 @@ class CommandTest(TestCase):
                               '| NULL                               |    1.0 |',
                               '+------------------------------------+--------+\n'])
 
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint(rows, cols=['name', '_score'])
                 self.assertEqual(expected, output.getvalue())
@@ -582,7 +582,7 @@ class CommandTest(TestCase):
             self.assertEqual(e.code, 1)
 
     def test_verbose_with_error_trace(self):
-        with CrateShell(error_trace=True) as cmd:
+        with CrateShell(crate_hosts=[node.http_url], error_trace=True) as cmd:
             cmd.logger = Mock()
             cmd.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
                                                                        error_trace="error trace"))
@@ -591,7 +591,7 @@ class CommandTest(TestCase):
             cmd.logger.critical.assert_called_with("\nerror trace")
 
     def test_verbose_no_error_trace(self):
-        with CrateShell(error_trace=True) as cmd:
+        with CrateShell(crate_hosts=[node.http_url], error_trace=True) as cmd:
             cmd.logger = Mock()
             cmd.cursor.execute = Mock(side_effect=ProgrammingError(msg="the error message",
                                                                        error_trace=None))
@@ -607,7 +607,7 @@ class CommandTest(TestCase):
                               '+-------------------------------+',
                               '| {"age": 42, "name": "Arthur"} |',
                               '+-------------------------------+\n'])
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([[user]], ['user'])
                 self.assertEqual(expected, output.getvalue())
@@ -620,7 +620,7 @@ class CommandTest(TestCase):
                               '+--------------------+',
                               '| ["Arthur", "Ford"] |',
                               '+--------------------+\n'])
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([[names]], ['names'])
                 self.assertEqual(expected, output.getvalue())
@@ -633,14 +633,14 @@ class CommandTest(TestCase):
                               '|  3.1415926535 |',
                               '| 42.0          |',
                               '+---------------+\n'])
-        with CrateShell() as cmd:
+        with CrateShell(crate_hosts=[node.http_url]) as cmd:
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.pprint([[3.1415926535], [42.0]], ['number'])
                 self.assertEqual(expected, output.getvalue())
 
     def test_help_command(self):
         """Test output of help command"""
-        command = CrateShell(is_tty=False)
+        command = CrateShell(crate_hosts=[node.http_url], is_tty=False)
         expected = "\n".join([
             '\\?                              print this help',
             '\\autocapitalize                 toggle automatic capitalization of SQL keywords',
@@ -660,7 +660,7 @@ class CommandTest(TestCase):
         help_ = command.commands['?']
         self.assertTrue(isinstance(help_, Command))
         self.assertEqual(expected, help_(command))
-        with CrateShell(is_tty=False) as cmd:
+        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             output = StringIO()
             cmd.logger = ColorPrinter(False, stream=output)
             text = help_(cmd, 'arg1', 'arg2')
@@ -701,7 +701,7 @@ class CommandTest(TestCase):
             _create_shell(crate_hosts, False, None, False, args)
 
     def test_command_timeout(self):
-        with CrateShell(node.http_url) as crash:
+        with CrateShell(crate_hosts=[node.http_url]) as crash:
             crash.process("""
     CREATE FUNCTION fib(long)
     RETURNS LONG
@@ -716,7 +716,7 @@ class CommandTest(TestCase):
         slow_query = "SELECT fib(35)"
 
         # without verbose
-        with CrateShell(node.http_url,
+        with CrateShell(crate_hosts=[node.http_url],
                         error_trace=False,
                         timeout=timeout) as crash:
             crash.logger = Mock()
@@ -724,7 +724,7 @@ class CommandTest(TestCase):
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
         # with verbose
-        with CrateShell(node.http_url,
+        with CrateShell(crate_hosts=[node.http_url],
                         error_trace=True,
                         timeout=timeout) as crash:
             crash.logger = Mock()
@@ -740,7 +740,7 @@ class CommandTest(TestCase):
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):
-        with CrateShell(node.http_url,
+        with CrateShell(crate_hosts=[node.http_url],
                         username='crate') as crash:
             self.assertEqual(crash.username, "crate")
             self.assertEqual(crash.connection.client.username, "crate")
@@ -755,7 +755,7 @@ class CommandTest(TestCase):
         ftouch(key_filename)
         ftouch(ca_cert_filename)
 
-        with CrateShell(node.http_url,
+        with CrateShell(crate_hosts=[node.http_url],
                         verify_ssl=False,
                         cert_file=cert_filename,
                         key_file=key_filename,
@@ -799,7 +799,7 @@ class CommandTest(TestCase):
             parser.parse_args(argv)
 
     def test_close_shell(self):
-        crash = CrateShell(node.http_url)
+        crash = CrateShell(crate_hosts=[node.http_url])
         self.assertFalse(crash.is_closed())
         self.assertTrue(crash.is_conn_available())
 
@@ -814,7 +814,7 @@ class CommandTest(TestCase):
                          ctx.exception.message)
 
     def test_connect_info(self):
-        with CrateShell(node.http_url,
+        with CrateShell(crate_hosts=[node.http_url],
                         username='crate',
                         schema='test') as crash:
             self.assertEqual(crash.connect_info.user, "crate")
@@ -863,7 +863,7 @@ class CommandTest(TestCase):
     @patch.object(CrateShell, "is_conn_available")
     def test_connect_info_not_available(self, is_conn_available):
         is_conn_available.return_value = False
-        with CrateShell(node.http_url,
+        with CrateShell(crate_hosts=[node.http_url],
                         username='crate',
                         schema='test') as crash:
             self.assertEqual(crash.connect_info.user, None)

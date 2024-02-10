@@ -1,5 +1,6 @@
 .coverage
 .crate-docs
+.python-version
 .idea/
 .installed.cfg
 .mypy_cache/

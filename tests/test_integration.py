@@ -27,6 +27,28 @@ from crate.crash.outputs import _val_len as val_len
 from crate.crash.printer import ColorPrinter
 from tests import ftouch
 
+logger = logging.getLogger(__name__)
+
+
+def _skip_tests_in_ci() -> bool:
+    """
+    Return true if integration tests cannot be run in the CI pipeline
+    """
+    # GitHub Runners have some default envs set, let's use them as an indicator of the CI run
+    # https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+    inside_ci = (os.environ.get("CI") == "true") and ("GITHUB_RUN_ID" in os.environ)
+
+    # Due to licensing issues GitHub Runners with MacOS doesn't support Docker
+    # https://github.com/orgs/community/discussions/25777
+    os_not_supported = sys.platform == "darwin"
+
+    logger.debug("Inside CI: '%s', OS: '%s'", inside_ci, sys.platform)
+    return inside_ci and os_not_supported
+
+
+if _skip_tests_in_ci():
+    raise SkipTest("Platform is not supported")
+
 
 class EntrypointOpts:
     version = os.getenv("CRATEDB_VERSION", "5.4.5")
@@ -44,6 +66,7 @@ class EntrypointOpts:
 
 
 node = CrateDBTestAdapter(crate_version=EntrypointOpts.version)
+
 
 def setUpModule():
     node.start(
@@ -65,6 +88,7 @@ def fake_stdin(data):
     stdin.flush()
     stdin.seek(0)
     return stdin
+
 
 class RaiseOnceSideEffect:
     """

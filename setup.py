@@ -78,8 +78,7 @@ setup(
         test=[
             'crate[test]',
             'zc.customdoctests<2',
-            # FIXME once tested and merged, fix the name
-            'cratedb-toolkit[test] @ git+https://github.com/crate-workbench/cratedb-toolkit@main',
+            'cratedb-toolkit[test]',
         ],
         devel=[
             'coverage<8',

@@ -255,7 +255,10 @@ You can use applications like the `jless`_ JSON exploration tool or the
 `pspg`_ pager program to view the result sets, by utilizing the ``\pager``
 command.
 
-.. figure:: https://github.com/crate/crash/assets/38700/e7281ca0-4736-4127-9628-16126b5ea67c
+.. raw:: html
+
+    <img src="https://github.com/crate/crash/assets/38700/e7281ca0-4736-4127-9628-16126b5ea67c" style="margin-top: 0.8em; margin-bottom: 0.8em;" loading="lazy" alt="Crash Pager">
+
 
 Example
 -------

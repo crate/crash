@@ -109,3 +109,26 @@ Status messages show the first word only::
     | 1 | 2 |
     +---+---+
     SELECT 1 row in set (... sec)
+
+
+    cr> /* foo */ select
+    ... 1,2
+    ... from sys.cluster limit 1;
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    SELECT 1 row in set (... sec)
+
+
+    cr> -- foo
+    ... select
+    ... 1,2
+    ... from sys.cluster limit 1;
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    | 1 | 2 |
+    +---+---+
+    SELECT 1 row in set (... sec)

@@ -24,7 +24,7 @@ import shutil
 import sys
 import tempfile
 from unittest import SkipTest, TestCase
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, Mock, call, patch
 
 from verlib2 import Version
 
@@ -38,6 +38,7 @@ from crate.crash.commands import (
     ToggleAutocompleteCommand,
     ToggleVerboseCommand,
 )
+from tests.util import fake_cursor
 
 
 class ReadFileCommandTest(TestCase):
@@ -221,6 +222,7 @@ class ChecksCommandTest(TestCase):
         cmd.logger.info.assert_called_with('NODE CHECK OK')
 
 
+@patch('crate.client.connection.Cursor', fake_cursor())
 class CommentsTest(TestCase):
 
     def test_sql_comments(self):
@@ -236,9 +238,9 @@ SELECT /* this is a multi-line
 comment */ 4;
 """
         cmd = CrateShell()
-        cmd._exec_and_print = MagicMock()
+        cmd._exec = Mock()
         cmd.process_iterable(sql.splitlines())
-        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+        self.assertListEqual(cmd._exec.mock_calls, [
             call("-- Just a dummy SELECT statement.\nSELECT 1;"),
             call("-- Another SELECT statement.\nSELECT 2;"),
             call('\n'.join([
@@ -267,19 +269,64 @@ comment */ 4;
         """
 
         cmd = CrateShell()
-        cmd._exec_and_print = MagicMock()
+        cmd._exec = Mock()
         cmd.process(sql)
-        self.assertEqual(1, cmd._exec_and_print.call_count)
-        self.assertIn("CREATE FUNCTION", cmd._exec_and_print.mock_calls[0].args[0])
+        self.assertEqual(1, cmd._exec.call_count)
+        self.assertIn("CREATE FUNCTION", cmd._exec.mock_calls[0].args[0])
+
+    def test_exec_type_with_block_comment(self):
+        """
+        Make sure SQL statements are executed as-is, including block comments.
+
+        This is important because they may contain certain specific annotations
+        to let the user give hints to the SQL parser, planner, or execution engine.
+
+        However, also verify the status line displays the correct canonical
+        statement type, even when the SQL statement is prefixed using an
+        SQL comment.
+        """
+        sql = "/* foo */ select 1;"
+        cmd = CrateShell()
+        cmd._exec = Mock()
+        cmd.logger = Mock()
+        cmd.process(sql)
+        self.assertEqual(1, cmd._exec.call_count)
+        self.assertListEqual(cmd._exec.mock_calls, [
+            call("/* foo */ select 1;"),
+        ])
+        self.assertIn("SELECT 1 row in set", cmd.logger.info.call_args[0][0])
+
+    def test_exec_type_with_line_comment(self):
+        """
+        Make sure SQL statements are executed as-is, including per-line comments.
+
+        This is important because they may contain certain specific annotations
+        to let the user give hints to the SQL parser, planner, or execution engine.
+
+        However, also verify the status line displays the correct canonical
+        statement type, even when the SQL statement is prefixed using an
+        SQL comment.
+        """
+        sql = "-- foo \n select 1;"
+        cmd = CrateShell()
+        cmd._exec = Mock()
+        cmd.logger = Mock()
+        cmd.process(sql)
+        self.assertEqual(1, cmd._exec.call_count)
+        self.assertListEqual(cmd._exec.mock_calls, [
+            call("-- foo\nselect 1;"),
+        ])
+        self.assertIn("SELECT 1 row in set", cmd.logger.info.call_args[0][0])
 
 
+@patch('crate.client.connection.Cursor', fake_cursor())
 class MultipleStatementsTest(TestCase):
 
     def test_single_line_multiple_sql_statements(self):
         cmd = CrateShell()
-        cmd._exec_and_print = MagicMock()
+        cmd._exec = Mock()
         cmd.process("SELECT 1; SELECT 2; SELECT 3;")
-        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+        self.assertListEqual(cmd._exec.mock_calls, [
             call("SELECT 1;"),
             call("SELECT 2;"),
             call("SELECT 3;"),
@@ -287,9 +334,9 @@ class MultipleStatementsTest(TestCase):
 
     def test_multiple_lines_multiple_sql_statements(self):
         cmd = CrateShell()
-        cmd._exec_and_print = MagicMock()
+        cmd._exec = Mock()
         cmd.process("SELECT 1;\nSELECT 2; SELECT 3;\nSELECT\n4;")
-        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+        self.assertListEqual(cmd._exec.mock_calls, [
             call("SELECT 1;"),
             call("SELECT 2;"),
             call("SELECT 3;"),
@@ -300,9 +347,9 @@ class MultipleStatementsTest(TestCase):
         """When processing single SQL statements, new lines are preserved."""
 
         cmd = CrateShell()
-        cmd._exec_and_print = MagicMock()
+        cmd._exec = Mock()
         cmd.process("\nSELECT\n1\nWHERE\n2\n=\n3\n;\n")
-        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+        self.assertListEqual(cmd._exec.mock_calls, [
             call("SELECT\n1\nWHERE\n2\n=\n3\n;"),
         ])
 
@@ -321,10 +368,10 @@ class MultipleStatementsTest(TestCase):
         """Combine all test cases above to be sure everything integrates well."""
 
         cmd = CrateShell()
-        mock_manager = MagicMock()
+        mock_manager = Mock()
 
         cmd._try_exec_cmd = mock_manager.cmd
-        cmd._exec_and_print = mock_manager.sql
+        cmd._exec = mock_manager.sql
 
         cmd.process("""
     \\?
@@ -349,7 +396,7 @@ class MultipleStatementsTest(TestCase):
         """Test multiple types of comments along multi-statement input."""
 
         cmd = CrateShell()
-        cmd._exec_and_print = MagicMock()
+        cmd._exec = Mock()
 
         cmd.process("""
 -- Multiple statements and comments on same line
@@ -370,7 +417,7 @@ comment */ SELECT /* inner multi-line
 comment */ 6;
         """)
 
-        self.assertListEqual(cmd._exec_and_print.mock_calls, [
+        self.assertListEqual(cmd._exec.mock_calls, [
             call('-- Multiple statements and comments on same line\n\nSELECT /* inner comment */ 1;'),
             call('/* this is a single-line comment */ SELECT /* inner comment */ 2;'),
 

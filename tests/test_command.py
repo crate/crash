@@ -113,6 +113,11 @@ class CommandUtilsTest(TestCase):
         # statements with trailing or leading spaces/tabs/linebreaks
         self.assertEqual(stmt_type(' SELECT 1 ;'), 'SELECT')
         self.assertEqual(stmt_type('\nSELECT\n1\n;\n'), 'SELECT')
+        # statements with trailing or leading comments
+        self.assertEqual(stmt_type('/* foo */ SELECT 1;'), 'SELECT')
+        self.assertEqual(stmt_type('SELECT 1; /* foo */'), 'SELECT')
+        self.assertEqual(stmt_type('-- foo \n SELECT 1;'), 'SELECT')
+        self.assertEqual(stmt_type('SELECT 1; -- foo'), 'SELECT')
 
     def test_decode_timeout_success(self):
         self.assertEqual(_decode_timeout(None), None)

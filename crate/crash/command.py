@@ -26,12 +26,12 @@ from __future__ import print_function
 
 import logging
 import os
-import re
 import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from collections import namedtuple
 from getpass import getpass
 from operator import itemgetter
+from typing import Union
 
 import sqlparse
 import urllib3
@@ -274,7 +274,7 @@ class CrateShell:
 
     def _process_sql(self, text):
         sql = sqlparse.format(text, strip_comments=False)
-        for statement in sqlparse.split(sql):
+        for statement in sqlparse.parse(sql):
             self._exec_and_print(statement)
 
     def exit(self):
@@ -442,7 +442,7 @@ class CrateShell:
         return False
 
     def _exec(self, statement: str) -> bool:
-        """Execute the statement, prints errors if any occurr but no results."""
+        """Execute the statement, prints errors if any, but no results."""
         try:
             self.cursor.execute(statement)
             return True
@@ -457,9 +457,10 @@ class CrateShell:
                 self.logger.critical('\n' + e.error_trace)
         return False
 
-    def _exec_and_print(self, statement: str) -> bool:
+    def _exec_and_print(self, expression: Union[str, sqlparse.sql.Statement]) -> bool:
         """Execute the statement and print the output."""
-        success = self._exec(statement)
+        statement = to_statement(expression)
+        success = self._exec(str(statement).strip())
         self.exit_code = self.exit_code or int(not success)
         if not success:
             return False
@@ -482,9 +483,26 @@ class CrateShell:
         return True
 
 
-def stmt_type(statement):
+def stmt_type(expression: Union[str, sqlparse.sql.Statement]):
     """Extract type of statement, e.g. SELECT, INSERT, UPDATE, DELETE, ..."""
-    return re.findall(r'[\w]+', statement)[0].upper()
+    statement = to_statement(expression)
+    return str(statement.token_first(skip_ws=True, skip_cm=True)).upper()
+
+
+def to_statement(expression: Union[str, sqlparse.sql.Statement]) -> sqlparse.sql.Statement:
+    """
+    Convert SQL expression to sqlparse Statement.
+
+    This is mostly for backward-compatibility reasons, because the test cases
+    also submit *string types* to both `_exec_and_print` and `stmt_type`.
+    """
+    if isinstance(expression, sqlparse.sql.Statement):
+        statement = expression
+    elif isinstance(expression, str):
+        statement = sqlparse.parse(expression)[0]
+    else:
+        raise TypeError(f"Unknown type for expression: {type(expression)}")
+    return statement
 
 
 def get_lines_from_stdin():

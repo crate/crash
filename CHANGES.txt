@@ -5,8 +5,11 @@ Changes for crash
 Unreleased
 ==========
 
-- Started using Python Testcontainers for integration testing
+2024/03/18 0.31.3
+=================
+
 - Fixed status line display of the executed SQL command
+- Started using Python Testcontainers for integration testing
 
 2024/02/08 0.31.2
 =================

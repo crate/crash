@@ -26,6 +26,7 @@ from __future__ import print_function
 
 import logging
 import os
+import re
 import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from collections import namedtuple
@@ -486,7 +487,9 @@ class CrateShell:
 def stmt_type(expression: Union[str, sqlparse.sql.Statement]):
     """Extract type of statement, e.g. SELECT, INSERT, UPDATE, DELETE, ..."""
     statement = to_statement(expression)
-    return str(statement.token_first(skip_ws=True, skip_cm=True)).upper()
+    command_with_args = str(statement.token_first(skip_ws=True, skip_cm=True))
+    effective_command = re.findall(r'[\w]+', command_with_args)[0]
+    return effective_command.upper()
 
 
 def to_statement(expression: Union[str, sqlparse.sql.Statement]) -> sqlparse.sql.Statement:

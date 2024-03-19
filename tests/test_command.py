@@ -118,6 +118,8 @@ class CommandUtilsTest(TestCase):
         self.assertEqual(stmt_type('SELECT 1; /* foo */'), 'SELECT')
         self.assertEqual(stmt_type('-- foo \n SELECT 1;'), 'SELECT')
         self.assertEqual(stmt_type('SELECT 1; -- foo'), 'SELECT')
+        # statements with arguments as part of the command
+        self.assertEqual(stmt_type('/* foo */ DENY DQL, DML, DDL, AL ON SCHEMA sys TO test;'), 'DENY')
 
     def test_decode_timeout_success(self):
         self.assertEqual(_decode_timeout(None), None)

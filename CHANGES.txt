@@ -5,6 +5,12 @@ Changes for crash
 Unreleased
 ==========
 
+2024/03/19 0.31.4
+=================
+
+- Fixed status line display of the executed SQL command, part 2,
+  don't display SQL command _arguments_.
+
 2024/03/18 0.31.3
 =================
 

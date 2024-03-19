@@ -76,7 +76,7 @@ setup(
     },
     extras_require=dict(
         test=[
-            'crate[test]',
+            'crate[sqlalchemy,test]',
             'zc.customdoctests<2',
             'cratedb-toolkit[test]',
         ],

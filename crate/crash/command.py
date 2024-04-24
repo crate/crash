@@ -41,7 +41,7 @@ from urllib3.exceptions import LocationParseError
 from verlib2 import Version
 
 from crate.client import connect
-from crate.client.exceptions import ConnectionError, ProgrammingError
+from crate.client.exceptions import ConnectionError, IntegrityError, ProgrammingError
 
 from ..crash import __version__ as crash_version
 from .commands import Command, built_in_commands
@@ -452,7 +452,7 @@ class CrateShell:
                 self.logger.warn(str(e))
             self.logger.warn(
                 'Use \\connect <server> to connect to one or more servers first.')
-        except ProgrammingError as e:
+        except (ProgrammingError, IntegrityError) as e:
             self.logger.critical(e.message)
             if self.error_trace and e.error_trace:
                 self.logger.critical('\n' + e.error_trace)

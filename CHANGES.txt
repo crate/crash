@@ -5,6 +5,11 @@ Changes for crash
 Unreleased
 ==========
 
+- Fixed handling of ``DuplicateKeyException`` errors. After an improvement in
+  crate-python 0.34, this error case is conveyed through ``IntegrityError``.
+  Beforehand, a more generic ``ProgrammingError`` was used. Thanks, @romseygeek
+  and @proddata.
+
 2024/03/19 0.31.4
 =================
 

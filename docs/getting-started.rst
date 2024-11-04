@@ -116,7 +116,7 @@ traces (in the case of an error).
 Query
 =====
 
-When you run Crash, you will see something like this:
+When you run Crash, it will greet you with an SQL prompt:
 
 .. image:: startup.png
     :alt: A screenshot of Crash after startup

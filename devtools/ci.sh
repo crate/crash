@@ -2,6 +2,6 @@
 
 set -e -x
 
-isort --check --diff crate/ tests/ setup.py
-flake8 crate/crash
+isort --check --diff src/crate/ tests/ setup.py
+flake8 src/crate/crash
 coverage run -m unittest -v

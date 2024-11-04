@@ -47,7 +47,7 @@ long_description = (
     read('README.rst')
 )
 
-versionf_content = read(os.path.join('crate', 'crash', '__init__.py'))
+versionf_content = read(os.path.join('src', 'crate', 'crash', '__init__.py'))
 version_rex = r'^__version__ = [\'"]([^\'"]*)[\'"]$'
 m = re.search(version_rex, versionf_content, re.M)
 if m:
@@ -68,7 +68,7 @@ setup(
     license='Apache License 2.0',
     keywords='cratedb db data client shell',
     packages=['crate.crash'],
-    namespace_packages=['crate'],
+    package_dir={"": "src"},
     entry_points={
         'console_scripts': [
             'crash = crate.crash.command:main',
@@ -76,9 +76,10 @@ setup(
     },
     extras_require=dict(
         test=[
-            'crate[test]',
+            'crate[test]>=1.0.0.dev2',
+            'cratedb-toolkit[testing]',
+            'sqlalchemy-cratedb',
             'zc.customdoctests<2',
-            'cratedb-toolkit[test]',
         ],
         devel=[
             'coverage<8',

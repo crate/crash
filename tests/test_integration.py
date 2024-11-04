@@ -113,10 +113,10 @@ class RaiseOnceSideEffect:
 class DocumentationTest(TestCase):
 
     def test_output(self):
-        testfile('../crate/crash/output.txt')
+        testfile('../src/crate/crash/output.txt')
 
     def test_connect(self):
-        testfile('../crate/crash/connect.txt')
+        testfile('../src/crate/crash/connect.txt')
 
 
 class CommandTest(TestCase):

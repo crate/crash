@@ -11,7 +11,7 @@ on:
 
   # Run job as nightly recurrent job.
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 4 * * *'
 
 # Cancel in-progress jobs when pushing to the same branch.
 concurrency:
@@ -27,14 +27,24 @@ jobs:
       matrix:
         os: ['ubuntu-latest']
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
-        cratedb-version: ['4.8.4', '5.5.0']
+        cratedb-version: ['4.8.4', '5.9.2']
         include:
+
+          # A single slot for testing CrateDB nightly.
+          - os: 'ubuntu-latest'
+            python-version: '3.12'
+            cratedb-version: 'nightly'
+
+          # A single slot for testing macOS.
           - os: 'macos-latest'
             python-version: '3.12'
-            cratedb-version: '5.5.0'
+            cratedb-version: '5.9.2'
+
+          # A single slot for testing Windows.
           - os: 'windows-latest'
             python-version: '3.12'
-            cratedb-version: '5.5.0'
+            cratedb-version: '5.9.2'
+
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}

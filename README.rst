@@ -45,19 +45,15 @@ Installation
 Python Package
 --------------
 
-Crash is available as a `pip`_ package.
+Crash is available as a package from PyPI.
 
-To install, run::
+To install the most recent version, run::
 
-    pip install crash
+    pipx install --upgrade crash
 
 Now, run it::
 
     crash
-
-To update, run::
-
-    pip install -U crash
 
 Standalone
 ----------

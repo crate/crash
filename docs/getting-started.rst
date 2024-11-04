@@ -129,7 +129,8 @@ Queries are autocompleted as you type:
 .. image:: autocomplete.png
     :alt: A screenshot of Crash while typing a query
 
-Once you have entered your query, hit :kbd:`Enter` to run.
+Once you have entered your query, terminate it using ``;``,
+and hit :kbd:`Enter` to execute it.
 
 You should see something like this:
 

@@ -66,7 +66,7 @@ setup(
     long_description_content_type='text/x-rst',
     platforms=['any'],
     license='Apache License 2.0',
-    keywords='crate db data client shell',
+    keywords='cratedb db data client shell',
     packages=['crate.crash'],
     namespace_packages=['crate'],
     entry_points={

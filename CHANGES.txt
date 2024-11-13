@@ -5,8 +5,10 @@ Changes for crash
 Unreleased
 ==========
 - Python: Migrated to use "implicit namespace packages" instead of "declared
-  namespaces" for the ``crate`` namespace package, see `PEP 420`_.
+  namespaces" for the ``crate`` namespace package, see `PEP 420`_
+  and `Package Discovery and Namespace Package » Finding namespace packages`_.
 
+.. _Package Discovery and Namespace Package » Finding namespace packages: https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#namespace-packages
 .. _PEP 420: https://peps.python.org/pep-0420/
 
 2024/04/24 0.31.5

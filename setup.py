@@ -23,7 +23,7 @@ import io
 import os
 import re
 
-from setuptools import find_namespace_packages, setup
+from setuptools import setup
 
 requirements = [
     'colorama<1',
@@ -67,7 +67,7 @@ setup(
     platforms=['any'],
     license='Apache License 2.0',
     keywords='cratedb db data client shell',
-    packages=find_namespace_packages("src"),
+    packages=['crate.crash'],
     package_dir={"": "src"},
     entry_points={
         'console_scripts': [

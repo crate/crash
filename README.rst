@@ -49,7 +49,7 @@ Crash is available as a package from PyPI.
 
 To install the most recent version, run::
 
-    pipx install --upgrade crash
+    pipx install crash
 
 Now, run it::
 

@@ -25,7 +25,7 @@ To install the most recent version, run:
 
 .. code-block:: console
 
-    sh$ pipx install --upgrade crash
+    sh$ pipx install crash
 
 Now, run it:
 

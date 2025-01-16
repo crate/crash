@@ -28,7 +28,7 @@ from setuptools import setup
 requirements = [
     'colorama<1',
     'Pygments>=2.4,<3',
-    'crate>=1.0.0.dev2',
+    'crate>=2.0.0.dev5',
     'platformdirs<5',
     'prompt-toolkit>=3.0,<4',
     'tabulate>=0.9,<0.10',

@@ -8,9 +8,19 @@ Developer Guide
 Setup
 =====
 
-Create a virtualenv and install the project::
+Optionally install Python package and project manager `uv`_,
+in order to significantly speed up the package installation::
 
-    python3 -m venv .venv
+    {apt,brew,pip,zypper} install uv
+    alias pip="uv pip"
+
+Create a virtualenv::
+
+    uv venv
+    # python3 -m venv .venv  # When not using `uv`.
+
+Install the project::
+
     source .venv/bin/activate
     pip install --upgrade --editable=".[test,devel]"
 
@@ -47,16 +57,11 @@ environment variable ``CRATEDB_VERSION`` like::
 
     export CRATEDB_VERSION=5.5.0
 
-If you install tox_, you can also run tests against multiple Python interpreters::
-
-    pip install tox
-    tox
-
-This requires you to have the python interpreters available in ``$PATH``.
-
-To run against a single interpreter, you can also do::
-
-    tox -e py33
+The CI setup on GitHub Actions (GHA) provides a full test matrix covering
+relevant Python versions. You can invoke the software tests against a specific
+Python interpreter or multiple `Python versions`_ on your workstation using
+`uv`_, by supplying the ``--python`` command-line option, or by defining the
+`UV_PYTHON`_ environment variable prior to creating the virtualenv.
 
 Standalone Executable
 =====================
@@ -176,11 +181,13 @@ release version), please contact the `@crate/tech-writing`_ team.
 .. _fswatch: https://github.com/emcrisostomo/fswatch
 .. _Jenkins: https://jenkins-ci.org/
 .. _PyPI: https://pypi.python.org/pypi
+.. _Python versions: https://docs.astral.sh/uv/concepts/python-versions/
 .. _Read the Docs: https://readthedocs.org/
 .. _ReStructuredText: https://docutils.sourceforge.net/rst.html
 .. _Sphinx: https://sphinx-doc.org/
-.. _tox: https://testrun.org/tox/latest/
 .. _twine: https://pypi.python.org/pypi/twine
+.. _uv: https://docs.astral.sh/uv/
+.. _UV_PYTHON: https://docs.astral.sh/uv/configuration/environment/#uv_python
 .. _versions: https://readthedocs.org/projects/crash/versions/
 .. _zope.testrunner: https://pypi.python.org/pypi/zope.testrunner/4.4.1
 

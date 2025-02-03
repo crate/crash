@@ -84,7 +84,7 @@ setup(
         devel=[
             'coverage<8',
             'flake8<8',
-            'isort<6',
+            'isort<7',
         ],
         argcompletion=['argcomplete']
     ),

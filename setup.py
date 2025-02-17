@@ -33,7 +33,7 @@ requirements = [
     'prompt-toolkit>=3.0,<4',
     'tabulate>=0.9,<0.10',
     'sqlparse>=0.4.4,<0.6.0',
-    'verlib2<0.3',
+    'verlib2<0.4',
 ]
 
 

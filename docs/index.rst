@@ -6,17 +6,10 @@ The CrateDB Shell
 
 The CrateDB Shell (aka *Crash*) is an interactive `CLI`_ for working with CrateDB.
 
-.. image:: startup.png
-   :alt: A screenshot of Crash after startup
-
-
-.. image:: autocomplete.png
-   :alt: A screenshot of Crash while typing a query
-
-
 .. image:: query.png
    :alt: A screenshot of Crash after executing a query
 
+<br>
 
 .. rubric:: Table of contents
 

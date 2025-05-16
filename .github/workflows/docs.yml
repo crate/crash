@@ -20,12 +20,8 @@ concurrency:
 
 jobs:
   documentation:
-    name: Build docs on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
+    name: Run link checker
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4

@@ -4,11 +4,6 @@
 Getting started
 ===============
 
-.. rubric:: Table of contents
-
-.. contents::
-   :local:
-
 Installation
 ============
 

@@ -12,12 +12,6 @@ This document covers the basics of running Crash from the `command-line`_.
 
 .. _options:
 
-.. rubric:: Table of contents
-
-.. contents::
-   :local:
-   :depth: 1
-
 Command-line options
 ====================
 

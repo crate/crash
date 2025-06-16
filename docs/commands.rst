@@ -37,6 +37,7 @@ Every command starts with a ``\`` character.
 |                        | Available ``<FORMAT>`` values are: ``tabular``,     |
 |                        | ``raw``, ``json``, ``json_row``, ``csv`` and        |
 |                        | ``mixed``.                                          |
+|                        | See :ref:`formats` for details.                     |
 +------------------------+-----------------------------------------------------+
 | ``\q``                 | Quit the CrateDB shell.                             |
 +------------------------+-----------------------------------------------------+

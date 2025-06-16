@@ -6,10 +6,6 @@ Running Crash
 
 This document covers the basics of running Crash from the `command-line`_.
 
-.. NOTE::
-
-   For help using Crash for the first time, check out :ref:`getting-started`.
-
 .. _options:
 
 Command-line options
@@ -75,6 +71,7 @@ The ``crash`` executable supports multiple command-line options:
 |                               | Available formats are: ``tabular``, ``raw``, |
 |                               | ``json``, ``json_row``, ``csv`` and          |
 |                               | ``mixed``.                                   |
+|                               | See :ref:`formats` for details.              |
 +-------------------------------+----------------------------------------------+
 | ``--schema <SCHEMA>``         | The default schema that should be used for   |
 |                               | statements.                                  |

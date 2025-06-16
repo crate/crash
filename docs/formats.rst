@@ -4,10 +4,8 @@
 Response formats
 ================
 
-Crash supports multiple output formats.
-
-You can select between output formats below using either :ref:`commands` or
-:ref:`options`:
+When using either :ref:`commands` or :ref:`options`: you can select one of the
+below output formats for the response to your command.
 
 .. contents::
    :local:

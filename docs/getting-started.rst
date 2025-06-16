@@ -7,10 +7,6 @@ Getting started
 Installation
 ============
 
-.. SEEALSO::
-
-    Consult the :ref:`compatibility` appendix for prerequisites information.
-
 Python package
 --------------
 

@@ -13,13 +13,13 @@ The CrateDB Shell (aka *Crash*) is an interactive `CLI`_ for working with CrateD
 .. rubric:: Table of contents
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    getting-started
    run
    commands
    troubleshooting
-   appendices/index
+   formats
 
 .. SEEALSO::
 

@@ -6,7 +6,7 @@ Response formats
 
 Crash supports multiple output formats.
 
-You can select between below output formats using either :ref:`commands` or
+You can select between output formats below using either :ref:`commands` or
 :ref:`options`:
 
 .. contents::

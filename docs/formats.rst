@@ -6,10 +6,8 @@ Response formats
 
 Crash supports multiple output formats.
 
-You can select between these output formats using either :ref:`commands` or
-:ref:`options`.
-
-.. rubric:: Table of contents
+You can select between below output formats using either :ref:`commands` or
+:ref:`options`:
 
 .. contents::
    :local:

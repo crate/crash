@@ -13,7 +13,7 @@ If you are connecting to `CrateDB`_, for example like this::
 
     crash --hosts 'http://localhost:4200' -U 'admin' -W
 
-... and ``crash`` responds with a connection error message like this::
+and ``crash`` responds with a connection error message like this::
 
     CONNECT ERROR
 

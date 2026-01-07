@@ -8,7 +8,9 @@ Unreleased
   namespaces" for the ``crate`` namespace package, see `PEP 420`_
   and `Package Discovery and Namespace Package » Finding namespace packages`_.
 
-- Updated to ``crate-2.0.0``, which uses `orjson`_ for JSON marshalling.
+- Updated to ``crate-2.0.0``, which uses `orjson`_ for JSON marshaling.
+
+- CI: Validated on Python 3.14
 
 .. _orjson: https://github.com/ijl/orjson
 .. _Package Discovery and Namespace Package » Finding namespace packages: https://setuptools.pypa.io/en/latest/userguide/package_discovery.html#namespace-packages

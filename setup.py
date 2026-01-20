@@ -67,7 +67,7 @@ setup(
     platforms=['any'],
     license='Apache License 2.0',
     keywords='cratedb db data client shell',
-    packages=['crate.crash'],
+    packages=["crate", "crate.crash"],
     package_dir={"": "src"},
     entry_points={
         'console_scripts': [

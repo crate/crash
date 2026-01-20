@@ -4,6 +4,9 @@ Changes for crash
 
 Unreleased
 ==========
+
+- Extended the output of the ``\dt`` command to show more information.
+
 - Python: Migrated to use "implicit namespace packages" instead of "declared
   namespaces" for the ``crate`` namespace package, see `PEP 420`_
   and `Package Discovery and Namespace Package » Finding namespace packages`_.

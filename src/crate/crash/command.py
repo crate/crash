@@ -22,17 +22,16 @@
 # software solely pursuant to the terms of the relevant commercial agreement.
 
 
-from __future__ import print_function
-
 import logging
 import os
 import re
 import sys
+import textwrap
 from argparse import ArgumentParser, ArgumentTypeError
 from collections import namedtuple
 from getpass import getpass
 from operator import itemgetter
-from typing import Union
+from typing import Optional, Union
 
 import sqlparse
 import urllib3
@@ -41,6 +40,7 @@ from urllib3.exceptions import LocationParseError
 from verlib2 import Version
 
 from crate.client import connect
+from crate.client.connection import Connection
 from crate.client.exceptions import ConnectionError, IntegrityError, ProgrammingError
 
 from ..crash import __version__ as crash_version
@@ -229,7 +229,7 @@ class CrateShell:
 
         # establish connection
         self.cursor = None
-        self.connection = None
+        self.connection: Optional[Connection] = None
         self._connect(crate_hosts)
 
     def __enter__(self):
@@ -298,18 +298,45 @@ class CrateShell:
     @noargs_command
     def _show_tables(self, *args):
         """ print the existing tables within the 'doc' schema """
+        if self.connection is None:
+            return
         v = self.connection.lowest_server_version
         schema_name = \
             "table_schema" if v >= TABLE_SCHEMA_MIN_VERSION else "schema_name"
-        table_filter = \
-            " AND table_type = 'BASE TABLE'" if v >= TABLE_TYPE_MIN_VERSION else ""
-
-        self._exec_and_print(
-            "SELECT format('%s.%s', {schema}, table_name) AS name "
-            "FROM information_schema.tables "
-            "WHERE {schema} NOT IN ('sys','information_schema', 'pg_catalog')"
-            "{table_filter} "
-            "ORDER BY 1".format(schema=schema_name, table_filter=table_filter))
+        if v >= TABLE_TYPE_MIN_VERSION:
+            self._exec_and_print(textwrap.dedent(
+                f"""\
+                SELECT
+                    {schema_name} as schema,
+                    table_name as name,
+                    table_type as type,
+                    number_of_shards as primary_shards,
+                    number_of_replicas as replicas
+                FROM
+                    information_schema.tables
+                WHERE
+                    {schema_name} NOT IN ('sys', 'information_schema', 'pg_catalog')
+                    AND table_type != 'VIEW'
+                ORDER BY
+                    1
+                """
+            ))
+        else:
+            self._exec_and_print(textwrap.dedent(
+                f"""\
+                SELECT
+                    {schema_name} as schema,
+                    table_name as name,
+                    number_of_shards as primary_shards,
+                    number_of_replicas as replicas
+                FROM
+                    information_schema.tables
+                WHERE
+                    {schema_name} NOT IN ('sys', 'information_schema', 'pg_catalog')
+                ORDER BY
+                    1
+                """
+            ))
 
     @noargs_command
     def _quit(self, *args):

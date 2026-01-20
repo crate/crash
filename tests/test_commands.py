@@ -23,6 +23,7 @@ import os
 import shutil
 import sys
 import tempfile
+import textwrap
 from unittest import SkipTest, TestCase
 from unittest.mock import MagicMock, Mock, call, patch
 
@@ -136,21 +137,65 @@ class ShowTablesCommandTest(TestCase):
         cmd._exec_and_print = MagicMock()
         cmd.connection.lowest_server_version = Version("2.0.0")
         cmd._show_tables()
-        cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') AND table_type = 'BASE TABLE' ORDER BY 1")
+        cmd._exec_and_print.assert_called_with(textwrap.dedent(
+            """\
+            SELECT
+                table_schema as schema,
+                table_name as name,
+                table_type as type,
+                number_of_shards as primary_shards,
+                number_of_replicas as replicas
+            FROM
+                information_schema.tables
+            WHERE
+                table_schema NOT IN ('sys', 'information_schema', 'pg_catalog')
+                AND table_type != 'VIEW'
+            ORDER BY
+                1
+            """
+        ))
 
     def test_post_0_57(self):
         cmd = CrateShell()
         cmd._exec_and_print = MagicMock()
         cmd.connection.lowest_server_version = Version("0.57.0")
         cmd._show_tables()
-        cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', table_schema, table_name) AS name FROM information_schema.tables WHERE table_schema NOT IN ('sys','information_schema', 'pg_catalog') ORDER BY 1")
+        cmd._exec_and_print.assert_called_with(textwrap.dedent(
+            """\
+            SELECT
+                table_schema as schema,
+                table_name as name,
+                number_of_shards as primary_shards,
+                number_of_replicas as replicas
+            FROM
+                information_schema.tables
+            WHERE
+                table_schema NOT IN ('sys', 'information_schema', 'pg_catalog')
+            ORDER BY
+                1
+            """
+        ))
 
     def test_pre_0_57(self):
         cmd = CrateShell()
         cmd._exec_and_print = MagicMock()
         cmd.connection.lowest_server_version = Version("0.56.4")
         cmd._show_tables()
-        cmd._exec_and_print.assert_called_with("SELECT format('%s.%s', schema_name, table_name) AS name FROM information_schema.tables WHERE schema_name NOT IN ('sys','information_schema', 'pg_catalog') ORDER BY 1")
+        cmd._exec_and_print.assert_called_with(textwrap.dedent(
+            """\
+            SELECT
+                schema_name as schema,
+                table_name as name,
+                number_of_shards as primary_shards,
+                number_of_replicas as replicas
+            FROM
+                information_schema.tables
+            WHERE
+                schema_name NOT IN ('sys', 'information_schema', 'pg_catalog')
+            ORDER BY
+                1
+            """
+        ))
 
 
 class ChecksCommandTest(TestCase):
@@ -175,7 +220,7 @@ class ChecksCommandTest(TestCase):
     def test_node_check_for_not_supported_version(self, cmd):
         cmd.connection.lowest_server_version = Version("0.52.3")
         NodeCheckCommand()(cmd)
-        excepted = 'Crate 0.52.3 does not support the "\check nodes" command.'
+        excepted = 'Crate 0.52.3 does not support the "\\check nodes" command.'
         cmd.logger.warn.assert_called_with(excepted)
 
     @patch('crate.crash.command.CrateShell')

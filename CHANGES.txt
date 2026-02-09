@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+2026/02/09 0.32.0
+=================
+
 - Extended the output of the ``\dt`` command to show more information.
 
 - Python: Migrated to use "implicit namespace packages" instead of "declared

@@ -24,49 +24,6 @@ Now, run it:
 
     sh$ crash
 
-Standalone
-----------
-
-Crash is also available as a standalone executable that includes all the
-necessary dependencies, and can be run as long as Python (>= 3.4) is available
-on your system.
-
-First, download the executable file:
-
-.. code-block:: console
-
-    sh$ curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_latest
-
-Then, set the executable bit:
-
-.. code-block:: console
-
-    sh$ chmod +x crash
-
-Now, run it:
-
-.. code-block:: console
-
-    sh$ ./crash
-
-If you would like to run ``crash`` from any directory, and without the leading
-``./``, the file has to be in a directory that is on your `PATH`_.
-
-Legacy versions
-...............
-
-For Python 2.7 and 3.3 please download version 0.23.0 from the CDN:
-
-.. code-block:: console
-
-    sh$ curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_0.23.0
-
-For Python 2.6 please download version 0.16.2 from the CDN:
-
-.. code-block:: console
-
-    sh$ curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_0.16.2
-
 Run
 ===
 

@@ -55,27 +55,6 @@ Now, run it::
 
     crash
 
-Standalone
-----------
-
-Crash is also available as a standalone executable that includes all the
-necessary dependencies.
-
-First, download the executable file::
-
-    curl -o crash https://cdn.crate.io/downloads/releases/crash_standalone_latest
-
-Then, set the executable bit::
-
-    chmod +x crash
-
-Now, run it::
-
-    ./crash
-
-If you would like to run ``crash`` from any directory, and without the leading
-``./``, the file has to be in a directory that is on your `PATH`_.
-
 Troubleshooting
 ===============
 

@@ -63,24 +63,6 @@ Python interpreter or multiple `Python versions`_ on your workstation using
 `uv`_, by supplying the ``--python`` command-line option, or by defining the
 `UV_PYTHON`_ environment variable prior to creating the virtualenv.
 
-Standalone Executable
-=====================
-
-To build a standalone executable, you can use shiv_::
-
-    shiv -p /usr/bin/python -c crash -o crash.pyz crash
-
-Run the executable like so::
-
-    ./crash.pyz
-
-
-Standalone Deployment
-=====================
-
-The standalone executable is built and deployed by a `Jenkins`_ job.
-
-
 Documentation
 =============
 
@@ -146,9 +128,6 @@ To create a new release, you must:
   that releases the new version to PyPI at https://pypi.org/project/crash/
 
 - Designate the new release on GitHub at https://github.com/crate/crash/releases
-
-- Run the ``crash_standalone`` job on Jenkins in order to produce and publish
-  a self-contained executable to https://cdn.crate.io/downloads/releases/
 
 - Archive docs for old releases (see below)
 

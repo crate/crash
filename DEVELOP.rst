@@ -101,9 +101,9 @@ You must install `fswatch`_ to use the ``dev`` target.
 Continuous integration and deployment
 -------------------------------------
 
-|build| |travis| |rtd|
+|build| |gha| |rtd|
 
-Travis CI is `configured`_ to run ``make check`` from the ``docs`` directory.
+GitHub Actions is `configured`_ to run ``make check`` from the ``docs`` directory.
 Please do not merge pull requests until the tests pass.
 
 `Read the Docs`_ (RTD) automatically deploys the documentation whenever a
@@ -156,7 +156,7 @@ release version), please contact the `@crate/tech-writing`_ team.
 
 
 .. _@crate/tech-writing: https://github.com/orgs/crate/teams/tech-writing
-.. _configured: https://github.com/crate/crash/blob/master/.travis.yml
+.. _configured: https://github.com/crate/crash/blob/main/.github/workflows/docs.yml
 .. _fswatch: https://github.com/emcrisostomo/fswatch
 .. _Jenkins: https://jenkins-ci.org/
 .. _PyPI: https://pypi.python.org/pypi
@@ -175,9 +175,9 @@ release version), please contact the `@crate/tech-writing`_ team.
     :alt: Build version
     :target: https://github.com/crate/crash/blob/main/docs/build.json
 
-.. |travis| image:: https://img.shields.io/travis/crate/crash.svg?style=flat
-    :alt: Travis CI status
-    :target: https://travis-ci.org/crate/crash
+.. |gha| image:: https://github.com/crate/crash/actions/workflows/docs.yml/badge.svg
+    :alt: GitHub Actions CI status
+    :target: https://github.com/crate/crash/actions/workflows/docs.yml
 
 .. |rtd| image:: https://readthedocs.org/projects/crash/badge/?version=latest
     :alt: Read The Docs status

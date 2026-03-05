@@ -171,9 +171,9 @@ release version), please contact the `@crate/tech-writing`_ team.
 .. _zope.testrunner: https://pypi.python.org/pypi/zope.testrunner/4.4.1
 
 
-.. |build| image:: https://img.shields.io/endpoint.svg?color=blue&url=https%3A%2F%2Fraw.githubusercontent.com%2Fcrate%2Fcrash%2Fmaster%2Fdocs%2Fbuild.json
+.. |build| image:: https://img.shields.io/endpoint.svg?color=blue&url=https%3A%2F%2Fraw.githubusercontent.com%2Fcrate%2Fcrash%2Fmain%2Fdocs%2Fbuild.json
     :alt: Build version
-    :target: https://github.com/crate/crash/blob/master/docs/build.json
+    :target: https://github.com/crate/crash/blob/main/docs/build.json
 
 .. |travis| image:: https://img.shields.io/travis/crate/crash.svg?style=flat
     :alt: Travis CI status

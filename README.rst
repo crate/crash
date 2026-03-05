@@ -15,7 +15,7 @@ The CrateDB Shell
     :alt: Supported Python versions
 
 .. image:: https://img.shields.io/github/license/crate/crash
-    :target: https://github.com/crate/crash/blob/master/LICENSE
+    :target: https://github.com/crate/crash/blob/main/LICENSE
     :alt: License
 
 .. image:: https://static.pepy.tech/badge/crash/month
@@ -30,7 +30,7 @@ The CrateDB Shell (aka *Crash*) is an interactive `command-line interface`_
 Screenshot
 ==========
 
-.. image:: https://raw.githubusercontent.com/crate/crash/master/docs/query.png
+.. image:: https://raw.githubusercontent.com/crate/crash/main/docs/query.png
     :alt: A screenshot of Crash
 
 

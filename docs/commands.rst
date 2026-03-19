@@ -56,6 +56,11 @@ Every command starts with a ``\`` character.
 | ``\r <FILENAME>``      | Reads statements from ``<FILENAME>`` and execute    |
 |                        | them.                                               |
 +------------------------+-----------------------------------------------------+
+| ``\shards [all]``      | Queries the ``sys`` tables aggregating shards status|
+|                        | followed by filtering shards relocation and         |
+|                        | initialization, unless ``all``  is used. In which   |
+|                        | case no filter is applied.                          |
++------------------------+-----------------------------------------------------+
 | ``\sysinfo``           | Query the ``sys`` tables for system and cluster     |
 |                        | information.                                        |
 +------------------------+-----------------------------------------------------+

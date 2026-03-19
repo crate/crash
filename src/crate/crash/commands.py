@@ -234,6 +234,51 @@ class CheckCommand(Command):
             cmd.logger.warn('No check for {}'.format(check_name))
 
 
+class ShardsCommand(Command):
+    """ short summary for shards and their relocation (use `all` as argument for longer output) """
+
+    SHORT_STMT = """SELECT routing_state, state, COUNT(*) AS shard_count, SUM(num_docs) as num_docs, SUM(size) / 1073741824.0 as size_gb
+        FROM sys.shards
+        GROUP BY routing_state, state
+        ORDER BY shard_count DESC;
+    """
+
+    RELOC_STMT = """
+        SELECT node['name'] as name, id, recovery['stage'] as stage, recovery['size']['percent'] AS "%", routing_state, state, primary, table_name, relocating_node, size / 1024 as size_kb, partition_ident
+        FROM sys.shards
+        WHERE routing_state NOT IN ('STARTED')
+        ORDER BY id, name;
+    """
+
+    ALLSHARDS_STMT = """
+        SELECT node['name'] as name, id, recovery['stage'] as stage, recovery['size']['percent'] AS "%", routing_state, state, primary, table_name, relocating_node, size / 1024 as size_kb, partition_ident
+        FROM sys.shards
+        ORDER BY id, name;
+    """
+
+    OPTIONS = ('all',)
+
+    def complete(self, cmd, text):
+        return (i for i in self.OPTIONS if i.startswith(text) or text == '')
+
+    def execute(self, cmd, stmt):
+        success = cmd._exec(stmt)
+        cmd.exit_code = cmd.exit_code or int(not success)
+        if not success:
+            cmd.logger.warn("FAILED")
+            return False
+
+        cur = cmd.cursor
+        shards = cur.fetchall()
+        if len(shards):
+            cmd.pprint(shards, [c[0] for c in cur.description])
+        return True
+
+    def __call__(self, cmd, *args, **kwargs):
+        for stmt in (self.SHORT_STMT, self.RELOC_STMT if 'all' not in args else self.ALLSHARDS_STMT):
+            self.execute(cmd, stmt)
+
+
 built_in_commands = {
     '?': HelpCommand(),
     'r': ReadFileCommand(),
@@ -243,4 +288,5 @@ built_in_commands = {
     'verbose': ToggleVerboseCommand(),
     'check': CheckCommand(),
     'pager': SetPager(),
+    'shards': ShardsCommand(),
 }

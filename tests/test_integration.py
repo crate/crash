@@ -653,9 +653,11 @@ class CommandTest(TestCase):
             '\\pager                          set an external pager. Use without argument to reset to internal paging',
             '\\q                              quit crash',
             '\\r                              read and execute statements from a file',
+            '\\shards                         short summary for shards and their relocation (use `all` as argument for longer output)',
             '\\sysinfo                        print system and cluster info',
             '\\verbose                        toggle verbose mode',
         ])
+
 
         help_ = command.commands['?']
         self.assertTrue(isinstance(help_, Command))

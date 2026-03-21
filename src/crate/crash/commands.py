@@ -235,31 +235,69 @@ class CheckCommand(Command):
 
 
 class ShardsCommand(Command):
-    """ short summary for shards and their relocation (use `all` as argument for longer output) """
+    """shows progress of shards relocation (optional arguments: `state` and `relocating`)"""
 
-    SHORT_STMT = """SELECT routing_state, state, COUNT(*) AS shard_count, SUM(num_docs) as num_docs, SUM(size) / 1073741824.0 as size_gb
+    DEFAULT_STMT = """
+        SELECT
+            table_name,
+            COUNT(*)
+                AS total_shards,
+            SUM(num_docs)
+                AS total_num_docs,
+            SUM(size)
+                As total_sum_shard_size,
+            SUM(CASE WHEN routing_state = 'RELOCATING' THEN 1 ELSE 0 END)
+                AS relocating_shards,
+            SUM(CASE WHEN routing_state = 'RELOCATING' THEN size ELSE 0 END)
+                AS relocating_size,
+            100.0 * SUM(CASE WHEN routing_state != 'RELOCATING' THEN size ELSE 0 END) / CAST(SUM(size) as DOUBLE)
+                AS relocated_percent
         FROM sys.shards
-        GROUP BY routing_state, state
-        ORDER BY shard_count DESC;
+        WHERE routing_state != 'UNASSIGNED'
+        GROUP BY table_name
+        ORDER BY table_name;
+    """
+
+    STATE_STMT = """
+        SELECT
+            routing_state,
+            COUNT(*)
+                AS shard_count,
+            SUM(num_docs)
+                AS num_docs,
+            SUM(size) / 1073741824.0
+                AS size_gb
+        FROM sys.shards
+        GROUP BY routing_state
+        ORDER BY routing_state;
     """
 
     RELOC_STMT = """
-        SELECT node['name'] as name, id, recovery['stage'] as stage, recovery['size']['percent'] AS "%", routing_state, state, primary, table_name, relocating_node, size / 1024 as size_kb, partition_ident
+        SELECT
+            table_name,
+            node['name'],
+            id,
+            recovery['stage'],
+            size,
+            routing_state,
+            state,
+            primary,
+            relocating_node,
+            size / 1024.0
+                AS size_kb,
+            partition_ident
         FROM sys.shards
-        WHERE routing_state NOT IN ('STARTED')
-        ORDER BY id, name;
+        WHERE routing_state = 'RELOCATING'
+        ORDER BY table_name, id, node['name'];
     """
 
-    ALLSHARDS_STMT = """
-        SELECT node['name'] as name, id, recovery['stage'] as stage, recovery['size']['percent'] AS "%", routing_state, state, primary, table_name, relocating_node, size / 1024 as size_kb, partition_ident
-        FROM sys.shards
-        ORDER BY id, name;
-    """
-
-    OPTIONS = ('all',)
+    OPTIONS = {
+        "state": STATE_STMT,
+        "relocating": RELOC_STMT,
+    }
 
     def complete(self, cmd, text):
-        return (i for i in self.OPTIONS if i.startswith(text) or text == '')
+        return (i for i in self.OPTIONS if i.startswith(text) or text.isspace())
 
     def execute(self, cmd, stmt):
         success = cmd._exec(stmt)
@@ -272,21 +310,28 @@ class ShardsCommand(Command):
         shards = cur.fetchall()
         if len(shards):
             cmd.pprint(shards, [c[0] for c in cur.description])
+        else:
+            cmd.logger.info("No shards relocating!")
         return True
 
     def __call__(self, cmd, *args, **kwargs):
-        for stmt in (self.SHORT_STMT, self.RELOC_STMT if 'all' not in args else self.ALLSHARDS_STMT):
+        if len(args) == 0:
+            self.execute(cmd, self.DEFAULT_STMT)
+            return
+
+        stmt = self.OPTIONS.get(args[0].strip())
+        if stmt:
             self.execute(cmd, stmt)
 
 
 built_in_commands = {
-    '?': HelpCommand(),
-    'r': ReadFileCommand(),
-    'format': SwitchFormatCommand(),
-    'autocomplete': ToggleAutocompleteCommand(),
-    'autocapitalize': ToggleAutoCapitalizeCommand(),
-    'verbose': ToggleVerboseCommand(),
-    'check': CheckCommand(),
-    'pager': SetPager(),
-    'shards': ShardsCommand(),
+    "?": HelpCommand(),
+    "r": ReadFileCommand(),
+    "format": SwitchFormatCommand(),
+    "autocomplete": ToggleAutocompleteCommand(),
+    "autocapitalize": ToggleAutoCapitalizeCommand(),
+    "verbose": ToggleVerboseCommand(),
+    "check": CheckCommand(),
+    "pager": SetPager(),
+    "shards": ShardsCommand(),
 }

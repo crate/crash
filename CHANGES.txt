@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+- Added ``\shards`` to show shard relocation progress. With optinal arguments
+  ``state`` and ``relocating``.
+
 2026/02/09 0.32.0
 =================
 

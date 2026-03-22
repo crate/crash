@@ -238,24 +238,24 @@ class ShardsCommand(Command):
     """shows progress of shards relocation (optional arguments: `state` and `relocating`)"""
 
     DEFAULT_STMT = """
-        SELECT
-            table_name,
-            COUNT(*)
-                AS total_shards,
-            SUM(num_docs)
-                AS total_num_docs,
-            SUM(size)
-                As total_sum_shard_size,
-            SUM(CASE WHEN routing_state = 'RELOCATING' THEN 1 ELSE 0 END)
-                AS relocating_shards,
-            SUM(CASE WHEN routing_state = 'RELOCATING' THEN size ELSE 0 END)
-                AS relocating_size,
-            100.0 * SUM(CASE WHEN routing_state != 'RELOCATING' THEN size ELSE 0 END) / CAST(SUM(size) as DOUBLE)
-                AS relocated_percent
-        FROM sys.shards
-        WHERE routing_state != 'UNASSIGNED'
-        GROUP BY table_name
-        ORDER BY table_name;
+SELECT
+table_name,
+    COUNT(*)
+        AS total_shards,
+    SUM(num_docs)
+        AS total_num_docs,
+    SUM(size)
+        As total_sum_shard_size,
+    SUM(CASE WHEN routing_state = 'RELOCATING' THEN 1 ELSE 0 END)
+        AS relocating_shards,
+    SUM(CASE WHEN routing_state = 'RELOCATING' THEN size ELSE 0 END)
+        AS relocating_size,
+    100.0 * SUM(CASE WHEN routing_state != 'RELOCATING' THEN size ELSE 0 END) / CAST(SUM(size) as DOUBLE)
+        AS relocated_percent
+FROM sys.shards
+WHERE routing_state != 'UNASSIGNED'
+GROUP BY table_name
+ORDER BY relocated_percent, table_name;
     """
 
     STATE_STMT = """

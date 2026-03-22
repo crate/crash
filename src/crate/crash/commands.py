@@ -308,10 +308,7 @@ class ShardsCommand(Command):
 
         cur = cmd.cursor
         shards = cur.fetchall()
-        if len(shards):
-            cmd.pprint(shards, [c[0] for c in cur.description])
-        else:
-            cmd.logger.info("No shards relocating!")
+        cmd.pprint(shards, [c[0] for c in cur.description])
         return True
 
     def __call__(self, cmd, *args, **kwargs):
@@ -322,6 +319,9 @@ class ShardsCommand(Command):
         stmt = self.OPTIONS.get(args[0].strip())
         if stmt:
             self.execute(cmd, stmt)
+        else:
+            cmd.logger.critical(f'Command argument not supported (available options: {", ".join(f"`{_a}`" for _a in self.OPTIONS.keys())}).')
+            return
 
 
 built_in_commands = {

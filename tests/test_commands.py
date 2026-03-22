@@ -272,11 +272,11 @@ class ShardsCommandTest(TestCase):
     @patch('crate.crash.command.CrateShell')
     def test_shards_command(self,cmd):
         rows = [
-            ["table1","    6", "100000000","30065115537 ","1 ","      5038203304 ","  83.2423617404707 "],
-            ["table2","    6", "100000000"," 8178261348 ","0 ","               0 "," 100.0             "],
-            ["table3"," 1000", "        0","     208000 ","0 ","               0 "," 100.0             "],
+            ['table1','1','10','1024','0','0','100.0'],
+            ['table2','2','20','2048','1','1024','50.0'],
+            ['table3','3','30','3072','2','2048','33.3'],
         ]
-        cols = [("table_name ", ), (" total_shards ", ), (" total_num_docs ", ), (" total_sum_shard_size ", ), (" relocating_shards ", ), (" relocating_size ", ), (" relocated_percent")]
+        cols = [('table_name', ), (' total_shards', ), (' total_num_docs', ), (' total_sum_shard_size', ), (' relocating_shards', ), (' relocating_size', ), (' relocated_percent')]
         cmd._exec.return_value = True
         cmd.cursor.fetchall.return_value = rows
         cmd.cursor.description = cols
@@ -287,10 +287,10 @@ class ShardsCommandTest(TestCase):
     @patch('crate.crash.command.CrateShell')
     def test_shards_command_state(self,cmd):
         rows = [
-            ["RELOCATING","2","33334465","9.307963063940406"],
-            ["STARTED","1010","166665535","26.309150873683393"],
+            ['RELOCATING','2','33334465','9.307963063940406'],
+            ['STARTED','1010','166665535','26.309150873683393'],
         ]
-        cols = [("routing_state", ), ("shard_count", ), ("num_docs", ), ("size_gb", )]
+        cols = [('routing_state', ), ('shard_count', ), ('num_docs', ), ('size_gb', )]
         cmd._exec.return_value = True
         cmd.cursor.fetchall.return_value = rows
         cmd.cursor.description = cols
@@ -303,15 +303,15 @@ class ShardsCommandTest(TestCase):
         cmd._exec.return_value = True
         cmd.cursor.fetchall.return_value = []
         ShardsCommand()(cmd,"relocating")
-        cmd.logger.info.assert_called_with('No shards relocating!')
+        cmd.logger.info.assert_not_called()
 
     @patch('crate.crash.command.CrateShell')
     def test_shards_command_relocating(self,cmd):
         rows = [
-            ["table1","node02","1","DONE","4997198327","RELOCATING","STARTED","TRUE","d63zx99jSfWjr5wUykEXWQ","4880076.4912109375",""],
-            ["table1","node01","2","DONE","4997150911","RELOCATING","STARTED","TRUE","d63zx99jSfWjr5wUykEXWQ","4880030.1865234375",""],
+            ['table1','node02','1','DONE','4997198327','RELOCATING','STARTED','TRUE','d63zx99jSfWjr5wUykEXWQ','4880076.4912109375',''],
+            ['table1','node01','2','DONE','4997150911','RELOCATING','STARTED','TRUE','d63zx99jSfWjr5wUykEXWQ','4880030.1865234375',''],
         ]
-        cols = [("table_name",),("node['name']",),("id",),("recovery['stage']",),("size",),("routing_state",),("state",),("primary",),("relocating_node",),("size_kb",),("partition_ident",)]
+        cols = [('table_name',),('node[\'name\']',),('id',),('recovery[\'stage\']',),('size',),('routing_state',),('state',),('primary',),('relocating_node',),('size_kb',),('partition_ident',)]
         cmd._exec.return_value = True
         cmd.cursor.fetchall.return_value = rows
         cmd.cursor.description = cols

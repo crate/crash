@@ -235,7 +235,7 @@ class CheckCommand(Command):
 
 
 class ShardsCommand(Command):
-    """shows progress of shards relocation (optional arguments: `state` and `relocating`)"""
+    """shows shards state, optionally per table, e.g. \\shards info"""
 
     DEFAULT_STMT = """
         SELECT
@@ -272,7 +272,6 @@ WHERE routing_state != 'UNASSIGNED'
 GROUP BY schema_name, table_name, partition_ident
 ORDER BY relocated_percent, schema_name, table_name, partition_ident;
     """
-
 
     OPTIONS = {
         "info": INFO_STMT,

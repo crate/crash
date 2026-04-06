@@ -273,28 +273,9 @@ ORDER BY relocated_percent, schema_name, table_name, partition_ident;
         ORDER BY state, primary;
     """
 
-    RELOC_STMT = """
-        SELECT
-            table_name,
-            node['name'],
-            id,
-            recovery['stage'],
-            size,
-            routing_state,
-            state,
-            primary,
-            relocating_node,
-            size / 1024.0
-                AS size_kb,
-            partition_ident
-        FROM sys.shards
-        WHERE routing_state = 'RELOCATING'
-        ORDER BY table_name, id, node['name'];
-    """
 
     OPTIONS = {
         "state": STATE_STMT,
-        "relocating": RELOC_STMT,
     }
 
     def complete(self, cmd, text):

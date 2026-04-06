@@ -238,6 +238,21 @@ class ShardsCommand(Command):
     """shows progress of shards relocation (optional arguments: `state` and `relocating`)"""
 
     DEFAULT_STMT = """
+        SELECT
+            state,
+            primary,
+            COUNT(*)
+                AS shard_count,
+            SUM(num_docs)
+                AS num_docs,
+            SUM(size) / 1024^3
+                AS size_gb
+        FROM sys.shards
+        GROUP BY state, primary
+        ORDER BY state, primary;
+    """
+
+    INFO_STMT = """
 SELECT
     schema_name,
     table_name,
@@ -258,24 +273,9 @@ GROUP BY schema_name, table_name, partition_ident
 ORDER BY relocated_percent, schema_name, table_name, partition_ident;
     """
 
-    STATE_STMT = """
-        SELECT
-            state,
-            primary,
-            COUNT(*)
-                AS shard_count,
-            SUM(num_docs)
-                AS num_docs,
-            SUM(size) / 1024^3
-                AS size_gb
-        FROM sys.shards
-        GROUP BY state, primary
-        ORDER BY state, primary;
-    """
-
 
     OPTIONS = {
-        "state": STATE_STMT,
+        "info": INFO_STMT,
     }
 
     def complete(self, cmd, text):

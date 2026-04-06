@@ -253,24 +253,24 @@ class ShardsCommand(Command):
     """
 
     INFO_STMT = """
-SELECT
-    schema_name,
-    table_name,
-    partition_ident,
-    COUNT(*)
-        AS total_shards,
-    SUM(size)
-        As total_size,
-    COUNT(*) FILTER (WHERE routing_state = 'RELOCATING')
-        AS relocating_shards,
-    SUM(size) FILTER (WHERE routing_state = 'RELOCATING')
-        AS relocating_size,
-    100.0 * SUM(size) FILTER(WHERE routing_state != 'RELOCATING') / SUM(size)
-        AS relocated_percent
-FROM sys.shards
-WHERE routing_state != 'UNASSIGNED'
-GROUP BY schema_name, table_name, partition_ident
-ORDER BY relocated_percent, schema_name, table_name, partition_ident;
+        SELECT
+            schema_name,
+            table_name,
+            partition_ident,
+            COUNT(*)
+                AS total_shards,
+            SUM(size)
+                As total_size,
+            COUNT(*) FILTER (WHERE routing_state = 'RELOCATING')
+                AS relocating_shards,
+            SUM(size) FILTER (WHERE routing_state = 'RELOCATING')
+                AS relocating_size,
+            100.0 * SUM(size) FILTER(WHERE routing_state != 'RELOCATING') / SUM(size)
+                AS relocated_percent
+        FROM sys.shards
+        WHERE routing_state != 'UNASSIGNED'
+        GROUP BY schema_name, table_name, partition_ident
+        ORDER BY relocated_percent, schema_name, table_name, partition_ident;
     """
 
     OPTIONS = {
@@ -302,7 +302,6 @@ ORDER BY relocated_percent, schema_name, table_name, partition_ident;
             self.execute(cmd, stmt)
         else:
             cmd.logger.critical(f'Command argument not supported (available options: {", ".join(f"`{_a}`" for _a in self.OPTIONS.keys())}).')
-            return
 
 
 built_in_commands = {

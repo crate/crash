@@ -260,16 +260,17 @@ ORDER BY relocated_percent, schema_name, table_name, partition_ident;
 
     STATE_STMT = """
         SELECT
-            routing_state,
+            state,
+            primary,
             COUNT(*)
                 AS shard_count,
             SUM(num_docs)
                 AS num_docs,
-            SUM(size) / 1073741824.0
+            SUM(size) / 1024^3
                 AS size_gb
         FROM sys.shards
-        GROUP BY routing_state
-        ORDER BY routing_state;
+        GROUP BY state, primary
+        ORDER BY state, primary;
     """
 
     RELOC_STMT = """

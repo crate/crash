@@ -876,12 +876,12 @@ class ShardsCommandEmptyDBTest(TestCase):
     def setUp(self):
         node.reset()
 
-    def test_shards_command(self):
+    def test_shards_command_output_default(self):
         expected = '\n'.join([
-            '+------------+--------------+----------------+----------------------+-------------------+-----------------+-------------------+',
-            '| table_name | total_shards | total_num_docs | total_sum_shard_size | relocating_shards | relocating_size | relocated_percent |',
-            '+------------+--------------+----------------+----------------------+-------------------+-----------------+-------------------+',
-            '+------------+--------------+----------------+----------------------+-------------------+-----------------+-------------------+\n',
+            '+-------+---------+-------------+----------+---------+',
+            '| state | primary | shard_count | num_docs | size_gb |',
+            '+-------+---------+-------------+----------+---------+',
+            '+-------+---------+-------------+----------+---------+\n',
         ])
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             shards_ = cmd.commands['shards']
@@ -890,42 +890,29 @@ class ShardsCommandEmptyDBTest(TestCase):
                 self.assertEqual(None, text)
                 self.assertEqual(expected, output.getvalue())
 
-    def test_shards_command_state(self):
+    def test_shards_command_output_info(self):
         expected = '\n'.join([
-            '+---------------+-------------+----------+---------+',
-            '| routing_state | shard_count | num_docs | size_gb |',
-            '+---------------+-------------+----------+---------+',
-            '+---------------+-------------+----------+---------+\n',
+            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+',
+            '| schema_name | table_name | partition_ident | total_shards | total_size | relocating_shards | relocating_size | relocated_percent |',
+            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+',
+            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+\n',
         ])
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             shards_ = cmd.commands['shards']
             with patch('sys.stdout', new_callable=StringIO) as output:
-                text = shards_(cmd, 'state')
+                text = shards_(cmd, 'info')
                 self.assertEqual(None, text)
                 self.assertEqual(expected, output.getvalue())
 
-    def test_shards_command_relocating(self):
-        expected = '\n'.join([
-            '+------------+--------------+----+-------------------+------+---------------+-------+---------+-----------------+---------+-----------------+',
-            "| table_name | node['name'] | id | recovery['stage'] | size | routing_state | state | primary | relocating_node | size_kb | partition_ident |",
-            '+------------+--------------+----+-------------------+------+---------------+-------+---------+-----------------+---------+-----------------+',
-            '+------------+--------------+----+-------------------+------+---------------+-------+---------+-----------------+---------+-----------------+\n',
-        ])
-        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
-            shards_ = cmd.commands['shards']
-            with patch('sys.stdout', new_callable=StringIO) as output:
-                text = shards_(cmd, 'relocating')
-                self.assertEqual(None, text)
-                self.assertEqual(expected, output.getvalue())
 
-    def test_shards_command_wrong_argument(self):
+    def test_shards_command_output_wrong_argument(self):
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             shards_ = cmd.commands['shards']
             with patch('sys.stdout', new_callable=StringIO) as output:
                 cmd.logger = ColorPrinter(False, stream=output)
                 text = shards_(cmd, 'arg1', 'arg2')
                 self.assertEqual(None, text)
-                self.assertEqual('Command argument not supported (available options: `state`, `relocating`).\n', output.getvalue())
+                self.assertEqual('Command argument not supported (available options: `info`).\n', output.getvalue())
 
 
 
@@ -939,48 +926,41 @@ class ShardsCommandWithContentTest(TestCase):
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             cmd.process('CREATE TABLE test_table (id INTEGER PRIMARY KEY, data STRING ) CLUSTERED INTO 10 SHARDS WITH (number_of_replicas = 0);\n')
 
-    def test_shards_command(self):
-        expected = '\n'.join([
-            '+------------+--------------+----------------+----------------------+-------------------+-----------------+-------------------+',
-            '| table_name | total_shards | total_num_docs | total_sum_shard_size | relocating_shards | relocating_size | relocated_percent |',
-            '+------------+--------------+----------------+----------------------+-------------------+-----------------+-------------------+',
-            '| test_table |           10 |              0 |                dummy |                 0 |               0 |             100.0 |',
-            '+------------+--------------+----------------+----------------------+-------------------+-----------------+-------------------+\n',
-        ])
+    def test_shards_command_output_default(self):
+        expected = [
+            '+---------+---------+-------------+-----------+---------------------+',
+            '| state   | primary | shard_count |  num_docs |             size_gb |',
+            '+---------+---------+-------------+-----------+---------------------+',
+            '| STARTED | FALSEy  |          ?6 | 1x0000000 |  7. DUMMY VALUE 614 |',
+            '+---------+---------+-------------+-----------+---------------------+\n',
+        ]
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             shards_ = cmd.commands['shards']
             with patch('sys.stdout', new_callable=StringIO) as output:
                 text = shards_(cmd)
                 self.assertEqual(None, text)
-                self.assertEqual(len(expected.splitlines()), len(output.getvalue().splitlines()))
+                output_lines = output.getvalue().splitlines()
+                self.assertEqual(len(expected), len(output_lines))
+                header = lambda x: [word.strip() for word in x[1].split('|')]
+                self.assertEqual(header(expected), header(output_lines))
 
-    def test_shards_command_state(self):
-        expected = '\n'.join([
-            '+---------------+-------------+----------+-----------------------+',
-            '| routing_state | shard_count | num_docs |               size_gb |',
-            '+---------------+-------------+----------+-----------------------+',
-            '| STARTED       |          10 |        0 | 7.40AAAAAAAAAAAAAA-07 |',
-            '+---------------+-------------+----------+-----------------------+\n'
-        ])
+
+    def test_shards_command_ouput_info(self):
+        expected = [
+            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+',
+            '| schema_name | table_name | partition_ident | total_shards | total_size | relocating_shards | relocating_size | relocated_percent |',
+            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+',
+            '| doc         | test_table |                 |           10 |        624 |                 0 | NULL            |             100.0 |',
+            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+\n',
+        ]
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             shards_ = cmd.commands['shards']
             with patch('sys.stdout', new_callable=StringIO) as output:
-                text = shards_(cmd, 'state')
+                text = shards_(cmd, 'info')
                 self.assertEqual(None, text)
-                self.assertEqual(len(expected.splitlines()), len(output.getvalue().splitlines()))
-
-    def test_shards_command_relocating(self):
-        expected = '\n'.join([
-            '+------------+--------------+----+-------------------+------+---------------+-------+---------+-----------------+---------+-----------------+',
-            "| table_name | node['name'] | id | recovery['stage'] | size | routing_state | state | primary | relocating_node | size_kb | partition_ident |",
-            '+------------+--------------+----+-------------------+------+---------------+-------+---------+-----------------+---------+-----------------+',
-            '+------------+--------------+----+-------------------+------+---------------+-------+---------+-----------------+---------+-----------------+\n',
-        ])
-        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
-            shards_ = cmd.commands['shards']
-            with patch('sys.stdout', new_callable=StringIO) as output:
-                text = shards_(cmd, 'relocating')
-                self.assertEqual(None, text)
-                self.assertEqual(expected, output.getvalue())
+                output_lines = output.getvalue().splitlines()
+                self.assertEqual(len(expected), len(output_lines))
+                header = lambda x: [word.strip() for word in x[1].split('|')]
+                self.assertEqual(header(expected), header(output_lines))
 
 setup_logging(level=logging.INFO)

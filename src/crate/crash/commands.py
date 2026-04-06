@@ -245,7 +245,7 @@ class ShardsCommand(Command):
                 AS shard_count,
             SUM(num_docs)
                 AS num_docs,
-            SUM(size) / 1024^3
+            SUM(size) / 1073741824.0
                 AS size_gb
         FROM sys.shards
         GROUP BY state, primary

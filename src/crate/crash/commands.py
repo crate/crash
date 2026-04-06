@@ -239,23 +239,23 @@ class ShardsCommand(Command):
 
     DEFAULT_STMT = """
 SELECT
-table_name,
+    schema_name,
+    table_name,
+    partition_ident,
     COUNT(*)
         AS total_shards,
-    SUM(num_docs)
-        AS total_num_docs,
     SUM(size)
-        As total_sum_shard_size,
-    SUM(CASE WHEN routing_state = 'RELOCATING' THEN 1 ELSE 0 END)
+        As total_size,
+    COUNT(*) FILTER (WHERE routing_state = 'RELOCATING')
         AS relocating_shards,
-    SUM(CASE WHEN routing_state = 'RELOCATING' THEN size ELSE 0 END)
+    SUM(size) FILTER (WHERE routing_state = 'RELOCATING')
         AS relocating_size,
-    100.0 * SUM(CASE WHEN routing_state != 'RELOCATING' THEN size ELSE 0 END) / CAST(SUM(size) as DOUBLE)
+    100.0 * SUM(size) FILTER(WHERE routing_state != 'RELOCATING') / SUM(size)
         AS relocated_percent
 FROM sys.shards
 WHERE routing_state != 'UNASSIGNED'
-GROUP BY table_name
-ORDER BY relocated_percent, table_name;
+GROUP BY schema_name, table_name, partition_ident
+ORDER BY relocated_percent, schema_name, table_name, partition_ident;
     """
 
     STATE_STMT = """

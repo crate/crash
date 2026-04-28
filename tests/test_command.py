@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim: set fileencodings=utf-8
 
+from argparse import ArgumentTypeError
 from unittest import TestCase
 
 from verlib2 import Version
@@ -9,7 +10,10 @@ from crate.crash.command import (
     Result,
     _decode_timeout,
     _decode_timeouts,
+    collect_url_params,
+    extract_url_params,
     get_information_schema_query,
+    get_parser,
     host_and_port,
     stmt_type,
 )
@@ -101,6 +105,52 @@ class CommandLineArgumentsTest(TestCase):
         # neither host nor port are provided
         # default host and default port are used
         self.assertEqual(host_and_port(':'), 'localhost:4200')
+
+
+class UrlParamsTest(TestCase):
+
+    def test_extract_url_params(self):
+        for value, expected in [
+            ('false', False), ('False', False), ('0', False), ('no', False),
+            ('true', True), ('1', True), ('yes', True),
+        ]:
+            cleaned, params = extract_url_params(
+                f'https://u:p@h:4200/?foo=bar&verify_ssl={value}')
+            self.assertEqual(cleaned, 'https://u:p@h:4200/?foo=bar')
+            self.assertEqual(params, {'verify_ssl': expected})
+
+        for host in ('localhost:4200', ':4200', ':', 'localhost',
+                     'https://h:4200/', 'postgresql://h/?verify_ssl=false',
+                     'localhost:4200?foo=bar'):
+            self.assertEqual(extract_url_params(host), (host, {}))
+
+        with self.assertRaises(ArgumentTypeError):
+            extract_url_params('https://h/?verify_ssl=maybe')
+
+    def test_first_host_wins(self):
+        _, params = collect_url_params([
+            'https://a/?verify_ssl=false',
+            'https://b/?verify_ssl=true',
+        ])
+        self.assertIs(params['verify_ssl'], False)
+
+    def test_verify_ssl_precedence(self):
+        # --verify-ssl > url > default True.
+        def resolve(argv):
+            args = get_parser().parse_args(argv)
+            _, url_params = collect_url_params(args.hosts)
+            return url_params.get('verify_ssl', True) \
+                if args.verify_ssl is None else args.verify_ssl
+
+        self.assertIs(resolve(['--hosts', 'h:4200']), True)
+        self.assertIs(
+            resolve(['--hosts', 'https://h/?verify_ssl=false']), False)
+        self.assertIs(
+            resolve(['--hosts', 'https://h/?verify_ssl=false',
+                     '--verify-ssl', 'true']), True)
+        self.assertIs(
+            resolve(['--hosts', 'https://h/?verify_ssl=true',
+                     '--verify-ssl', 'false']), False)
 
 
 class CommandUtilsTest(TestCase):

@@ -32,6 +32,7 @@ from collections import namedtuple
 from getpass import getpass
 from operator import itemgetter
 from typing import Optional, Union
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import sqlparse
 import urllib3
@@ -147,8 +148,10 @@ def get_parser(output_formats=[], conf=None):
         '--verify-ssl',
         choices=(True, False),
         type=boolean,
-        default=True,
-        help='Enable or disable the verification of the server SSL certificate'
+        default=None,
+        help='Enable or disable the verification of the server SSL certificate '
+             '(default: enabled). Can also be set as a `verify_ssl` query '
+             'parameter on a host URL, with this cli option having priority over the URL params.'
     )
     parser.add_argument('--cert-file', type=file_with_permissions, metavar='FILENAME',
                         help='use FILENAME as the client certificate file')
@@ -563,6 +566,35 @@ def host_and_port(host_or_port):
     return host_or_port + ':4200'
 
 
+def extract_url_params(host):
+    # lift recognized connection params (verify_ssl) off one host url;
+    # return (cleaned_host, params). non-http urls pass through untouched.
+    parsed = urlparse(host)
+    if parsed.scheme not in ('http', 'https') or not parsed.query:
+        return host, {}
+
+    lifted = {}
+    kept = []
+    for key, value in parse_qsl(parsed.query, keep_blank_values=True):
+        if key == 'verify_ssl':
+            lifted[key] = boolean(value)
+        else:
+            kept.append((key, value))
+    return urlunparse(parsed._replace(query=urlencode(kept))), lifted
+
+
+def collect_url_params(hosts):
+    # fold extract_url_params over a host list; first occurrence wins.
+    cleaned = []
+    params = {}
+    for host in hosts:
+        c, lifted = extract_url_params(host)
+        cleaned.append(c)
+        for key, value in lifted.items():
+            params.setdefault(key, value)
+    return cleaned, params
+
+
 def get_information_schema_query(lowest_server_version):
     schema_name = \
         "table_schema" if lowest_server_version >= \
@@ -614,7 +646,16 @@ def main():
         printer.info(crash_version)
         sys.exit(0)
 
-    crate_hosts = [host_and_port(h) for h in args.hosts]
+    try:
+        cleaned_hosts, url_params = collect_url_params(args.hosts)
+    except ArgumentTypeError as e:
+        printer.warn(str(e))
+        sys.exit(1)
+    crate_hosts = [host_and_port(h) for h in cleaned_hosts]
+
+    if args.verify_ssl is None:
+        args.verify_ssl = url_params.get('verify_ssl', True)
+
     error_trace = args.verbose > 0
 
     password = _resolve_password(is_tty, args.force_passwd_prompt)

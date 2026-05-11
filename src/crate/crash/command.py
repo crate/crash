@@ -276,6 +276,11 @@ class CrateShell:
     def _process_sql(self, text):
         sql = sqlparse.format(text, strip_comments=False)
         for statement in sqlparse.parse(sql):
+            # Skip statements that contain no actual SQL (e.g. an input
+            # consisting only of ';' or whitespace), which would otherwise
+            # crash stmt_type with IndexError.
+            if not str(statement).strip(' \t\n\r;'):
+                continue
             self._exec_and_print(statement)
 
     def exit(self):
@@ -515,8 +520,10 @@ def stmt_type(expression: Union[str, sqlparse.sql.Statement]):
     """Extract type of statement, e.g. SELECT, INSERT, UPDATE, DELETE, ..."""
     statement = to_statement(expression)
     command_with_args = str(statement.token_first(skip_ws=True, skip_cm=True))
-    effective_command = re.findall(r'[\w]+', command_with_args)[0]
-    return effective_command.upper()
+    words = re.findall(r'[\w]+', command_with_args)
+    if not words:
+        return ''
+    return words[0].upper()
 
 
 def to_statement(expression: Union[str, sqlparse.sql.Statement]) -> sqlparse.sql.Statement:

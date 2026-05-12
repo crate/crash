@@ -122,8 +122,6 @@ class CommandUtilsTest(TestCase):
         self.assertEqual(stmt_type('/* foo */ DENY DQL, DML, DDL, AL ON SCHEMA sys TO test;'), 'DENY')
 
     def test_stmt_type_punctuation_only_does_not_crash(self):
-        # Statements that contain no word characters should not crash with
-        # IndexError; see issue #499.
         self.assertEqual(stmt_type(';'), '')
         self.assertEqual(stmt_type(';;'), '')
 

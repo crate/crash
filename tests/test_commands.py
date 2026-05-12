@@ -398,6 +398,26 @@ class MultipleStatementsTest(TestCase):
             call("SELECT\n1\nWHERE\n2\n=\n3\n;"),
         ])
 
+    def test_statement_with_only_semicolons(self):
+        """A line with only semicolons or whitespace is ignored, not executed."""
+
+        cmd = CrateShell()
+        cmd._exec = Mock()
+        cmd.process(";")
+        cmd.process(";;\n;")
+        cmd.process("   \n\t")
+        self.assertListEqual(cmd._exec.mock_calls, [])
+
+    def test_statement_with_only_comments(self):
+        """A statement that is only comments is ignored, not executed."""
+
+        cmd = CrateShell()
+        cmd._exec = Mock()
+        cmd.process("-- just a comment")
+        cmd.process("-- line one\n-- line two")
+        cmd.process("/* block\n   comment\n   spanning lines */")
+        self.assertListEqual(cmd._exec.mock_calls, [])
+
     def test_multiple_commands_no_sql(self):
         cmd = CrateShell()
         cmd._try_exec_cmd = MagicMock()

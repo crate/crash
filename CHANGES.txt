@@ -5,6 +5,9 @@ Changes for crash
 Unreleased
 ==========
 
+- Fixed an ``IndexError`` crash when submitting a statement that contains only
+  semicolons, whitespace or comments. Such statements are now ignored.
+
 2026/02/09 0.32.0
 =================
 

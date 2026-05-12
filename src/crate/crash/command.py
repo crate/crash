@@ -276,6 +276,12 @@ class CrateShell:
     def _process_sql(self, text):
         sql = sqlparse.format(text, strip_comments=False)
         for statement in sqlparse.parse(sql):
+            # Skip statements that contain no actual SQL, e.g. a line with
+            # only whitespace, semicolons or comments. Executing those would
+            # raise an IndexError in stmt_type().
+            if not re.search(r'\w', sqlparse.format(str(statement),
+                                                    strip_comments=True)):
+                continue
             self._exec_and_print(statement)
 
     def exit(self):

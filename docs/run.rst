@@ -42,6 +42,15 @@ The ``crash`` executable supports multiple command-line options:
 |                               | ``<HOSTS>`` can be a single host, or it can  |
 |                               | be a  space separated list of hosts.         |
 |                               |                                              |
+|                               | Each host may also be given as a full URL,   |
+|                               | e.g.                                         |
+|                               | ``https://user:pw@node:4200/?verify_ssl=0``. |
+|                               | Userinfo is used for authentication and the  |
+|                               | ``verify_ssl`` query parameter toggles TLS   |
+|                               | verification. Explicit CLI flags             |
+|                               | (``--username``, ``--verify-ssl``, …)        |
+|                               | always override values taken from the URL.   |
+|                               |                                              |
 |                               | If multiple hosts are specified, Crash will  |
 |                               | attempt to connect to all of them. The       |
 |                               | command will succeed if at least one         |
@@ -152,6 +161,13 @@ Here, we're using:
 - ``~/.certs/client.crt`` as the client certificate
 - ``~/.certs/client.key`` as the client certificate key
 - ``~/.certs/server-ca.crt`` as the server CA certificate
+
+The same connection settings can also be given inline via the host URL:
+
+.. code-block:: console
+
+    sh$ crash --hosts "https://crate:secret@node1.example.com:4200/?verify_ssl=false" \
+            -c "SELECT * FROM sys.nodes"
 
 .. _user-conf-dir:
 

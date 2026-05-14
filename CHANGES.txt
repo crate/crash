@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+- Honor ``?verify_ssl=<bool>`` in the host URLs to toggle TLS certificate verification. The CLI ``--verify-ssl`` flag overrides the URL param. Closes #482.
+
 2026/02/09 0.32.0
 =================
 

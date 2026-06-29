@@ -555,19 +555,36 @@ def get_lines_from_stdin():
 def host_and_port(host_or_port):
     """
     Return full hostname/IP + port, possible input formats are:
-      * host:port  -> host:port
-      * :          -> localhost:4200
-      * :port      -> localhost:port
-      * host       -> host:4200
+      * host:port         -> host:port
+      * :                 -> localhost:4200
+      * :port             -> localhost:port
+      * host              -> host:4200
+      * https://host:port -> host:port
+      * http://host:port  -> host:port
+      * https://          -> localhost:4200
+      * http://           -> localhost:4200
     """
-    if ':' in host_or_port:
-        if len(host_or_port) == 1:
-            return 'localhost:4200'
-        elif host_or_port.startswith(':'):
-            return 'localhost' + host_or_port
-        return host_or_port
-    return host_or_port + ':4200'
-
+    if host_or_port == '':
+        raise ValueError("Invalid host:port format")
+    if host_or_port.startswith('https://'):
+        host_or_port = host_or_port[8:]
+    elif host_or_port.startswith('http://'):
+        host_or_port = host_or_port[7:]
+    if host_or_port == '':
+        host = 'localhost'
+        port = '4200'
+    elif host_or_port == ':':
+        host = 'localhost'
+        port = '4200'
+    elif host_or_port.startswith(':'):
+        host = 'localhost'
+        port = host_or_port[1:]
+    elif ':' in host_or_port:
+        host, port = host_or_port.split(':', 1)
+    else:
+        host = host_or_port
+        port = '4200'
+    return host + ':' + port
 
 def get_information_schema_query(lowest_server_version):
     schema_name = \

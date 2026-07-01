@@ -101,6 +101,11 @@ class CommandLineArgumentsTest(TestCase):
         # neither host nor port are provided
         # default host and default port are used
         self.assertEqual(host_and_port(':'), 'localhost:4200')
+        # using https
+        self.assertEqual(host_and_port('https://localhost:4321'), 'localhost:4321')
+        self.assertEqual(host_and_port('https://localhost'), 'localhost:4200')
+        self.assertEqual(host_and_port('https://:4000'), 'localhost:4000')
+        self.assertEqual(host_and_port('https://:'), 'localhost:4200')
 
 
 class CommandUtilsTest(TestCase):

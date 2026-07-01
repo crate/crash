@@ -586,6 +586,7 @@ def host_and_port(host_or_port):
         port = '4200'
     return host + ':' + port
 
+
 def get_information_schema_query(lowest_server_version):
     schema_name = \
         "table_schema" if lowest_server_version >= \

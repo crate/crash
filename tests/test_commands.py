@@ -39,7 +39,7 @@ from crate.crash.commands import (
     ToggleAutocompleteCommand,
     ToggleVerboseCommand,
 )
-from tests.util import fake_cursor
+from tests.util import fake_connect
 
 
 class ReadFileCommandTest(TestCase):
@@ -130,6 +130,7 @@ class ToggleVerboseCommandTest(TestCase):
         self.assertEqual(fake_cmd.reconnect.call_count, 1)
 
 
+@patch('crate.crash.command.connect', fake_connect())
 class ShowTablesCommandTest(TestCase):
 
     def test_post_2_0(self):
@@ -267,7 +268,7 @@ class ChecksCommandTest(TestCase):
         cmd.logger.info.assert_called_with('NODE CHECK OK')
 
 
-@patch('crate.client.connection.Cursor', fake_cursor())
+@patch('crate.crash.command.connect', fake_connect())
 class CommentsTest(TestCase):
 
     def test_sql_comments(self):
@@ -364,7 +365,7 @@ comment */ 4;
         self.assertIn("SELECT 1 row in set", cmd.logger.info.call_args[0][0])
 
 
-@patch('crate.client.connection.Cursor', fake_cursor())
+@patch('crate.crash.command.connect', fake_connect())
 class MultipleStatementsTest(TestCase):
 
     def test_single_line_multiple_sql_statements(self):

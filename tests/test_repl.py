@@ -19,6 +19,7 @@
 
 import re
 from unittest import TestCase
+from unittest.mock import patch
 
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
@@ -31,12 +32,14 @@ from crate.crash.repl import (
     _get_toolbar_tokens,
     create_buffer,
 )
+from tests.util import fake_connect
 
 
 class SQLCompleterTest(TestCase):
 
     def setUp(self):
-        cmd = CrateShell()
+        with patch('crate.crash.command.connect', fake_connect()):
+            cmd = CrateShell()
         self.completer = SQLCompleter(cmd)
 
     def test_get_builtin_command_completions(self):
@@ -48,6 +51,7 @@ class SQLCompleterTest(TestCase):
         self.assertEqual(result, ['dynamic'])
 
 
+@patch('crate.crash.command.connect', fake_connect())
 class CrashBufferTest(TestCase):
 
     def test_create_buffer(self):
@@ -59,7 +63,8 @@ class CrashBufferTest(TestCase):
 class AutoCapitalizeTest(TestCase):
 
     def setUp(self):
-        cmd = CrateShell()
+        with patch('crate.crash.command.connect', fake_connect()):
+            cmd = CrateShell()
         self.capitalizer = Capitalizer(cmd, SQLCompleter(cmd))
 
     def test_capitalize(self):

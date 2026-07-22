@@ -31,7 +31,7 @@ requirements = [
     'crate<3',
     'platformdirs<5',
     'prompt-toolkit>=3.0,<4',
-    'tabulate>=0.9,<0.10',
+    'tabulate>=0.9,<0.11',
     'sqlparse>=0.4.4,<0.6.0',
     'verlib2<0.4',
 ]

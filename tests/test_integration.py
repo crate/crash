@@ -653,7 +653,7 @@ class CommandTest(TestCase):
             '\\pager                          set an external pager. Use without argument to reset to internal paging',
             '\\q                              quit crash',
             '\\r                              read and execute statements from a file',
-            '\\shards                         shows shards state, optionally per table, e.g. \\shards info',
+            '\\shards                         shows shards overview, optionally per table, e.g. \\shards info',
             '\\sysinfo                        print system and cluster info',
             '\\verbose                        toggle verbose mode',
         ])

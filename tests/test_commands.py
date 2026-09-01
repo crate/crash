@@ -329,7 +329,6 @@ class ShardsCommandTest(TestCase):
         cmd.logger.info.assert_not_called()
 
 
-@patch('crate.client.connection.Cursor', fake_cursor())
 @patch('crate.crash.command.connect', fake_connect())
 class CommentsTest(TestCase):
 

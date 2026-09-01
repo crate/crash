@@ -235,7 +235,7 @@ class CheckCommand(Command):
 
 
 class ShardsCommand(Command):
-    """shows shards overview, optionally per table, e.g. \\shards info"""
+    """shows shards overview, optionally per table, e.g. \\shards per-table"""
 
     OVERVIEW_STMT = """
         SELECT

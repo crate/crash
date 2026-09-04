@@ -22,6 +22,7 @@
 
 import os
 import re
+import sqlparse
 from getpass import getpass
 
 from prompt_toolkit import Application
@@ -199,7 +200,12 @@ class CrashBuffer(Buffer):
                 return False
             if doc.text.startswith('\\'):
                 return False
-            return not doc.text.rstrip().endswith(';')
+            # A trailing comment must not keep the buffer in multiline mode,
+            # otherwise e.g. "select 42; -- foo" can never be submitted (#496).
+            # sqlparse is syntax-aware, so a ";" inside a string literal or a
+            # "--" that is part of a literal is left untouched.
+            sql = sqlparse.format(doc.text, strip_comments=True)
+            return not sql.rstrip().endswith(';')
 
         super().__init__(*args, multiline=is_multiline, **kwargs)
 

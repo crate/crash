@@ -59,6 +59,23 @@ class CrashBufferTest(TestCase):
         buffer = create_buffer(cmd, '/tmp/history')
         self.assertEqual(buffer.on_text_insert.fire(), None)
 
+    def _multiline(self, text):
+        cmd = CrateShell()
+        buffer = create_buffer(cmd, '/tmp/history')
+        buffer.document = Document(text)
+        return buffer.multiline()
+
+    def test_statement_with_trailing_comment_is_not_multiline(self):
+        # regression for #496: "select 42; -- foo" used to keep the
+        # buffer in multiline mode forever, stalling the interactive session
+        self.assertFalse(self._multiline('select 42; -- foo'))
+
+    def test_statement_without_semicolon_is_still_multiline(self):
+        self.assertTrue(self._multiline('select 42'))
+
+    def test_semicolon_inside_string_literal_is_still_multiline(self):
+        self.assertTrue(self._multiline("select ';'"))
+
 
 class AutoCapitalizeTest(TestCase):
 

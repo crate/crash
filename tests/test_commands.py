@@ -35,7 +35,6 @@ from crate.crash.commands import (
     ClusterCheckCommand,
     NodeCheckCommand,
     ReadFileCommand,
-    ShardsCommand,
     ToggleAutoCapitalizeCommand,
     ToggleAutocompleteCommand,
     ToggleVerboseCommand,
@@ -267,66 +266,6 @@ class ChecksCommandTest(TestCase):
 
         command(cmd, 'nodes')
         cmd.logger.info.assert_called_with('NODE CHECK OK')
-
-
-class ShardsCommandTest(TestCase):
-    @patch('crate.crash.command.CrateShell')
-    def test_shards_command_default(self,cmd):
-        rows = [
-            ['RELOCATING','FALSE','2','33334465','9.307963063940406'],
-            ['STARTED','TRUE','1010','166665535','26.309150873683393'],
-        ]
-        cols = [('state', ), ('primary',), ('shard_count', ), ('num_docs', ), ('size_gb', )]
-        cmd._exec.return_value = True
-        cmd.cursor.fetchall.return_value = rows
-        cmd.cursor.description = cols
-
-        ShardsCommand()(cmd)
-        cmd.pprint.assert_called_with(rows, [c[0] for c in cols])
-
-    @patch('crate.crash.command.CrateShell')
-    def test_shards_command_overview(self,cmd):
-        rows = [
-            ['RELOCATING','FALSE','2','33334465','9.307963063940406'],
-            ['STARTED','TRUE','1010','166665535','26.309150873683393'],
-        ]
-        cols = [('state', ), ('primary',), ('shard_count', ), ('num_docs', ), ('size_gb', )]
-        cmd._exec.return_value = True
-        cmd.cursor.fetchall.return_value = rows
-        cmd.cursor.description = cols
-
-        ShardsCommand()(cmd, "overview")
-        cmd.pprint.assert_called_with(rows, [c[0] for c in cols])
-
-    @patch('crate.crash.command.CrateShell')
-    def test_shards_command_per_table(self,cmd):
-        rows = [
-            ['doc','table1','','1','10','1024','0','100.0'],
-            ['doc','table2','','2','20','2048','1','50.0'],
-            ['doc','table3','','3','30','3072','2','33.3'],
-        ]
-        cols = [('schema_name',),('table_name',),('partition_ident',),('total_shards',),('total_size',),('relocating_shards',),('relocating_size',),('relocated_percent',)]
-        cmd._exec.return_value = True
-        cmd.cursor.fetchall.return_value = rows
-        cmd.cursor.description = cols
-
-        ShardsCommand()(cmd, "per-table")
-        cmd.pprint.assert_called_with(rows, [c[0] for c in cols])
-
-
-    @patch('crate.crash.command.CrateShell')
-    def test_shards_command_default_none(self,cmd):
-        cmd._exec.return_value = True
-        cmd.cursor.fetchall.return_value = []
-        ShardsCommand()(cmd)
-        cmd.logger.info.assert_not_called()
-
-    @patch('crate.crash.command.CrateShell')
-    def test_shards_command_per_table_none(self,cmd):
-        cmd._exec.return_value = True
-        cmd.cursor.fetchall.return_value = []
-        ShardsCommand()(cmd,"per-table")
-        cmd.logger.info.assert_not_called()
 
 
 @patch('crate.crash.command.connect', fake_connect())

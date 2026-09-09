@@ -940,32 +940,25 @@ class ShardsCommandWithContentTest(TestCase):
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             cmd.process('CREATE TABLE test_table (id INTEGER PRIMARY KEY, data STRING ) CLUSTERED INTO 10 SHARDS WITH (number_of_replicas = 0);\n')
 
+    # the line count: 3 borders, 1 header and 1 aggregated row.
+    EXPECTED_LINES = 5
+
     def test_shards_command_output_default(self):
-        expected = [
-            '+---------+---------+-------------+-----------+---------------------+',
-            '| state   | primary | shard_count |  num_docs |             size_gb |',
-            '+---------+---------+-------------+-----------+---------------------+',
-            '| STARTED | FALSEy  |          ?6 | 1x0000000 |  7. DUMMY VALUE 614 |',
-            '+---------+---------+-------------+-----------+---------------------+\n',
-        ]
+        expected_columns = ['state', 'primary', 'shard_count', 'num_docs', 'size_gb']
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             shards_ = cmd.commands['shards']
             with patch('sys.stdout', new_callable=StringIO) as output:
                 text = shards_(cmd)
                 self.assertEqual(None, text)
                 output_lines = output.getvalue().splitlines()
-                self.assertEqual(len(expected), len(output_lines))
-                header = lambda x: [word.strip() for word in x[1].split('|')]
-                self.assertEqual(header(expected), header(output_lines))
-
+                self.assertEqual(self.EXPECTED_LINES, len(output_lines))
+                columns = [word.strip() for word in output_lines[1].strip('|').split('|')]
+                self.assertEqual(expected_columns, columns)
 
     def test_shards_command_output_per_table(self):
-        expected = [
-            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+',
-            '| schema_name | table_name | partition_ident | total_shards | total_size | relocating_shards | relocating_size | relocated_percent |',
-            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+',
-            '| doc         | test_table |                 |           10 |        624 |                 0 | NULL            |             100.0 |',
-            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+\n',
+        expected_columns = [
+            'schema_name', 'table_name', 'partition_ident', 'total_shards',
+            'total_size', 'relocating_shards', 'relocating_size', 'relocated_percent',
         ]
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             shards_ = cmd.commands['shards']
@@ -973,8 +966,8 @@ class ShardsCommandWithContentTest(TestCase):
                 text = shards_(cmd, 'per-table')
                 self.assertEqual(None, text)
                 output_lines = output.getvalue().splitlines()
-                self.assertEqual(len(expected), len(output_lines))
-                header = lambda x: [word.strip() for word in x[1].split('|')]
-                self.assertEqual(header(expected), header(output_lines))
+                self.assertEqual(self.EXPECTED_LINES, len(output_lines))
+                columns = [word.strip() for word in output_lines[1].strip('|').split('|')]
+                self.assertEqual(expected_columns, columns)
 
 setup_logging(level=logging.INFO)

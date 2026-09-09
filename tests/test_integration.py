@@ -653,9 +653,11 @@ class CommandTest(TestCase):
             '\\pager                          set an external pager. Use without argument to reset to internal paging',
             '\\q                              quit crash',
             '\\r                              read and execute statements from a file',
+            '\\shards                         shows shards overview, optionally per table, e.g. \\shards per-table',
             '\\sysinfo                        print system and cluster info',
             '\\verbose                        toggle verbose mode',
         ])
+
 
         help_ = command.commands['?']
         self.assertTrue(isinstance(help_, Command))
@@ -869,5 +871,103 @@ class CommandTest(TestCase):
             self.assertEqual(crash.connect_info.user, None)
             self.assertEqual(crash.connect_info.schema, None)
 
+
+class ShardsCommandEmptyDBTest(TestCase):
+    def setUp(self):
+        node.reset()
+
+    def test_shards_command_output_default(self):
+        expected = '\n'.join([
+            '+-------+---------+-------------+----------+---------+',
+            '| state | primary | shard_count | num_docs | size_gb |',
+            '+-------+---------+-------------+----------+---------+',
+            '+-------+---------+-------------+----------+---------+\n',
+        ])
+        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
+            shards_ = cmd.commands['shards']
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                text = shards_(cmd)
+                self.assertEqual(None, text)
+                self.assertEqual(expected, output.getvalue())
+
+    def test_shards_command_output_overview(self):
+        expected = '\n'.join([
+            '+-------+---------+-------------+----------+---------+',
+            '| state | primary | shard_count | num_docs | size_gb |',
+            '+-------+---------+-------------+----------+---------+',
+            '+-------+---------+-------------+----------+---------+\n',
+        ])
+        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
+            shards_ = cmd.commands['shards']
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                text = shards_(cmd, "overview")
+                self.assertEqual(None, text)
+                self.assertEqual(expected, output.getvalue())
+
+    def test_shards_command_output_per_table(self):
+        expected = '\n'.join([
+            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+',
+            '| schema_name | table_name | partition_ident | total_shards | total_size | relocating_shards | relocating_size | relocated_percent |',
+            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+',
+            '+-------------+------------+-----------------+--------------+------------+-------------------+-----------------+-------------------+\n',
+        ])
+        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
+            shards_ = cmd.commands['shards']
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                text = shards_(cmd, 'per-table')
+                self.assertEqual(None, text)
+                self.assertEqual(expected, output.getvalue())
+
+
+    def test_shards_command_output_wrong_argument(self):
+        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
+            shards_ = cmd.commands['shards']
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                cmd.logger = ColorPrinter(False, stream=output)
+                text = shards_(cmd, 'arg1', 'arg2')
+                self.assertEqual(None, text)
+                self.assertEqual('Command argument not supported (available options: `overview`, `per-table`).\n', output.getvalue())
+
+
+
+class ShardsCommandWithContentTest(TestCase):
+    def tearDown(self):
+        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
+            cmd.process('DROP TABLE IF EXISTS test_table;')
+
+    def setUp(self):
+        node.reset()
+        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
+            cmd.process('CREATE TABLE test_table (id INTEGER PRIMARY KEY, data STRING ) CLUSTERED INTO 10 SHARDS WITH (number_of_replicas = 0);\n')
+
+    # the line count: 3 borders, 1 header and 1 aggregated row.
+    EXPECTED_LINES = 5
+
+    def test_shards_command_output_default(self):
+        expected_columns = ['state', 'primary', 'shard_count', 'num_docs', 'size_gb']
+        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
+            shards_ = cmd.commands['shards']
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                text = shards_(cmd)
+                self.assertEqual(None, text)
+                output_lines = output.getvalue().splitlines()
+                self.assertEqual(self.EXPECTED_LINES, len(output_lines))
+                columns = [word.strip() for word in output_lines[1].strip('|').split('|')]
+                self.assertEqual(expected_columns, columns)
+
+    def test_shards_command_output_per_table(self):
+        expected_columns = [
+            'schema_name', 'table_name', 'partition_ident', 'total_shards',
+            'total_size', 'relocating_shards', 'relocating_size', 'relocated_percent',
+        ]
+        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
+            shards_ = cmd.commands['shards']
+            with patch('sys.stdout', new_callable=StringIO) as output:
+                text = shards_(cmd, 'per-table')
+                self.assertEqual(None, text)
+                output_lines = output.getvalue().splitlines()
+                self.assertEqual(self.EXPECTED_LINES, len(output_lines))
+                columns = [word.strip() for word in output_lines[1].strip('|').split('|')]
+                self.assertEqual(expected_columns, columns)
 
 setup_logging(level=logging.INFO)

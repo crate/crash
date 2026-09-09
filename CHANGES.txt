@@ -5,6 +5,8 @@ Changes for crash
 Unreleased
 ==========
 
+- Added ``\shards`` to show shard relocation progress. With optional argument ``info``.
+
 - Fixed an ``IndexError`` crash when submitting a statement that contains only
   semicolons, whitespace or comments. Such statements are now ignored.
 - Added support for ``https://`` and ``http://`` when connecting to CrateDB.

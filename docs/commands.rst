@@ -56,6 +56,15 @@ Every command starts with a ``\`` character.
 | ``\r <FILENAME>``      | Reads statements from ``<FILENAME>`` and execute    |
 |                        | them.                                               |
 +------------------------+-----------------------------------------------------+
+| ``\shards [MODE]``     | Shows the cluster's shard information. Either as    |
+|                        | as global overview or per-table.                    |
+|                        |                                                     |
+|                        | ``MODE`` can be one of the following:               |
+|                        |                                                     |
+|                        | - not set (defaults to ``overview``)                |
+|                        | - ``overview`` (grouped by shard state)             |
+|                        | - ``per-table`` (grouped by table)                  |
++------------------------+-----------------------------------------------------+
 | ``\sysinfo``           | Query the ``sys`` tables for system and cluster     |
 |                        | information.                                        |
 +------------------------+-----------------------------------------------------+

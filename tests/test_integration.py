@@ -939,35 +939,52 @@ class ShardsCommandWithContentTest(TestCase):
         node.reset()
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             cmd.process('CREATE TABLE test_table (id INTEGER PRIMARY KEY, data STRING ) CLUSTERED INTO 10 SHARDS WITH (number_of_replicas = 0);\n')
+            cmd.process("INSERT INTO test_table (id, data) VALUES (1, 'a'), (2, 'b'), (3, 'c');")
+            cmd.process('REFRESH TABLE test_table;')
 
     # the line count: 3 borders, 1 header and 1 aggregated row.
     EXPECTED_LINES = 5
 
-    def test_shards_command_output_default(self):
-        expected_columns = ['state', 'primary', 'shard_count', 'num_docs', 'size_gb']
+    def _run(self, *args):
+        """Run the command and return its rendered header and single data row."""
+
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             shards_ = cmd.commands['shards']
             with patch('sys.stdout', new_callable=StringIO) as output:
-                text = shards_(cmd)
-                self.assertEqual(None, text)
-                output_lines = output.getvalue().splitlines()
-                self.assertEqual(self.EXPECTED_LINES, len(output_lines))
-                columns = [word.strip() for word in output_lines[1].strip('|').split('|')]
-                self.assertEqual(expected_columns, columns)
+                self.assertEqual(None, shards_(cmd, *args))
+        output_lines = output.getvalue().splitlines()
+        self.assertEqual(self.EXPECTED_LINES, len(output_lines))
+        cells = [[word.strip() for word in output_lines[i].strip('|').split('|')]
+                 for i in (1, 3)]
+        return cells[0], cells[1]
+
+    def test_shards_command_output_default(self):
+        columns, row = self._run()
+        self.assertEqual(
+            ['state', 'primary', 'shard_count', 'num_docs', 'size_gb'], columns)
+        state, primary, shard_count, num_docs, size_gb = row
+        self.assertEqual('STARTED', state)
+        self.assertEqual('TRUE', primary)
+        self.assertEqual("10", shard_count)
+        self.assertEqual("3", num_docs)
+        self.assertGreater(float(size_gb), 0)
 
     def test_shards_command_output_per_table(self):
-        expected_columns = [
+        columns, row = self._run('per-table')
+        self.assertEqual([
             'schema_name', 'table_name', 'partition_ident', 'total_shards',
             'total_size', 'relocating_shards', 'relocating_size', 'relocated_percent',
-        ]
-        with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
-            shards_ = cmd.commands['shards']
-            with patch('sys.stdout', new_callable=StringIO) as output:
-                text = shards_(cmd, 'per-table')
-                self.assertEqual(None, text)
-                output_lines = output.getvalue().splitlines()
-                self.assertEqual(self.EXPECTED_LINES, len(output_lines))
-                columns = [word.strip() for word in output_lines[1].strip('|').split('|')]
-                self.assertEqual(expected_columns, columns)
+        ], columns)
+        (schema_name, table_name, partition_ident, total_shards, total_size,
+         relocating_shards, relocating_size, relocated_percent) = row
+        self.assertEqual('doc', schema_name)
+        self.assertEqual('test_table', table_name)
+        self.assertEqual('', partition_ident)
+        self.assertEqual("10", total_shards)
+        self.assertGreater(int(total_size), 0)
+        self.assertEqual('0', relocating_shards)
+        self.assertEqual('NULL', relocating_size)
+        self.assertEqual('100.0', relocated_percent)
+
 
 setup_logging(level=logging.INFO)

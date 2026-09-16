@@ -32,7 +32,7 @@ requirements = [
     'platformdirs<5',
     'prompt-toolkit>=3.0,<4',
     'tabulate>=0.9,<0.10',
-    'sqlparse>=0.4.4,<0.6.0',
+    'sqlparse>=0.4.4,<0.7.0',
     'verlib2<26.3',
 ]
 
@@ -84,7 +84,7 @@ setup(
         devel=[
             'coverage<8',
             'flake8<8',
-            'isort<8',
+            'isort<10',
         ],
         argcompletion=['argcomplete']
     ),

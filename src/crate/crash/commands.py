@@ -234,13 +234,85 @@ class CheckCommand(Command):
             cmd.logger.warn('No check for {}'.format(check_name))
 
 
+class ShardsCommand(Command):
+    """shows shards overview, optionally per table, e.g. \\shards per-table"""
+
+    OVERVIEW_STMT = """
+        SELECT
+            state,
+            primary,
+            COUNT(*)
+                AS shard_count,
+            SUM(num_docs)
+                AS num_docs,
+            SUM(size) / 1073741824.0
+                AS size_gb
+        FROM sys.shards
+        GROUP BY state, primary
+        ORDER BY state, primary;
+    """
+
+    INFO_STMT = """
+        SELECT
+            schema_name,
+            table_name,
+            partition_ident,
+            COUNT(*)
+                AS total_shards,
+            SUM(size)
+                As total_size,
+            COUNT(*) FILTER (WHERE routing_state = 'RELOCATING')
+                AS relocating_shards,
+            SUM(size) FILTER (WHERE routing_state = 'RELOCATING')
+                AS relocating_size,
+            100.0 * SUM(size) FILTER(WHERE routing_state != 'RELOCATING') / SUM(size)
+                AS relocated_percent
+        FROM sys.shards
+        WHERE routing_state != 'UNASSIGNED'
+        GROUP BY schema_name, table_name, partition_ident
+        ORDER BY relocated_percent, schema_name, table_name, partition_ident;
+    """
+
+    OPTIONS = {
+        "overview": OVERVIEW_STMT,
+        "per-table": INFO_STMT,
+    }
+
+    def complete(self, cmd, text):
+        return (i for i in self.OPTIONS if i.startswith(text) or text.isspace())
+
+    def execute(self, cmd, stmt):
+        success = cmd._exec(stmt)
+        cmd.exit_code = cmd.exit_code or int(not success)
+        if not success:
+            cmd.logger.warn("FAILED")
+            return False
+
+        cur = cmd.cursor
+        shards = cur.fetchall()
+        cmd.pprint(shards, [c[0] for c in cur.description])
+        return True
+
+    def __call__(self, cmd, *args, **kwargs):
+        if len(args) == 0:
+            self.execute(cmd, self.OVERVIEW_STMT)
+            return
+
+        stmt = self.OPTIONS.get(args[0].strip())
+        if stmt:
+            self.execute(cmd, stmt)
+        else:
+            cmd.logger.critical(f'Command argument not supported (available options: {", ".join(f"`{_a}`" for _a in self.OPTIONS.keys())}).')
+
+
 built_in_commands = {
-    '?': HelpCommand(),
-    'r': ReadFileCommand(),
-    'format': SwitchFormatCommand(),
-    'autocomplete': ToggleAutocompleteCommand(),
-    'autocapitalize': ToggleAutoCapitalizeCommand(),
-    'verbose': ToggleVerboseCommand(),
-    'check': CheckCommand(),
-    'pager': SetPager(),
+    "?": HelpCommand(),
+    "r": ReadFileCommand(),
+    "format": SwitchFormatCommand(),
+    "autocomplete": ToggleAutocompleteCommand(),
+    "autocapitalize": ToggleAutoCapitalizeCommand(),
+    "verbose": ToggleVerboseCommand(),
+    "check": CheckCommand(),
+    "pager": SetPager(),
+    "shards": ShardsCommand(),
 }

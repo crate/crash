@@ -1,5 +1,11 @@
+import logging
+import os
+import sys
+import warnings
+from typing import Optional
 from unittest.mock import Mock
 
+from testcontainers.community.cratedb import CrateDBContainer
 from verlib2 import Version
 
 from crate.client.cursor import Cursor
@@ -47,3 +53,78 @@ def fake_connect():
         connection.cursor.return_value = cursor
         return connection
     return Mock(name='fake_connect', side_effect=make_connection)
+
+
+def setup_logging(level=logging.INFO, verbose: bool = False):
+    log_format = "%(asctime)-15s [%(name)-26s] %(levelname)-8s: %(message)s"
+    logging.basicConfig(format=log_format, stream=sys.stderr, level=level)
+
+
+class CrateDBTestAdapter:
+    """
+    A little helper wrapping Testcontainer's `CrateDBContainer`.
+    """
+
+    def __init__(self, crate_version: str = "nightly", **kwargs) -> None:
+        self.cratedb: Optional[CrateDBContainer] = None
+        self.image: str = "crate/crate:{}".format(crate_version)
+
+    def start(self, **kwargs) -> None:
+        """
+        Start container, used for tests set up
+        """
+        self.cratedb = CrateDBContainer(image=self.image, **kwargs)
+        self.cratedb.start()
+
+    def stop(self) -> None:
+        """
+        Stop container, used for tests tear down
+        """
+        if self.cratedb:
+            self.cratedb.stop()
+
+    def reset(self, tables: Optional[list] = None, schemas: Optional[list] = None) -> None:
+        """
+        Drop tables from the given list, used for tests set up or tear down
+        """
+        import sqlalchemy as sa
+        engine = sa.create_engine(self.cratedb.get_connection_url())
+        with engine.begin() as connection:
+            if schemas:
+                has_drop_schema_cascade = True
+                if "CRATEDB_VERSION" in os.environ:
+                    cratedb_version = os.environ["CRATEDB_VERSION"]
+                    if cratedb_version != "nightly" and Version(cratedb_version) < Version("6.2"):
+                        warnings.warn("CrateDB earlier than 6.2 does not support DROP SCHEMA ... CASCADE")
+                        has_drop_schema_cascade = False
+                if has_drop_schema_cascade:
+                    for reset_schema in schemas:
+                        connection.exec_driver_sql(
+                            f'DROP SCHEMA IF EXISTS {reset_schema} CASCADE;'
+                        )
+            if tables:
+                for reset_table in tables:
+                    connection.exec_driver_sql(
+                        f"DROP TABLE IF EXISTS {reset_table};"
+                    )
+
+    def get_connection_url(self, *args, **kwargs) -> str:
+        """
+        Return a URL for SQLAlchemy DB engine
+        """
+        return self.cratedb.get_connection_url(*args, **kwargs)
+
+    def get_http_url(self, **kwargs) -> str:
+        """
+        Return a URL for CrateDB's HTTP endpoint
+        """
+        return self.get_connection_url(**kwargs).replace("crate://", "http://")
+
+    @property
+    def http_url(self) -> str:
+        """
+        Return a URL for CrateDB's HTTP endpoint.
+
+        Used to stay backward compatible with the downstream code.
+        """
+        return self.get_http_url()

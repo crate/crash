@@ -9,6 +9,8 @@ Unreleased
 
 - Fixed an ``IndexError`` crash when submitting a statement that contains only
   semicolons, whitespace or comments. Such statements are now ignored.
+- Fixed a stall in the interactive REPL when a statement ends with a
+  trailing comment, e.g. ``select 42; -- foo``.
 - Added support for ``https://`` and ``http://`` when connecting to CrateDB.
 
 2026/02/09 0.32.0

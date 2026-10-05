@@ -717,29 +717,30 @@ class CommandTest(TestCase):
         timeout = 0.1
         slow_query = "SELECT fib(35)"
 
-        # without verbose
+        # Both shells connect before the first slow query, so only the queries meet the timeout.
         with CrateShell(crate_hosts=[node.http_url],
                         error_trace=False,
-                        timeout=timeout) as crash:
+                        timeout=timeout) as crash, \
+                CrateShell(crate_hosts=[node.http_url],
+                           error_trace=True,
+                           timeout=timeout) as verbose_crash:
+            # without verbose
             crash.logger = Mock()
             crash.process(slow_query)
             crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
-        # with verbose
-        with CrateShell(crate_hosts=[node.http_url],
-                        error_trace=True,
-                        timeout=timeout) as crash:
-            crash.logger = Mock()
-            crash.process(slow_query)
+            # with verbose
+            verbose_crash.logger = Mock()
+            verbose_crash.process(slow_query)
 
             # Get randomly generated host port bound to the predefined HTTP Interface port inside container
             node.cratedb._container.reload()
             host_port = node.cratedb._container.ports.get("{}/tcp".format(EntrypointOpts.http_port), [])[0].get("HostPort")
 
-            crash.logger.warn.assert_any_call(
+            verbose_crash.logger.warn.assert_any_call(
                 "No more Servers available, exception from last server: "
                 "HTTPConnectionPool(host='localhost', port={}): Read timed out. (read timeout=0.1)".format(host_port))
-            crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
+            verbose_crash.logger.warn.assert_any_call("Use \\connect <server> to connect to one or more servers first.")
 
     def test_username_param(self):
         with CrateShell(crate_hosts=[node.http_url],

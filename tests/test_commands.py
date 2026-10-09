@@ -21,10 +21,9 @@
 
 import os
 import shutil
-import sys
 import tempfile
 import textwrap
-from unittest import SkipTest, TestCase
+from unittest import TestCase
 from unittest.mock import MagicMock, Mock, call, patch
 
 from verlib2 import Version
@@ -299,9 +298,6 @@ comment */ 4;
         ])
 
     def test_js_comments(self):
-        if sys.version_info < (3, 8):
-            raise SkipTest("Test case does not work on Python 3.7")
-
         sql = """
     CREATE FUNCTION fib(long)
     RETURNS LONG

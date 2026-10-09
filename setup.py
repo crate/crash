@@ -77,8 +77,8 @@ setup(
     extras_require=dict(
         test=[
             'crate[test]>=1.0.0.dev2',
-            'cratedb-toolkit[testing]',
             'sqlalchemy-cratedb',
+            'testcontainers[cratedb]>=4.15,<5',
             'zc.customdoctests<2',
         ],
         devel=[
@@ -88,7 +88,7 @@ setup(
         ],
         argcompletion=['argcomplete']
     ),
-    python_requires='>=3.7',
+    python_requires='>=3.10',
     install_requires=requirements,
     package_data={'': ['*.txt']},
     classifiers=[
@@ -97,9 +97,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',

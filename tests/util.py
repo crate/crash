@@ -1,6 +1,5 @@
 import logging
 import sys
-import warnings
 from typing import Optional
 from unittest.mock import Mock
 
@@ -66,7 +65,6 @@ class CrateDBTestAdapter:
 
     def __init__(self, crate_version: str = "nightly", **kwargs) -> None:
         self.cratedb: Optional[CrateDBContainer] = None
-        self.crate_version = crate_version
         if crate_version == "nightly":
             self.image = "crate/crate:nightly"
         else:
@@ -85,29 +83,6 @@ class CrateDBTestAdapter:
         """
         if self.cratedb:
             self.cratedb.stop()
-
-    def reset(self, tables: Optional[list] = None, schemas: Optional[list] = None) -> None:
-        """
-        Drop tables from the given list, used for tests set up or tear down
-        """
-        import sqlalchemy as sa
-        engine = sa.create_engine(self.cratedb.get_connection_url())
-        with engine.begin() as connection:
-            if schemas:
-                has_drop_schema_cascade = True
-                if self.crate_version != "nightly" and Version(self.crate_version) < Version("6.3"):
-                    warnings.warn("CrateDB earlier than 6.3 does not support DROP SCHEMA ... CASCADE")
-                    has_drop_schema_cascade = False
-                if has_drop_schema_cascade:
-                    for reset_schema in schemas:
-                        connection.exec_driver_sql(
-                            f'DROP SCHEMA IF EXISTS {reset_schema} CASCADE;'
-                        )
-            if tables:
-                for reset_table in tables:
-                    connection.exec_driver_sql(
-                        f"DROP TABLE IF EXISTS {reset_table};"
-                    )
 
     def get_connection_url(self, *args, **kwargs) -> str:
         """

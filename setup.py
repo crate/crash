@@ -78,7 +78,7 @@ setup(
         test=[
             'crate[test]>=1.0.0.dev2',
             'sqlalchemy-cratedb',
-            'testcontainers[cratedb]>=4.15',
+            'testcontainers[cratedb]>=4.15,<5',
             'zc.customdoctests<2',
         ],
         devel=[

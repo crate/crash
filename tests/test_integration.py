@@ -56,10 +56,8 @@ def setUpModule():
     options = {
         "cluster.name": "Testing0815",
         "node.name": "crate",
-        "lang.js.enabled": True,
     }
     node.start(cmd_opts=list(options.items()))
-    node.reset(schemas=["test"])
 
 
 def tearDownModule():
@@ -104,9 +102,6 @@ class DocumentationTest(TestCase):
 
 
 class CommandTest(TestCase):
-    def setUp(self):
-        node.reset(schemas=["test"])
-
     def _output_format(self, format, func, query="select name from sys.cluster"):
         orig_argv = sys.argv[:]
         try:
@@ -718,8 +713,7 @@ class CommandTest(TestCase):
             verbose_crash.process(slow_query)
 
             # Get randomly generated host port bound to the predefined HTTP Interface port inside container
-            node.cratedb._container.reload()
-            host_port = node.cratedb._container.ports["4200/tcp"][0].get("HostPort")
+            host_port = node.cratedb.get_exposed_port(4200)
 
             verbose_crash.logger.warn.assert_any_call(
                 "No more Servers available, exception from last server: "
@@ -858,9 +852,6 @@ class CommandTest(TestCase):
 
 
 class ShardsCommandEmptyDBTest(TestCase):
-    def setUp(self):
-        node.reset()
-
     def test_shards_command_output_default(self):
         expected = '\n'.join([
             '+-------+---------+-------------+----------+---------+',
@@ -921,7 +912,6 @@ class ShardsCommandWithContentTest(TestCase):
             cmd.process('DROP TABLE IF EXISTS test_table;')
 
     def setUp(self):
-        node.reset()
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             cmd.process('CREATE TABLE test_table (id INTEGER PRIMARY KEY, data STRING ) CLUSTERED INTO 10 SHARDS WITH (number_of_replicas = 0);\n')
             cmd.process("INSERT INTO test_table (id, data) VALUES (1, 'a'), (2, 'b'), (3, 'c');")

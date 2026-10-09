@@ -49,7 +49,7 @@ if _skip_tests_in_ci():
     raise SkipTest("Platform is not supported")
 
 
-node = CrateDBTestAdapter(crate_version=os.getenv("CRATEDB_VERSION", "6.3.3"))
+node = CrateDBTestAdapter(crate_version=os.getenv("CRATEDB_VERSION", "6.4.5"))
 
 
 def setUpModule():

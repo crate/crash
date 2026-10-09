@@ -11,6 +11,8 @@ Unreleased
   semicolons, whitespace or comments. Such statements are now ignored.
 - Added support for ``https://`` and ``http://`` when connecting to CrateDB.
 
+- Dropped support for Python 3.7, 3.8 and 3.9.
+
 2026/02/09 0.32.0
 =================
 

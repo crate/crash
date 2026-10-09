@@ -50,7 +50,6 @@ Running Tests
 
 The tests are run using the `unittest`_ module::
 
-    export TESTCONTAINERS_RYUK_DISABLED=true
     python -m unittest -v
 
 In order to adjust the CrateDB version used for running the tests, amend the

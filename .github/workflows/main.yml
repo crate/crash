@@ -27,7 +27,7 @@ jobs:
       matrix:
         os: ['ubuntu-22.04']
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
-        cratedb-version: ['4.8.4', '5.10.16', '6.3.3']
+        cratedb-version: ['4.8.4', '5.10.16', '6.4.5']
         include:
 
           # A single slot for testing CrateDB nightly.
@@ -38,12 +38,12 @@ jobs:
           # A single slot for testing macOS.
           - os: 'macos-latest'
             python-version: '3.14'
-            cratedb-version: '6.3.3'
+            cratedb-version: '6.4.5'
 
           # A single slot for testing Windows.
           - os: 'windows-latest'
             python-version: '3.14'
-            cratedb-version: '6.3.3'
+            cratedb-version: '6.4.5'
 
     env:
       OS: ${{ matrix.os }}

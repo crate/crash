@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 import warnings
 from typing import Optional
@@ -55,7 +54,7 @@ def fake_connect():
     return Mock(name='fake_connect', side_effect=make_connection)
 
 
-def setup_logging(level=logging.INFO, verbose: bool = False):
+def setup_logging(level=logging.INFO):
     log_format = "%(asctime)-15s [%(name)-26s] %(levelname)-8s: %(message)s"
     logging.basicConfig(format=log_format, stream=sys.stderr, level=level)
 
@@ -67,7 +66,11 @@ class CrateDBTestAdapter:
 
     def __init__(self, crate_version: str = "nightly", **kwargs) -> None:
         self.cratedb: Optional[CrateDBContainer] = None
-        self.image: str = "crate/crate:{}".format(crate_version)
+        self.crate_version = crate_version
+        if crate_version == "nightly":
+            self.image = "crate/crate:nightly"
+        else:
+            self.image = "crate:{}".format(crate_version)
 
     def start(self, **kwargs) -> None:
         """
@@ -92,11 +95,9 @@ class CrateDBTestAdapter:
         with engine.begin() as connection:
             if schemas:
                 has_drop_schema_cascade = True
-                if "CRATEDB_VERSION" in os.environ:
-                    cratedb_version = os.environ["CRATEDB_VERSION"]
-                    if cratedb_version != "nightly" and Version(cratedb_version) < Version("6.2"):
-                        warnings.warn("CrateDB earlier than 6.2 does not support DROP SCHEMA ... CASCADE")
-                        has_drop_schema_cascade = False
+                if self.crate_version != "nightly" and Version(self.crate_version) < Version("6.3"):
+                    warnings.warn("CrateDB earlier than 6.3 does not support DROP SCHEMA ... CASCADE")
+                    has_drop_schema_cascade = False
                 if has_drop_schema_cascade:
                     for reset_schema in schemas:
                         connection.exec_driver_sql(
@@ -114,17 +115,9 @@ class CrateDBTestAdapter:
         """
         return self.cratedb.get_connection_url(*args, **kwargs)
 
-    def get_http_url(self, **kwargs) -> str:
-        """
-        Return a URL for CrateDB's HTTP endpoint
-        """
-        return self.get_connection_url(**kwargs).replace("crate://", "http://")
-
     @property
     def http_url(self) -> str:
         """
-        Return a URL for CrateDB's HTTP endpoint.
-
-        Used to stay backward compatible with the downstream code.
+        Return a URL for CrateDB's HTTP endpoint
         """
-        return self.get_http_url()
+        return self.get_connection_url().replace("crate://", "http://")

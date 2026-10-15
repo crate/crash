@@ -1,5 +1,9 @@
+import logging
+import sys
+from typing import Optional
 from unittest.mock import Mock
 
+from testcontainers.community.cratedb import CrateDBContainer
 from verlib2 import Version
 
 from crate.client.cursor import Cursor
@@ -47,3 +51,48 @@ def fake_connect():
         connection.cursor.return_value = cursor
         return connection
     return Mock(name='fake_connect', side_effect=make_connection)
+
+
+def setup_logging(level=logging.INFO):
+    log_format = "%(asctime)-15s [%(name)-26s] %(levelname)-8s: %(message)s"
+    logging.basicConfig(format=log_format, stream=sys.stderr, level=level)
+
+
+class CrateDBTestAdapter:
+    """
+    A little helper wrapping Testcontainer's `CrateDBContainer`.
+    """
+
+    def __init__(self, crate_version: str = "nightly", **kwargs) -> None:
+        self.cratedb: Optional[CrateDBContainer] = None
+        if crate_version == "nightly":
+            self.image = "crate/crate:nightly"
+        else:
+            self.image = "crate:{}".format(crate_version)
+
+    def start(self, **kwargs) -> None:
+        """
+        Start container, used for tests set up
+        """
+        self.cratedb = CrateDBContainer(image=self.image, **kwargs)
+        self.cratedb.start()
+
+    def stop(self) -> None:
+        """
+        Stop container, used for tests tear down
+        """
+        if self.cratedb:
+            self.cratedb.stop()
+
+    def get_connection_url(self, *args, **kwargs) -> str:
+        """
+        Return a URL for SQLAlchemy DB engine
+        """
+        return self.cratedb.get_connection_url(*args, **kwargs)
+
+    @property
+    def http_url(self) -> str:
+        """
+        Return a URL for CrateDB's HTTP endpoint
+        """
+        return self.get_connection_url().replace("crate://", "http://")

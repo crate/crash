@@ -8,8 +8,6 @@ from io import StringIO, TextIOWrapper
 from unittest import SkipTest, TestCase
 from unittest.mock import Mock, patch
 
-from cratedb_toolkit.testing.testcontainers.cratedb import CrateDBTestAdapter
-from cratedb_toolkit.util.common import setup_logging
 from urllib3.exceptions import LocationParseError
 
 from crate.client.exceptions import ProgrammingError
@@ -26,6 +24,7 @@ from crate.crash.commands import Command
 from crate.crash.outputs import _val_len as val_len
 from crate.crash.printer import ColorPrinter
 from tests import ftouch
+from tests.util import CrateDBTestAdapter, setup_logging
 
 logger = logging.getLogger(__name__)
 
@@ -50,32 +49,15 @@ if _skip_tests_in_ci():
     raise SkipTest("Platform is not supported")
 
 
-class EntrypointOpts:
-    version = os.getenv("CRATEDB_VERSION", "5.4.5")
-    psql_port = 45441
-    http_port = 44209
-    transport_port = 44309
-    settings = {
-        "cluster.name": "Testing44209",
-        "node.name": "crate",
-        "lang.js.enabled": True,
-        "psql.port": psql_port,
-        "http.port": http_port,
-        "transport.tcp.port": transport_port,
-    }
-
-
-node = CrateDBTestAdapter(crate_version=EntrypointOpts.version)
+node = CrateDBTestAdapter(crate_version=os.getenv("CRATEDB_VERSION", "6.4.5"))
 
 
 def setUpModule():
-    node.start(
-        cmd_opts=EntrypointOpts.settings,
-        # all ports inside container to be bound to the randomly generated ports on the host
-        ports={EntrypointOpts.http_port: None,
-               EntrypointOpts.psql_port: None,
-               EntrypointOpts.transport_port: None})
-    node.reset()
+    options = {
+        "cluster.name": "Testing0815",
+        "node.name": "crate",
+    }
+    node.start(cmd_opts=list(options.items()))
 
 
 def tearDownModule():
@@ -120,9 +102,6 @@ class DocumentationTest(TestCase):
 
 
 class CommandTest(TestCase):
-    def setUp(self):
-        node.reset()
-
     def _output_format(self, format, func, query="select name from sys.cluster"):
         orig_argv = sys.argv[:]
         try:
@@ -154,8 +133,8 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertIn('| name         |', output)
-            self.assertIn('| Testing44209 |', output)
+            self.assertIn('| name        |', output)
+            self.assertIn('| Testing0815 |', output)
         self._output_format('tabular', assert_func)
 
     def test_json_output(self):
@@ -163,7 +142,7 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertIn('"name": "Testing44209"', output)
+            self.assertIn('"name": "Testing0815"', output)
         self._output_format('json', assert_func)
 
     def test_json_row_output(self):
@@ -183,7 +162,7 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertIn("""crate,'{"http": 44209, "psql": 45441, "transport": 44309}'""", output)
+            self.assertIn("""crate,'{"http": 4200, "psql": 5432, "transport": 4300}'""", output)
 
         self._output_format('csv', assert_func, query)
 
@@ -214,7 +193,7 @@ class CommandTest(TestCase):
             exception_code = e.code
             self.assertEqual(exception_code, 0)
             output = output.getvalue()
-            self.assertIn("name | Testing44209", output)
+            self.assertIn("name | Testing0815", output)
         self._output_format('mixed', assert_func)
 
     def test_pprint_duplicate_keys(self):
@@ -734,8 +713,7 @@ class CommandTest(TestCase):
             verbose_crash.process(slow_query)
 
             # Get randomly generated host port bound to the predefined HTTP Interface port inside container
-            node.cratedb._container.reload()
-            host_port = node.cratedb._container.ports.get("{}/tcp".format(EntrypointOpts.http_port), [])[0].get("HostPort")
+            host_port = node.cratedb.get_exposed_port(4200)
 
             verbose_crash.logger.warn.assert_any_call(
                 "No more Servers available, exception from last server: "
@@ -822,7 +800,7 @@ class CommandTest(TestCase):
                         schema='test') as crash:
             self.assertEqual(crash.connect_info.user, "crate")
             self.assertEqual(crash.connect_info.schema, "test")
-            self.assertEqual(crash.connect_info.cluster, "Testing44209")
+            self.assertEqual(crash.connect_info.cluster, "Testing0815")
 
             with patch.object(
                 crash.cursor,
@@ -835,7 +813,7 @@ class CommandTest(TestCase):
                 crash._fetch_session_info()
                 self.assertEqual(crash.connect_info.user, None)
                 self.assertEqual(crash.connect_info.schema, "test")
-                self.assertEqual(crash.connect_info.cluster, "Testing44209")
+                self.assertEqual(crash.connect_info.cluster, "Testing0815")
 
             with patch.object(
                 crash.cursor,
@@ -874,9 +852,6 @@ class CommandTest(TestCase):
 
 
 class ShardsCommandEmptyDBTest(TestCase):
-    def setUp(self):
-        node.reset()
-
     def test_shards_command_output_default(self):
         expected = '\n'.join([
             '+-------+---------+-------------+----------+---------+',
@@ -937,7 +912,6 @@ class ShardsCommandWithContentTest(TestCase):
             cmd.process('DROP TABLE IF EXISTS test_table;')
 
     def setUp(self):
-        node.reset()
         with CrateShell(crate_hosts=[node.http_url], is_tty=False) as cmd:
             cmd.process('CREATE TABLE test_table (id INTEGER PRIMARY KEY, data STRING ) CLUSTERED INTO 10 SHARDS WITH (number_of_replicas = 0);\n')
             cmd.process("INSERT INTO test_table (id, data) VALUES (1, 'a'), (2, 'b'), (3, 'c');")
